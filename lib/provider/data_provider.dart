@@ -1,157 +1,220 @@
-import 'package:flutter/material.dart';
-import 'package:water_reminder/models/record_model.dart';
+import 'package:flutter/foundation.dart';
+import 'package:water_reminder/boxes.dart';
+import 'package:water_reminder/models/bed_time.dart';
+import 'package:water_reminder/models/chart_data_model.dart';
+import 'package:water_reminder/models/cup.dart';
+import 'package:water_reminder/models/drunk_amount.dart';
+import 'package:water_reminder/models/gender.dart';
+import 'package:water_reminder/models/intake_goal.dart';
+import 'package:water_reminder/models/record.dart';
+import 'package:water_reminder/models/schedule_record.dart';
+import 'package:water_reminder/models/sound.dart';
+import 'package:water_reminder/models/unit.dart';
+import 'package:water_reminder/models/wakeup_time.dart';
+import 'package:water_reminder/models/weight.dart';
 
 class DataProvider extends ChangeNotifier {
-  /// Reminder Mode
-  late int _reminderMode = 0;
-  set setReminderMode(int mode) {
-    _reminderMode = mode;
+  /// Reminder schedule
+  set addScheduleRecord(ScheduleRecord scheduleRecord) {
+    final scheduleRecords = Boxes.getScheduleRecords();
+    scheduleRecords.add(scheduleRecord);
     notifyListeners();
   }
 
-  get getReminderMode => _reminderMode;
-
-  /// Weight unit
-  late bool _weightUnit = false;
-  set setWeightUnit(bool weightUnit) {
-    _weightUnit = weightUnit;
+  editScheduleRecord(int index, ScheduleRecord scheduleRecord) {
+    final scheduleRecords = Boxes.getScheduleRecords();
+    scheduleRecords.putAt(index, scheduleRecord);
     notifyListeners();
   }
 
-  get getWeightUnit => _weightUnit;
-
-  /// Capacity unit
-  late bool _capacityUnit = false;
-
-  set setCapacityUnit(bool capacityUnit) {
-    _capacityUnit = capacityUnit;
+  set deleteScheduleRecord(int index) {
+    final scheduleRecords = Boxes.getScheduleRecords();
+    scheduleRecords.deleteAt(index);
     notifyListeners();
   }
 
-  get getCapacityUnit => _capacityUnit;
+  get getScheduleRecords => Boxes.getScheduleRecords().values.toList();
+
+  /// Reminder sound
+  set setSoundValue(int soundValue) {
+    final box = Boxes.getSoundValue();
+    box.put('soundValue', Sound(soundValue: soundValue));
+    notifyListeners();
+  }
+
+  get getSoundValue => Boxes.getSoundValue().get('soundValue')!.soundValue;
+
+  /// Weight unit 0 = kg, 1 = lbs
+  /// Capacity unit 0 = ml, 1 = fl oz
+  setUnit(int weightUnit, int capacityUnit) {
+    final box = Boxes.getUnits();
+    box.put('unit', Unit(weightUnit: weightUnit, capacityUnit: capacityUnit));
+    notifyListeners();
+  }
+
+  get getWeightUnit => Boxes.getUnits().get('unit')!.weightUnit;
+  get getCapacityUnit => Boxes.getUnits().get('unit')!.capacityUnit;
 
   /// Intake goal
-  late double _intakeGoal = 2030;
-  set setIntakeGoal(double intakeGoal) {
-    _intakeGoal = intakeGoal;
+  set setIntakeGoalAmount(double intakeGoalAmount) {
+    final box = Boxes.getIntakeGoal();
+    box.put('intakeGoal', IntakeGoal(intakeGoalAmount: intakeGoalAmount));
     notifyListeners();
   }
 
-  get getIntakeGoal => _intakeGoal;
+  get getIntakeGoalAmount => getCapacityUnit == 0
+      ? Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount
+      : Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount / 29.574;
 
-  /// Gender
-  late bool _gender = false;
-  set setGender(bool gender) {
-    _gender = gender;
+  /// Gender 0 = male, 1 = female
+  set setGender(int genderValue) {
+    final box = Boxes.getGender();
+    box.put('gender', Gender(gender: genderValue));
     notifyListeners();
   }
 
-  get getGender => _gender;
+  get getGender => Boxes.getGender().get('gender')!.gender;
 
   /// Weight
-  late int _weight = 65;
-  set setWeight(int weight) {
-    _weight = weight;
+  set setWeight(int weightValue) {
+    final box = Boxes.getWeight();
+    box.put('weight', Weight(weight: weightValue));
     notifyListeners();
   }
 
-  get getWeight => _weight;
+  get getWeight => getWeightUnit == 0
+      ? Boxes.getWeight().get('weight')!.weight
+      : (Boxes.getWeight().get('weight')!.weight * 2.205).toInt();
 
-  /// Wake-up time hour
-  late int _wakeUpTimeHour = 8;
-
-  set setWakeUpTimeHour(int hour) {
-    _wakeUpTimeHour = hour;
+  /// Wake-up time
+  setWakeUpTime(int hour, int minute) {
+    final box = Boxes.getWakeupTime();
+    box.put('wakeup', WakeupTime(wakeupHour: hour, wakeupMinute: minute));
     notifyListeners();
   }
 
-  get getWakeUpTimeHour => _wakeUpTimeHour;
-
-  /// Wake-up time minute
-  late int _wakeUpTimeMinute = 0;
-
-  set setWakeUpTimeMinute(int minute) {
-    _wakeUpTimeMinute = minute;
-    notifyListeners();
-  }
-
-  get getWakeUpTimeMinute => _wakeUpTimeMinute;
+  get getWakeUpTimeHour => Boxes.getWakeupTime().get('wakeup')!.wakeupHour;
+  get getWakeUpTimeMinute => Boxes.getWakeupTime().get('wakeup')!.wakeupMinute;
 
   /// Bed time hour
-  late int _bedTimeHour = 1;
-
-  set setBedTimeHour(int hour) {
-    _bedTimeHour = hour;
+  setBedTime(int hour, int minute) {
+    final box = Boxes.getBedTime();
+    box.put('bed', BedTime(bedHour: hour, bedMinute: minute));
     notifyListeners();
   }
 
-  get getBedTimeHour => _bedTimeHour;
-
-  /// Wake-up time minute
-  late int _bedTimeMinute = 0;
-
-  set setBedTimeMinute(int minute) {
-    _bedTimeMinute = minute;
-    notifyListeners();
-  }
-
-  get getBedTimeMinute => _bedTimeMinute;
-
-  /// Hide tips
-  late bool _hideTips = false;
-
-  set setHideTips(bool hideTips) {
-    _hideTips = hideTips;
-    notifyListeners();
-  }
-
-  get getHideTips => _hideTips;
+  get getBedTimeHour => Boxes.getBedTime().get('bed')!.bedHour;
+  get getBedTimeMinute => Boxes.getBedTime().get('bed')!.bedMinute;
 
   /// Cup
-  late double _cupCapacity = 175;
 
-  set setCupCapacity(double capacity) {
-    _cupCapacity = capacity;
+  set addCup(Cup cup) {
+    final cups = Boxes.getCups();
+    cups.add(cup);
     notifyListeners();
   }
 
-  get getCupCapacity => _cupCapacity;
+  set setSelectedCup(int index) {
+    final cups = Boxes.getCups();
+
+    for (var cup in cups.values) {
+      if (cup.selected) {
+        cup.selected = false;
+        cup.save();
+      }
+      break;
+    }
+
+    final Cup cup = cups.values.toList()[index];
+    cup.selected = true;
+    cup.save();
+
+    notifyListeners();
+  }
+
+  // get getCups => getCapacityUnit == 0 ? _cupCapacity : _cupCapacity / 29.574;
+  get getCups => Boxes.getCups().values.toList();
+  get getSelectedCup => Boxes.getCups().values.toList().firstWhere((cup) => cup.selected == true);
+  get getSelectedCupIndex =>
+      Boxes.getCups().values.toList().indexWhere((cup) => cup.selected == true);
 
   /// Drunk amount
-  late double _drunkAmount = 0;
-
-  set addDrunkAmount(double drunkAmount) {
-    _drunkAmount += drunkAmount;
-    notifyListeners();
-  }
-
-  set removeDrunkAmount(double drunkAmount) {
-    if ((_drunkAmount - drunkAmount) >= 0) {
-      _drunkAmount -= drunkAmount;
+  set addDrunkAmount(DrunkAmount drunkAmount) {
+    final box = Boxes.getDrunkAmount();
+    if (getDrunkAmount + getSelectedCup.capacity <= getIntakeGoalAmount) {
+      box.put('drunkAmount', drunkAmount);
     }
+
     notifyListeners();
   }
 
-  get getDrunkAmount => _drunkAmount;
-
-  /// Records
-
-  late final List<DrinkRecord> _drinkRecords = [];
-
-  addDrinkRecord(DrinkRecord drinkRecord, {bool forgottenRecord = false}) {
-    forgottenRecord ? _drinkRecords.insert(0, drinkRecord) : _drinkRecords.add(drinkRecord);
+  set removeDrunkAmount(DrunkAmount drunkAmount) {
+    final box = Boxes.getDrunkAmount();
+    box.put('drunkAmount', drunkAmount);
     notifyListeners();
   }
 
-  editDrinkRecord(int index, DrinkRecord drinkRecord) {
-    _drinkRecords[index] = drinkRecord;
+  // set removeDrunkAmount(double drunkAmount) {
+  //   final box=Boxes.getDrunkAmount();
+  //   if ((box.values.toList().cast<DrunkAmount>().first.drunkAmount - drunkAmount) >= 0) {
+  //     _drunkAmount -= drunkAmount;
+  //   }
+  //   notifyListeners();
+  // }
+
+  get getDrunkAmount => Boxes.getDrunkAmount().get('drunkAmount')!.drunkAmount;
+
+  /// Records with hive
+
+  addRecord(Record record, {bool forgottenRecord = false}) {
+    final records = Boxes.getRecords();
+    forgottenRecord ? records.putAt(0, record) : records.add(record);
     notifyListeners();
   }
 
-  set deleteDrinkRecord(int drinkRecordIndex) {
-    _drinkRecords.removeAt(drinkRecordIndex);
+  editRecord(int index, Record record) {
+    final records = Boxes.getRecords();
+    records.putAt(index, record);
     notifyListeners();
   }
 
-  get getDrinkRecords => _drinkRecords;
+  set deleteRecord(int index) {
+    final records = Boxes.getRecords();
+    records.deleteAt(index);
+    notifyListeners();
+  }
+
+  get getRecords => Boxes.getRecords().values.toList();
+
+  /// Chart Data
+  late final List<ChartData> _monthDayChartDataList = [];
+
+  addMonthDayChartData({
+    required int day,
+    required double drunkAmount,
+    required double intakeGoalAmount,
+  }) {
+    final int amountPercent = (drunkAmount * 100) ~/ intakeGoalAmount;
+
+    if (_monthDayChartDataList.isNotEmpty) {
+      for (var monthDay in _monthDayChartDataList) {
+        if (monthDay.x == day) {
+          _monthDayChartDataList.insert(
+            _monthDayChartDataList.indexWhere((element) => element.x == day),
+            ChartData(day, amountPercent),
+          );
+          break;
+        } else {
+          _monthDayChartDataList.add(ChartData(day, amountPercent));
+          break;
+        }
+      }
+    } else {
+      _monthDayChartDataList.add(ChartData(day, amountPercent));
+    }
+
+    notifyListeners();
+  }
+
+  get getMonthDayChartDataList => _monthDayChartDataList;
 }

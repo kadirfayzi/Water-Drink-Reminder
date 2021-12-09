@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:water_reminder/models/cup_model.dart';
+
+import 'models/cup.dart';
 
 const Color kPrimaryColor = Color(0xff2196f3);
 const Color kSecondaryColor = Color(0xffD6EAF8);
@@ -47,13 +48,17 @@ const List<String> kGenderStrings = ['Male', 'Female'];
 
 const List<String> kCupDivisionStrings = ['1/4', '2/4', '3/4', '4/4'];
 
-const List<Cup> kCups = [
-  Cup(100, 'assets/images/cup.png'),
-  Cup(125, 'assets/images/cup.png'),
-  Cup(150, 'assets/images/cup.png'),
-  Cup(175, 'assets/images/cup.png'),
-  Cup(200, 'assets/images/cup.png'),
-  Cup(300, 'assets/images/cup.png'),
-  Cup(400, 'assets/images/cup.png'),
-  Cup(500, 'assets/images/cup.png'),
+List<Cup> kCups = [
+  Cup(capacity: 100, image: 'assets/images/cup.png', selected: true),
+  Cup(capacity: 125, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 150, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 175, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 200, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 250, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 300, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 350, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 400, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 500, image: 'assets/images/cup.png', selected: false),
 ];
+
+const List<String> kSounds = ['Water pouring', 'Water drop 1', 'Water drop 2'];

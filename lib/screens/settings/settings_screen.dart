@@ -15,8 +15,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool switch1 = false;
-  bool switch2 = false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -45,58 +43,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 CupertinoPageRoute(builder: (ctx) => const ReminderSound()),
               ),
             ),
-
-            /// Reminder mode section
-            buildTappableRow(
-              size: size,
-              title: 'Reminder mode',
-              content: Text(
-                kReminderModeStrings[provider.getReminderMode],
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: kPrimaryColor,
-                ),
-              ),
-              contentVisible: true,
-              onTap: () => reminderModePopup(
-                context: context,
-                provider: provider,
-                size: size,
-              ),
-            ),
-
-            /// Further reminder section
-            SwitchListTile(
-              value: switch1,
-              onChanged: (value) => setState(() => switch1 = value),
-              title: const Text(
-                'Further reminder',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-              subtitle: const Text(
-                'Still remind when your goal is achieved',
-                style: TextStyle(fontSize: 12),
-              ),
-              activeColor: kPrimaryColor,
-              activeTrackColor: kSecondaryColor,
-            ),
             const SizedBox(height: 10),
             buildTitle(size: size, title: 'General'),
-
-            /// Remove ADS section
-            buildTappableRow(size: size, title: 'Remove ADS'),
 
             /// Unit section
             buildTappableRow(
               size: size,
               title: 'Unit',
               content: Text(
-                '${kWeightUnitStrings[provider.getWeightUnit ? 1 : 0]}, ${kCapacityUnitStrings[provider.getCapacityUnit ? 1 : 0]}',
+                '${kWeightUnitStrings[provider.getWeightUnit]}, ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -116,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               size: size,
               title: 'Intake goal',
               content: Text(
-                '${(provider.getIntakeGoal).toStringAsFixed(0)} ${kCapacityUnitStrings[provider.getCapacityUnit ? 1 : 0]}',
+                '${(provider.getIntakeGoalAmount).toStringAsFixed(0)} ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -155,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               size: size,
               title: 'Gender',
               content: Text(
-                kGenderStrings[provider.getGender ? 1 : 0],
+                kGenderStrings[provider.getGender],
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -175,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               size: size,
               title: 'Weight',
               content: Text(
-                '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit ? 1 : 0]}',
+                '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -203,8 +158,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               contentVisible: true,
-              onTap: () => wakeUpAndBedTimePopup(
+              onTap: () => wakeupAndBedtimePopup(
                 context: context,
+                size: size,
                 provider: provider,
                 isWakeUp: true,
                 title: 'Wake-up time',
@@ -226,8 +182,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               contentVisible: true,
-              onTap: () => wakeUpAndBedTimePopup(
+              onTap: () => wakeupAndBedtimePopup(
                 context: context,
+                size: size,
                 provider: provider,
                 isWakeUp: false,
                 title: 'Bed time',
@@ -238,34 +195,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 10),
             buildTitle(size: size, title: 'Other'),
 
-            /// Hide tips section
-            SwitchListTile(
-              value: provider.getHideTips,
-              onChanged: (value) => setState(() => provider.setHideTips = value),
-              title: const Text(
-                'Hide tips on how to drink water',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-              activeColor: kPrimaryColor,
-              activeTrackColor: kSecondaryColor,
-            ),
-            buildTappableRow(size: size, title: 'Why does Drink Water Reminder not work?'),
-
             /// Reset data section
             buildTappableRow(size: size, title: 'Reset data'),
 
             /// Feedback section
             buildTappableRow(size: size, title: 'Feedback'),
 
+            /// Rate app section
+            buildTappableRow(size: size, title: 'Rate app'),
+
             /// Share section
-            buildTappableRow(size: size, title: 'Share'),
+            buildTappableRow(size: size, title: 'Share app'),
 
             /// Privacy policy section
             buildTappableRow(size: size, title: 'Privacy policy'),
+            const SizedBox(height: 20),
           ],
         ),
       ));

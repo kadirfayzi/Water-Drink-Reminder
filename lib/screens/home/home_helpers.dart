@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:water_reminder/constants.dart';
-import 'package:water_reminder/models/record_model.dart';
+import 'package:water_reminder/models/drunk_amount.dart';
+import 'package:water_reminder/models/record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/build_dialog.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
@@ -14,9 +15,9 @@ Future<dynamic> editRecordPopup({
   required Size size,
   required int recordIndex,
 }) {
-  int selectedCupDivisionIndex = provider.getDrinkRecords[recordIndex].cupDivisionIndex;
+  int selectedCupDivisionIndex = provider.getRecords[recordIndex].cupDivisionIndex;
 
-  final DrinkRecord record = provider.getDrinkRecords[recordIndex];
+  final Record record = provider.getRecords[recordIndex];
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -26,10 +27,12 @@ Future<dynamic> editRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.45,
           onTapOK: () {
-            provider.removeDrunkAmount = record.dividedCapacity;
-            provider.editDrinkRecord(
+            // provider.removeDrunkAmount = record.dividedCapacity;
+            provider.removeDrunkAmount =
+                DrunkAmount(drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
+            provider.editRecord(
               recordIndex,
-              DrinkRecord(
+              Record(
                 image: 'assets/images/cup.png',
                 time: record.time,
                 defaultAmount: record.defaultAmount,
@@ -37,7 +40,8 @@ Future<dynamic> editRecordPopup({
               ),
             );
 
-            provider.addDrunkAmount = (record.defaultAmount * (selectedCupDivisionIndex + 1)) / 4;
+            // provider.addOrRemoveDrunkAmount =
+            //     (record.defaultAmount * (selectedCupDivisionIndex + 1)) / 4;
 
             Navigator.pop(context);
           },
@@ -126,15 +130,15 @@ Future<dynamic> switchCup({
   required DataProvider provider,
   required Size size,
 }) {
-  double cupCapacityValue = provider.getCupCapacity;
-  int? selectedIndex;
+  debugPrint('${provider.getSelectedCupIndex}');
+  int selectedIndex = provider.getSelectedCupIndex;
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (context) => StatefulBuilder(
       builder: (context, setState) => BuildDialog(
-        heightPercent: 0.55,
+        heightPercent: 0.6,
         content: Column(
           children: [
             const Padding(
@@ -161,22 +165,19 @@ Future<dynamic> switchCup({
                 crossAxisCount: 3,
                 mainAxisSpacing: 20,
                 children: List.generate(
-                  kCups.length,
+                  provider.getCups.length,
                   (index) => InkWell(
-                    onTap: () => setState(() {
-                      cupCapacityValue = kCups[index].capacity;
-                      selectedIndex = index;
-                    }),
+                    onTap: () => setState(() => selectedIndex = index),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Image.asset(
-                          kCups[index].image,
+                          provider.getCups[index].image,
                           scale: 6,
                           color: selectedIndex == index ? null : Colors.grey,
                         ),
                         Text(
-                          '${kCups[index].capacity.toStringAsFixed(0)}ml',
+                          '${provider.getCups[index].capacity.toStringAsFixed(0)}ml',
                         )
                       ],
                     ),
@@ -187,7 +188,7 @@ Future<dynamic> switchCup({
           ],
         ),
         onTapOK: () {
-          provider.setCupCapacity = cupCapacityValue;
+          provider.setSelectedCup = selectedIndex;
           Navigator.pop(context);
         },
       ),
@@ -213,11 +214,13 @@ Future<dynamic> addForgottenRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.4,
           onTapOK: () {
-            if (provider.getDrunkAmount + waterAmount <= provider.getIntakeGoal) {
-              provider.addDrunkAmount = waterAmount;
+            if (provider.getDrunkAmount + waterAmount <= provider.getIntakeGoalAmount) {
+              provider.addDrunkAmount =
+                  DrunkAmount(drunkAmount: provider.getDrunkAmount + waterAmount);
             }
-            provider.addDrinkRecord(
-              DrinkRecord(
+
+            provider.addRecord(
+              Record(
                 image: 'assets/images/cup.png',
                 time: DateFormat("h:mm a").format(time),
                 defaultAmount: waterAmount,

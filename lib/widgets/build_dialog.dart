@@ -24,9 +24,10 @@ class BuildDialog extends StatelessWidget {
       ),
       child: SizedBox(
         height: size.height * heightPercent,
+        width: size.width,
         child: Column(
           children: [
-            content,
+            Expanded(child: content),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(

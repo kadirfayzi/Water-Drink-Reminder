@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/build_dialog.dart';
-import 'package:water_reminder/widgets/sliding_switch.dart';
 
 /// Build Custom Title For Settings
 Widget buildTitle({
@@ -60,53 +60,17 @@ Widget buildTappableRow({
                 color: Colors.black,
               ),
             ),
-            contentVisible ? content! : const SizedBox(),
+            contentVisible
+                ? content!
+                : const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 15,
+                    color: Colors.grey,
+                  ),
           ],
         ),
       ),
     ),
-  );
-}
-
-/// Reminder mode popup dialog
-Future<dynamic> reminderModePopup({
-  required BuildContext context,
-  required DataProvider provider,
-  required Size size,
-}) {
-  return showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      int selectedIndex = provider.getReminderMode;
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.425,
-          onTapOK: () {
-            Navigator.pop(context);
-            provider.setReminderMode = selectedIndex;
-          },
-          content: SizedBox(
-            height: size.height * 0.375,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                5,
-                (index) => InkWell(
-                  onTap: () => setState(() => selectedIndex = index),
-                  child: SizedBox(
-                    height: size.height * 0.06,
-                    width: size.width * 0.6,
-                    child: buildReminderModeRow(index, selectedIndex),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    },
   );
 }
 
@@ -136,8 +100,8 @@ Future<dynamic> unitPopup({
   required DataProvider provider,
   required Size size,
 }) {
-  bool weightUnitValue = provider.getWeightUnit;
-  bool capacityUnitValue = provider.getCapacityUnit;
+  dynamic weightUnitValue = provider.getWeightUnit;
+  dynamic capacityUnitValue = provider.getCapacityUnit;
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -147,8 +111,7 @@ Future<dynamic> unitPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.3,
           onTapOK: () {
-            provider.setWeightUnit = weightUnitValue;
-            provider.setCapacityUnit = capacityUnitValue;
+            provider.setUnit(weightUnitValue, capacityUnitValue);
             Navigator.pop(context);
           },
           content: Container(
@@ -165,24 +128,46 @@ Future<dynamic> unitPopup({
                   ),
                 ),
                 SizedBox(height: size.height * 0.03),
-                buildUnitRow(
-                  size: size,
-                  title: 'Weight',
-                  switchValue: provider.getWeightUnit,
-                  switchTextLeft: 'kg',
-                  switchTextRight: 'lbs',
-                  value: provider.getWeightUnit,
-                  onChanged: (value) => setState(() => weightUnitValue = value),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Weight',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(
+                      width: size.width * 0.3,
+                      child: CupertinoSlidingSegmentedControl(
+                        groupValue: weightUnitValue,
+                        children: const {0: Text('kg'), 1: Text('lbs')},
+                        onValueChanged: (value) => setState(() => weightUnitValue = value),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: size.height * 0.01),
-                buildUnitRow(
-                  size: size,
-                  title: 'Capacity',
-                  switchValue: provider.getCapacityUnit,
-                  switchTextLeft: 'ml',
-                  switchTextRight: 'fl oz',
-                  value: provider.getCapacityUnit,
-                  onChanged: (value) => setState(() => capacityUnitValue = value),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Capacity',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(
+                      width: size.width * 0.3,
+                      child: CupertinoSlidingSegmentedControl(
+                        groupValue: capacityUnitValue,
+                        children: const {0: Text('ml'), 1: Text('fl oz')},
+                        onValueChanged: (value) => setState(() => capacityUnitValue = value),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -193,48 +178,13 @@ Future<dynamic> unitPopup({
   );
 }
 
-/// Build custom row for unit popup dialog
-Row buildUnitRow({
-  required Size size,
-  required String title,
-  required bool switchValue,
-  required String switchTextLeft,
-  required String switchTextRight,
-  required bool value,
-  required Function(bool) onChanged,
-}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        title,
-        style: const TextStyle(
-          fontSize: 17,
-          color: Colors.black,
-        ),
-      ),
-      SlidingSwitch(
-        value: value,
-        width: size.width * 0.3,
-        height: size.height * 0.045,
-        onChanged: onChanged,
-        onTap: () {},
-        onSwipe: () {},
-        textLeft: switchTextLeft,
-        textRight: switchTextRight,
-        buttonTextSize: 14,
-      ),
-    ],
-  );
-}
-
 /// Intake goal popup dialog
 Future<dynamic> intakeGoalPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
-  double intakeGoalValue = provider.getIntakeGoal;
+  double intakeGoalValue = provider.getIntakeGoalAmount;
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -242,17 +192,22 @@ Future<dynamic> intakeGoalPopup({
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) => BuildDialog(
-          heightPercent: 0.3,
+          heightPercent: 0.35,
           onTapOK: () {
-            provider.setIntakeGoal = intakeGoalValue;
+            /// if capacity unit = ml
+            if (provider.getCapacityUnit == 0) {
+              provider.setIntakeGoalAmount = intakeGoalValue;
+            } else {
+              /// else if capacity unit = fl oz, convert to ml then assign it
+              provider.setIntakeGoalAmount = intakeGoalValue * 29.574;
+            }
+
             Navigator.pop(context);
           },
           content: Container(
             height: size.height * 0.25,
             padding: const EdgeInsets.all(20),
             child: Column(
-              // crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 const Align(
                   alignment: Alignment.centerLeft,
@@ -274,7 +229,7 @@ Future<dynamic> intakeGoalPopup({
                       style: const TextStyle(fontSize: 30, color: kPrimaryColor),
                     ),
                     Text(
-                      kCapacityUnitStrings[provider.getCapacityUnit ? 1 : 0],
+                      kCapacityUnitStrings[provider.getCapacityUnit],
                       style: const TextStyle(color: kPrimaryColor),
                     ),
                     SizedBox(width: size.width * 0.05),
@@ -293,24 +248,24 @@ Future<dynamic> intakeGoalPopup({
                 ),
                 SliderTheme(
                   data: const SliderThemeData(
-                      trackHeight: 2,
-                      inactiveTrackColor: Colors.grey,
-                      thumbColor: Colors.white,
-                      activeTickMarkColor: Colors.transparent,
-                      inactiveTickMarkColor: Colors.transparent,
-                      thumbShape: RoundSliderThumbShape(
-                        elevation: 5,
-                        enabledThumbRadius: 15,
-                      )),
+                    trackHeight: 2,
+                    inactiveTrackColor: Colors.grey,
+                    thumbColor: Colors.white,
+                    activeTickMarkColor: Colors.transparent,
+                    inactiveTickMarkColor: Colors.transparent,
+                    thumbShape: RoundSliderThumbShape(
+                      elevation: 5,
+                      enabledThumbRadius: 15,
+                    ),
+                  ),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: CupertinoSlider(
                       value: intakeGoalValue,
                       onChanged: (value) => setState(() => intakeGoalValue = value),
-                      min: 800,
-                      max: 4500,
-                      divisions: 74,
+                      min: provider.getCapacityUnit == 0 ? 800 : 800 / 29.574,
+                      max: provider.getCapacityUnit == 0 ? 6000 : 6000 / 29.574,
                     ),
                   ),
                 ),
@@ -329,7 +284,7 @@ Future<dynamic> genderSelectionPopup({
   required DataProvider provider,
   required Size size,
 }) {
-  bool genderValue = provider.getGender;
+  dynamic genderValue = provider.getGender;
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -337,7 +292,7 @@ Future<dynamic> genderSelectionPopup({
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) => BuildDialog(
-          heightPercent: 0.25,
+          heightPercent: 0.325,
           onTapOK: () {
             provider.setGender = genderValue;
             Navigator.pop(context);
@@ -356,17 +311,38 @@ Future<dynamic> genderSelectionPopup({
                     ),
                   ),
                 ),
-                SizedBox(height: size.height * 0.05),
-                SlidingSwitch(
-                  value: genderValue,
-                  width: size.width * 0.5,
-                  height: size.height * 0.045,
-                  onChanged: (value) => setState(() => genderValue = value),
-                  onTap: () {},
-                  onSwipe: () {},
-                  textLeft: 'Male',
-                  textRight: 'Female',
-                  buttonTextSize: 14,
+                SizedBox(height: size.height * 0.03),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Transform.scale(
+                          scale: 1.5,
+                          child: Radio(
+                            value: 0,
+                            groupValue: genderValue,
+                            onChanged: (value) => setState(() => genderValue = value),
+                            activeColor: kPrimaryColor,
+                          ),
+                        ),
+                        const Text('Male'),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Transform.scale(
+                          scale: 1.5,
+                          child: Radio(
+                            value: 1,
+                            groupValue: genderValue,
+                            onChanged: (value) => setState(() => genderValue = value),
+                            activeColor: kPrimaryColor,
+                          ),
+                        ),
+                        const Text('Female'),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -394,7 +370,14 @@ Future<dynamic> weightSelectionPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.35,
           onTapOK: () {
-            provider.setWeight = weightValue;
+            /// if weight unit = kg
+            if (provider.getWeightUnit == 0) {
+              provider.setWeight = weightValue;
+            } else {
+              /// else if weight unit = lbs, convert it to kg then assign it
+              provider.setWeight = weightValue ~/ 2.205;
+            }
+
             Navigator.pop(context);
           },
           content: Container(
@@ -423,16 +406,16 @@ Future<dynamic> weightSelectionPopup({
                           scrollController: FixedExtentScrollController(initialItem: weightValue),
                           itemExtent: 40,
                           onSelectedItemChanged: (value) => setState(() => weightValue = value),
-                          childCount: 400,
+                          childCount: provider.getWeightUnit == 0 ? 400 : 882,
                           itemBuilder: (context, index) => Text(
                             index.toString(),
                             style: const TextStyle(fontSize: 32),
                           ),
                         ),
                       ),
-                      const Text(
-                        'Kg',
-                        style: TextStyle(
+                      Text(
+                        provider.getWeightUnit == 0 ? 'kg' : 'lbs',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                         ),
@@ -452,31 +435,146 @@ Future<dynamic> weightSelectionPopup({
 /// Convert hour and minutes to two digits if they are one digits
 String twoDigits(int n) => n.toString().padLeft(2, "0");
 
-/// Wake-up amd bed time popup dialog
-wakeUpAndBedTimePopup({
+/// Wake up and bed time popup
+Future<dynamic> wakeupAndBedtimePopup({
   required BuildContext context,
   required DataProvider provider,
+  required Size size,
+  required bool isWakeUp,
+  required String title,
   required int hour,
   required int minute,
-  required String title,
-  required bool isWakeUp,
-}) async {
-  final TimeOfDay? timeOfDay = await showTimePicker(
+}) {
+  DateTime time =
+      DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day, hour, minute);
+
+  return showModalBottomSheet(
     context: context,
-    initialTime: TimeOfDay(
-      hour: hour,
-      minute: minute,
-    ),
-    initialEntryMode: TimePickerEntryMode.dial,
-    helpText: title,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) => BuildDialog(
+          heightPercent: 0.4,
+          onTapOK: () {
+            if (isWakeUp) {
+              provider.setWakeUpTime(hour, minute);
+            } else {
+              provider.setBedTime(hour, minute);
+            }
+
+            Navigator.pop(context);
+          },
+          content: SizedBox(
+            height: size.height * 0.35,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: CupertinoTheme(
+                      data: const CupertinoThemeData(
+                        textTheme: CupertinoTextThemeData(
+                          dateTimePickerTextStyle: TextStyle(
+                            fontSize: 25,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                      child: CupertinoDatePicker(
+                        initialDateTime: time,
+                        mode: CupertinoDatePickerMode.time,
+                        use24hFormat: true,
+                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
   );
-  if (timeOfDay != null) {
-    if (isWakeUp) {
-      provider.setWakeUpTimeHour = timeOfDay.hour;
-      provider.setWakeUpTimeMinute = timeOfDay.minute;
-    } else {
-      provider.setBedTimeHour = timeOfDay.hour;
-      provider.setBedTimeMinute = timeOfDay.minute;
-    }
-  }
+}
+
+/// Reminder schedule set time popup dialog
+Future<dynamic> setTimePopup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  DateTime time = DateTime.now();
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) => BuildDialog(
+          heightPercent: 0.4,
+          onTapOK: () {
+            provider.addScheduleRecord =
+                ScheduleRecord(time: '${time.hour}:${time.minute}', isSet: true);
+            Navigator.pop(context);
+          },
+          content: SizedBox(
+            height: size.height * 0.35,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Set time',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: CupertinoTheme(
+                      data: const CupertinoThemeData(
+                        textTheme: CupertinoTextThemeData(
+                          dateTimePickerTextStyle: TextStyle(
+                            fontSize: 25,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                      child: CupertinoDatePicker(
+                        initialDateTime: time,
+                        mode: CupertinoDatePickerMode.time,
+                        use24hFormat: true,
+                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

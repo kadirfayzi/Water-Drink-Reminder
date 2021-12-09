@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
-import 'package:water_reminder/widgets/sliding_switch.dart';
 
 class ReminderSound extends StatefulWidget {
   const ReminderSound({Key? key}) : super(key: key);
@@ -11,122 +13,152 @@ class ReminderSound extends StatefulWidget {
 }
 
 class _ReminderSoundState extends State<ReminderSound> with TickerProviderStateMixin {
-  TabController? _tabController;
-
-  @override
-  void initState() {
-    _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _tabController!.dispose();
-    super.dispose();
-  }
+  final _player = AudioPlayer();
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: const BuildAppBar(title: Text('Reminder sound')),
-      body: Scrollbar(
-          child: SingleChildScrollView(
-        child: SizedBox(
-          height: size.height,
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              SlidingSwitch(
-                value: false,
-                width: size.width * 0.4,
-                height: size.height * 0.045,
-                onChanged: (value) =>
-                    !value ? _tabController?.animateTo(0) : _tabController?.animateTo(1),
-                onTap: () {},
-                onSwipe: () {},
-                textLeft: 'App',
-                textRight: 'Phone',
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                height: size.height * 0.8,
-                child: TabBarView(
-                  controller: _tabController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: <Widget>[
-                    ListView(
-                      children: List.generate(
-                          5,
-                          (index) => Container(
-                                height: size.height * 0.08,
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                    color: Colors.grey,
-                                    width: 0.5,
-                                  )),
-                                ),
-                                child: buildTappableRow(
-                                  title: 'Water flow',
-                                ),
-                              )),
-                    ),
-                    ListView(
-                      children: List.generate(
-                        10,
-                        (index) => Container(
-                          height: size.height * 0.08,
-                          decoration: const BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                              color: Colors.grey,
-                              width: 0.5,
-                            )),
+    return Consumer<DataProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          appBar: const BuildAppBar(title: Text('Reminder sound')),
+          body: Scrollbar(
+              child: SingleChildScrollView(
+            child: SizedBox(
+              height: size.height,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: ListView(
+                  children: List.generate(
+                    kSounds.length,
+                    (index) => Container(
+                      height: size.height * 0.1,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 0.5,
                           ),
-                          child: buildTappableRow(
-                            title: 'Water flow',
+                        ),
+                      ),
+                      child: InkWell(
+                        onTap: () async {
+                          await _player.setAsset('assets/sounds/$index.mp3');
+                          _player.play();
+                          provider.setSoundValue = index;
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                kSounds[index],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Icon(
+                                provider.getSoundValue == index ? Icons.check_circle_rounded : null,
+                                color: kPrimaryColor,
+                                size: 30,
+                              )
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      )),
-    );
-  }
-
-  Widget buildTappableRow({
-    required String title,
-  }) {
-    return Material(
-      child: InkWell(
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-              const Icon(
-                Icons.check_circle,
-                color: kPrimaryColor,
-                size: 25,
-              )
-            ],
-          ),
-        ),
-      ),
+            ),
+          )),
+        );
+      },
     );
   }
 }
+
+/// before settings with hive
+// import 'package:flutter/material.dart';
+// import 'package:just_audio/just_audio.dart';
+// import 'package:provider/provider.dart';
+// import 'package:water_reminder/constants.dart';
+// import 'package:water_reminder/models/settings.dart';
+// import 'package:water_reminder/provider/data_provider.dart';
+// import 'package:water_reminder/widgets/build_appbar.dart';
+//
+// class ReminderSound extends StatefulWidget {
+//   const ReminderSound({Key? key}) : super(key: key);
+//
+//   @override
+//   _ReminderSoundState createState() => _ReminderSoundState();
+// }
+//
+// class _ReminderSoundState extends State<ReminderSound> with TickerProviderStateMixin {
+//   final _player = AudioPlayer();
+//   @override
+//   Widget build(BuildContext context) {
+//     final size = MediaQuery.of(context).size;
+//     return Consumer<DataProvider>(
+//       builder: (context, provider, _) {
+//         return Scaffold(
+//           appBar: const BuildAppBar(title: Text('Reminder sound')),
+//           body: Scrollbar(
+//               child: SingleChildScrollView(
+//             child: SizedBox(
+//               height: size.height,
+//               child: Padding(
+//                 padding: const EdgeInsets.only(top: 10),
+//                 child: ListView(
+//                   children: List.generate(
+//                     kSounds.length,
+//                     (index) => Container(
+//                       height: size.height * 0.1,
+//                       decoration: BoxDecoration(
+//                         border: Border(
+//                           bottom: BorderSide(
+//                             color: Colors.grey.shade300,
+//                             width: 0.5,
+//                           ),
+//                         ),
+//                       ),
+//                       child: InkWell(
+//                         onTap: () async {
+//                           await _player.setAsset('assets/sounds/$index.mp3');
+//                           _player.play();
+//                           provider.setSoundValue = index;
+//                         },
+//                         child: Padding(
+//                           padding: const EdgeInsets.symmetric(horizontal: 15),
+//                           child: Row(
+//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                             children: [
+//                               Text(
+//                                 kSounds[index],
+//                                 style: const TextStyle(
+//                                   fontSize: 16,
+//                                   color: Colors.black,
+//                                 ),
+//                               ),
+//                               Icon(
+//                                 provider.getSoundValue == index ? Icons.check_circle_rounded : null,
+//                                 color: kPrimaryColor,
+//                                 size: 30,
+//                               )
+//                             ],
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           )),
+//         );
+//       },
+//     );
+//   }
+// }
