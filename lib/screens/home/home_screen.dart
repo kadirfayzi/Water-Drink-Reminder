@@ -24,25 +24,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _tip;
   final DateTime _time = DateTime.now();
 
-  setInitialSettingsValue() {
-    final provider = DataProvider();
-    provider.setWeight = 65;
-    provider.setGender = 0;
-    provider.setIntakeGoalAmount = 2500;
-    provider.setSoundValue = 2;
-    provider.setUnit(0, 0);
-    provider.setWakeUpTime(8, 0);
-    provider.setBedTime(2, 0);
-    provider.addDrunkAmount = DrunkAmount(drunkAmount: 0);
-    for (var cup in kCups) {
-      provider.addCup = cup;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    // setInitialSettingsValue();
     _tip = getRandomTip();
   }
 
@@ -98,7 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.push(
-                            context, CupertinoPageRoute(builder: (context) => const TipsScreen())),
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => const TipsScreen())),
                         child: Column(
                           children: [
                             Image.asset(
@@ -126,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     SleekCircularSlider(
                       appearance: CircularSliderAppearance(
-                        size: size.width * 0.85,
+                        size: size.width * 0.8,
                         customWidths: CustomSliderWidths(
                           progressBarWidth: 5,
                           trackWidth: 5,
@@ -148,9 +134,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: size.width * 0.685,
                           height: size.width * 0.685,
                           child: LiquidCircularProgressIndicator(
-                            value: provider.getDrunkAmount / provider.getIntakeGoalAmount,
+                            value: provider.getDrunkAmount /
+                                provider.getIntakeGoalAmount,
                             backgroundColor: Colors.white,
-                            valueColor: const AlwaysStoppedAnimation(kPrimaryColor),
+                            valueColor:
+                                const AlwaysStoppedAnimation(kPrimaryColor),
                             center: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -163,10 +151,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     children: <TextSpan>[
                                       TextSpan(
-                                        text: '${provider.getDrunkAmount.toStringAsFixed(0)}',
+                                        text:
+                                            '${provider.getDrunkAmount.toStringAsFixed(0)}',
                                         style: TextStyle(
                                           color: (provider.getDrunkAmount /
-                                                      provider.getIntakeGoalAmount) >
+                                                      provider
+                                                          .getIntakeGoalAmount) >
                                                   0.615
                                               ? kSecondaryColor
                                               : Colors.blue,
@@ -177,7 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             '/${provider.getIntakeGoalAmount.toStringAsFixed(0)} ',
                                       ),
                                       TextSpan(
-                                        text: kCapacityUnitStrings[provider.getCapacityUnit],
+                                        text: kCapacityUnitStrings[
+                                            provider.getCapacityUnit],
                                         style: const TextStyle(fontSize: 20),
                                       ),
                                     ],
@@ -188,11 +179,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   'Daily Drink Target',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color:
-                                        (provider.getDrunkAmount / provider.getIntakeGoalAmount) >
-                                                0.615
-                                            ? Colors.white
-                                            : Colors.black,
+                                    color: (provider.getDrunkAmount /
+                                                provider.getIntakeGoalAmount) >
+                                            0.615
+                                        ? Colors.white
+                                        : Colors.black,
                                   ),
                                 ),
                                 SizedBox(height: size.height * 0.03),
@@ -213,26 +204,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                     provider.addRecord(
                                       Record(
                                         image: 'assets/images/cup.png',
-                                        time: DateFormat("h:mm a").format(_time),
-                                        defaultAmount: provider.getSelectedCup.capacity,
+                                        time:
+                                            DateFormat("h:mm a").format(_time),
+                                        defaultAmount:
+                                            provider.getSelectedCup.capacity,
                                       ),
                                     );
                                     provider.addMonthDayChartData(
                                       day: _time.day,
                                       drunkAmount: provider.getDrunkAmount,
-                                      intakeGoalAmount: provider.getIntakeGoalAmount,
+                                      intakeGoalAmount:
+                                          provider.getIntakeGoalAmount,
                                     );
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           '${provider.getSelectedCup.capacity.toStringAsFixed(0)} ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                                           style: TextStyle(
                                             color: (provider.getDrunkAmount /
-                                                        provider.getIntakeGoalAmount) >
+                                                        provider
+                                                            .getIntakeGoalAmount) >
                                                     0.5
                                                 ? Colors.white
                                                 : Colors.black54,
@@ -264,14 +260,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Image.asset(
-                              'assets/images/3.png',
+                              'assets/images/drop.png',
                               color: Colors.grey,
-                              scale: 5,
+                              scale: 2,
                             ),
                             Image.asset(
-                              'assets/images/3.png',
+                              'assets/images/drop.png',
                               color: Colors.blue,
-                              scale: 5,
+                              scale: 2,
                             ),
                           ],
                         ),
@@ -279,40 +275,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     /// Change cup type
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: GestureDetector(
-                          onTap: () => switchCup(
-                            context: context,
-                            provider: provider,
-                            size: size,
-                          ),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              ElevatedContainer(
-                                padding: const EdgeInsets.all(8.0),
-                                blurRadius: 3.0,
-                                child: Image.asset('assets/images/cup.png', scale: 8),
-                              ),
-                              const Positioned(
-                                top: 28,
-                                left: 28,
-                                child: ElevatedContainer(
-                                  blurRadius: 3.0,
-                                  child: Icon(
-                                    Icons.change_circle,
-                                    color: kPrimaryColor,
-                                    size: 15,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Positioned.fill(
+                    //   top: size.height * 0.325,
+                    //   left: size.width * 0.7,
+                    //   child: GestureDetector(
+                    //     onTap: () => switchCup(
+                    //       context: context,
+                    //       provider: provider,
+                    //       size: size,
+                    //     ),
+                    //     child: Stack(
+                    //       clipBehavior: Clip.none,
+                    //       children: [
+                    //         ElevatedContainer(
+                    //           padding: const EdgeInsets.all(8.0),
+                    //           blurRadius: 3.0,
+                    //           child: Image.asset('assets/images/cup.png',
+                    //               scale: 8),
+                    //         ),
+                    //         const Positioned(
+                    //           top: 28,
+                    //           left: 28,
+                    //           child: ElevatedContainer(
+                    //             blurRadius: 3.0,
+                    //             child: Icon(
+                    //               Icons.change_circle,
+                    //               color: kPrimaryColor,
+                    //               size: 15,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     Positioned.fill(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -334,6 +330,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
 
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    onTap: () => switchCup(
+                      context: context,
+                      provider: provider,
+                      size: size,
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ElevatedContainer(
+                          padding: const EdgeInsets.all(8.0),
+                          blurRadius: 3.0,
+                          child: Image.asset('assets/images/cup.png', scale: 8),
+                        ),
+                        const Positioned(
+                          top: 28,
+                          left: 28,
+                          child: ElevatedContainer(
+                            blurRadius: 3.0,
+                            child: Icon(
+                              Icons.change_circle,
+                              color: kPrimaryColor,
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SizedBox(height: size.height * 0.05),
 
                 /// Today's records
@@ -341,7 +369,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: Text(
                         'Today\'s Records',
                         style: TextStyle(
@@ -358,7 +387,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           size: size,
                         ),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           child: Icon(Icons.add, size: 25),
                         ),
                       ),
@@ -393,15 +423,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Expanded(
                                       flex: 5,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
                                         children: const [
                                           Text(
                                             '05:00 PM',
                                           ),
                                           Text(
                                             'Next time',
-                                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13),
                                           ),
                                         ],
                                       ),
@@ -415,7 +449,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               Visibility(
-                                visible: provider.getRecords.length > 0 ? true : false,
+                                visible: provider.getRecords.length > 0
+                                    ? true
+                                    : false,
                                 child: Expanded(
                                   child: Row(
                                     children: const [
@@ -447,7 +483,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         Expanded(
                                           flex: 5,
-                                          child: Text(provider.getRecords[index].time),
+                                          child: Text(
+                                              provider.getRecords[index].time),
                                         ),
                                         Expanded(
                                           flex: 2,
@@ -477,12 +514,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 //     provider.getRecords[index].dividedCapacity;
                                                 if ((provider.getDrunkAmount -
                                                         provider
-                                                            .getRecords[index].dividedCapacity) >=
+                                                            .getRecords[index]
+                                                            .dividedCapacity) >=
                                                     0) {
-                                                  provider.removeDrunkAmount = DrunkAmount(
-                                                      drunkAmount: provider.getDrunkAmount -
-                                                          provider
-                                                              .getRecords[index].dividedCapacity);
+                                                  provider.removeDrunkAmount =
+                                                      DrunkAmount(
+                                                          drunkAmount: provider
+                                                                  .getDrunkAmount -
+                                                              provider
+                                                                  .getRecords[
+                                                                      index]
+                                                                  .dividedCapacity);
                                                 }
 
                                                 provider.deleteRecord = index;
@@ -494,7 +536,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 height: size.height * 0.025,
                                                 child: const Text(
                                                   'Edit',
-                                                  style: TextStyle(fontSize: 14),
+                                                  style:
+                                                      TextStyle(fontSize: 14),
                                                 ),
                                               ),
                                               const PopupMenuDivider(),
@@ -503,7 +546,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 height: size.height * 0.025,
                                                 child: const Text(
                                                   'Delete',
-                                                  style: TextStyle(fontSize: 14),
+                                                  style:
+                                                      TextStyle(fontSize: 14),
                                                 ),
                                               ),
                                             ],
@@ -512,12 +556,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  provider.getRecords[index] != provider.getRecords.last
+                                  provider.getRecords[index] !=
+                                          provider.getRecords.last
                                       ? Expanded(
                                           child: Row(
                                             children: const [
-                                              Expanded(flex: 2, child: DashedLine()),
-                                              Expanded(flex: 9, child: SizedBox()),
+                                              Expanded(
+                                                  flex: 2, child: DashedLine()),
+                                              Expanded(
+                                                  flex: 9, child: SizedBox()),
                                             ],
                                           ),
                                         )

@@ -7,6 +7,8 @@ import 'package:water_reminder/screens/settings/settings_subscreens/reminder_sch
 import 'package:water_reminder/screens/settings/settings_subscreens/reminder_sound.dart';
 import 'package:water_reminder/screens/settings/settings_helpers.dart';
 
+import '../../functions.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -31,7 +33,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               size: size,
               title: 'Reminder schedule',
               onTap: () => Navigator.push(
-                  context, CupertinoPageRoute(builder: (ctx) => const ReminderSchedule())),
+                  context,
+                  CupertinoPageRoute(
+                      builder: (ctx) => const ReminderSchedule())),
             ),
 
             /// Reminder sound section

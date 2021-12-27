@@ -24,99 +24,110 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
         return Scaffold(
           appBar: const BuildAppBar(title: Text('Reminder schedule')),
           body: Scrollbar(
-              child: SingleChildScrollView(
-            child: Column(
-              children: List.generate(
-                provider.getScheduleRecords.length,
-                (index) {
-                  return Column(
-                    children: [
-                      Theme(
-                        data: Theme.of(context).copyWith(
-                          dividerColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                        ),
-                        child: ExpansionTile(
-                          childrenPadding: const EdgeInsets.all(10),
-                          backgroundColor: Colors.grey[200],
-                          collapsedIconColor: Colors.grey,
-                          title: Container(
-                            height: size.height * 0.06,
-                            width: size.width,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: size.height * 0.8,
+                child: ListView(
+                  children: List.generate(
+                    provider.getScheduleRecords.length,
+                    (index) {
+                      return Column(
+                        children: [
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              dividerColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                            ),
+                            child: ExpansionTile(
+                              childrenPadding: const EdgeInsets.all(10),
+                              backgroundColor: Colors.grey[200],
+                              collapsedIconColor: Colors.grey,
+                              title: Container(
+                                height: size.height * 0.06,
+                                width: size.width,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${provider.getScheduleRecords[index].time}',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    CupertinoSwitch(
+                                      value: provider
+                                          .getScheduleRecords[index].isSet,
+                                      onChanged: (isSet) =>
+                                          provider.editScheduleRecord(
+                                        index,
+                                        ScheduleRecord(
+                                          time: provider
+                                              .getScheduleRecords[index].time,
+                                          isSet: isSet,
+                                        ),
+                                      ),
+                                      activeColor: kPrimaryColor,
+                                    )
+                                  ],
+                                ),
+                              ),
                               children: [
-                                Text(
-                                  '${provider.getScheduleRecords[index].time}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
+                                Material(
+                                  elevation: 2.0,
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(10),
+                                    onTap: () =>
+                                        provider.deleteScheduleRecord = index,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      width: size.width,
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color: Colors.red[800],
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                CupertinoSwitch(
-                                  value: provider.getScheduleRecords[index].isSet,
-                                  onChanged: (isSet) => provider.editScheduleRecord(
-                                      index,
-                                      ScheduleRecord(
-                                          time: provider.getScheduleRecords[index].time,
-                                          isSet: isSet)),
-                                  activeColor: kPrimaryColor,
-                                )
                               ],
                             ),
                           ),
-                          children: [
-                            Material(
-                              elevation: 2.0,
-                              borderRadius: BorderRadius.circular(10),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () => provider.deleteScheduleRecord = index,
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  width: size.width,
-                                  child: Text(
-                                    'Delete',
-                                    style: TextStyle(
-                                      color: Colors.red[800],
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(
-                        indent: 10,
-                        endIndent: 10,
-                      ),
-                    ],
-                  );
-                },
+                          const Divider(indent: 10, endIndent: 10),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
-          )),
+          ),
           floatingActionButton: ElevatedContainer(
             color: kPrimaryColor,
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             child: GestureDetector(
-                onTap: () => setTimePopup(
-                      context: context,
-                      provider: provider,
-                      size: size,
-                    ),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 35,
-                )),
+              onTap: () => setTimePopup(
+                context: context,
+                provider: provider,
+                size: size,
+              ),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
         );
       },
     );

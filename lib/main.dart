@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/models/bed_time.dart';
@@ -20,6 +19,8 @@ import 'package:water_reminder/screens/home/home_screen.dart';
 import 'package:water_reminder/screens/settings/settings_screen.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
 import 'package:water_reminder/widgets/custom_tab.dart';
+
+import 'screens/initial/welcome_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,7 @@ void main() async {
   await Hive.openBox<BedTime>('bedTime');
   Hive.registerAdapter(DrunkAmountAdapter());
   await Hive.openBox<DrunkAmount>('drunkAmount');
+  await Hive.openBox('isInitialPrefsSet');
 
   /// /// /// /// /// /// ///
   runApp(
@@ -74,43 +76,46 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = DataProvider();
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: BuildAppBar(
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              CustomTab(
-                icon: Icons.water,
-                title: 'Home',
+      home: provider.getIsInitialPrefsSet
+          ? Scaffold(
+              appBar: BuildAppBar(
+                bottom: TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    CustomTab(icon: Icons.water, title: 'Home'),
+                    CustomTab(icon: Icons.history, title: 'History'),
+                    CustomTab(icon: Icons.settings, title: 'Settings'),
+                  ],
+                ),
               ),
-              CustomTab(
-                icon: Icons.history,
-                title: 'History',
+              body: TabBarView(
+                controller: _tabController,
+                children: const [
+                  HomeScreen(),
+                  HistoryScreen(),
+                  SettingsScreen()
+                ],
               ),
-              CustomTab(
-                icon: Icons.settings,
-                title: 'Settings',
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: const [HomeScreen(), HistoryScreen(), SettingsScreen()],
-        ),
-      ),
+            )
+          : const WelcomeScreen(),
+      // home: const WelcomeScreen(),
     );
   }
 }

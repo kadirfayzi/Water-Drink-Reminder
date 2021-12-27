@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/functions.dart';
-import 'package:water_reminder/models/chart_data_model.dart';
+import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
 import 'history_helpers.dart';
@@ -47,7 +47,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       maximum: 100,
                       interval: 20,
                       labelStyle: const TextStyle(fontSize: 10),
-                      majorGridLines: const MajorGridLines(width: 1, dashArray: <double>[2, 4]),
+                      majorGridLines: const MajorGridLines(
+                          width: 1, dashArray: <double>[2, 4]),
                       // minorGridLines: const MinorGridLines(
                       //     width: 0.2, color: Colors.grey, dashArray: <double>[3, 3]),
                       // minorTicksPerInterval: 1,
@@ -79,7 +80,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               CupertinoSlidingSegmentedControl(
                 groupValue: timeRangeValue,
                 children: const {0: Text('Month'), 1: Text('Year')},
-                onValueChanged: (value) => setState(() => timeRangeValue = value),
+                onValueChanged: (value) =>
+                    setState(() => timeRangeValue = value),
               ),
 
               SizedBox(height: size.height * 0.03),
@@ -90,14 +92,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 height: size.height * 0.185,
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    kPrimaryColor,
-                    Colors.blue[200]!,
-                  ],
-                )),
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      kPrimaryColor,
+                      Colors.blue[200]!,
+                    ],
+                  ),
+                ),
                 child: Column(
                   children: [
                     const Align(
@@ -125,7 +128,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   blurRadius: 1,
                                   width: 40,
                                   height: 40,
-                                  child: Center(child: Image.asset('assets/images/3.png')),
+                                  child: Center(
+                                      child:
+                                          Image.asset('assets/images/3.png')),
                                 ),
                                 SizedBox(height: size.height * 0.01),
                                 Text(

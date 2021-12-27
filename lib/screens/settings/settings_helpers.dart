@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/build_dialog.dart';
@@ -143,7 +144,8 @@ Future<dynamic> unitPopup({
                       child: CupertinoSlidingSegmentedControl(
                         groupValue: weightUnitValue,
                         children: const {0: Text('kg'), 1: Text('lbs')},
-                        onValueChanged: (value) => setState(() => weightUnitValue = value),
+                        onValueChanged: (value) =>
+                            setState(() => weightUnitValue = value),
                       ),
                     ),
                   ],
@@ -164,7 +166,8 @@ Future<dynamic> unitPopup({
                       child: CupertinoSlidingSegmentedControl(
                         groupValue: capacityUnitValue,
                         children: const {0: Text('ml'), 1: Text('fl oz')},
-                        onValueChanged: (value) => setState(() => capacityUnitValue = value),
+                        onValueChanged: (value) =>
+                            setState(() => capacityUnitValue = value),
                       ),
                     ),
                   ],
@@ -199,7 +202,7 @@ Future<dynamic> intakeGoalPopup({
               provider.setIntakeGoalAmount = intakeGoalValue;
             } else {
               /// else if capacity unit = fl oz, convert to ml then assign it
-              provider.setIntakeGoalAmount = intakeGoalValue * 29.574;
+              provider.setIntakeGoalAmount = flOzToMl(intakeGoalValue);
             }
 
             Navigator.pop(context);
@@ -226,7 +229,8 @@ Future<dynamic> intakeGoalPopup({
                   children: [
                     Text(
                       intakeGoalValue.toStringAsFixed(0),
-                      style: const TextStyle(fontSize: 30, color: kPrimaryColor),
+                      style:
+                          const TextStyle(fontSize: 30, color: kPrimaryColor),
                     ),
                     Text(
                       kCapacityUnitStrings[provider.getCapacityUnit],
@@ -234,7 +238,8 @@ Future<dynamic> intakeGoalPopup({
                     ),
                     SizedBox(width: size.width * 0.05),
                     InkWell(
-                      onTap: () => setState(() => intakeGoalValue = kIntakeGoalDefaultValue),
+                      onTap: () => setState(
+                          () => intakeGoalValue = kIntakeGoalDefaultValue),
                       child: const Padding(
                         padding: EdgeInsets.all(10),
                         child: Icon(
@@ -263,9 +268,11 @@ Future<dynamic> intakeGoalPopup({
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: CupertinoSlider(
                       value: intakeGoalValue,
-                      onChanged: (value) => setState(() => intakeGoalValue = value),
-                      min: provider.getCapacityUnit == 0 ? 800 : 800 / 29.574,
-                      max: provider.getCapacityUnit == 0 ? 6000 : 6000 / 29.574,
+                      onChanged: (value) =>
+                          setState(() => intakeGoalValue = value),
+                      min: provider.getCapacityUnit == 0 ? 800 : mlToFlOz(800),
+                      max:
+                          provider.getCapacityUnit == 0 ? 6000 : mlToFlOz(6000),
                     ),
                   ),
                 ),
@@ -321,7 +328,8 @@ Future<dynamic> genderSelectionPopup({
                           child: Radio(
                             value: 0,
                             groupValue: genderValue,
-                            onChanged: (value) => setState(() => genderValue = value),
+                            onChanged: (value) =>
+                                setState(() => genderValue = value),
                             activeColor: kPrimaryColor,
                           ),
                         ),
@@ -335,7 +343,8 @@ Future<dynamic> genderSelectionPopup({
                           child: Radio(
                             value: 1,
                             groupValue: genderValue,
-                            onChanged: (value) => setState(() => genderValue = value),
+                            onChanged: (value) =>
+                                setState(() => genderValue = value),
                             activeColor: kPrimaryColor,
                           ),
                         ),
@@ -359,7 +368,7 @@ Future<dynamic> weightSelectionPopup({
   required DataProvider provider,
   required Size size,
 }) {
-  int weightValue = provider.getWeight;
+  int weight = provider.getWeight;
 
   return showModalBottomSheet(
     context: context,
@@ -370,14 +379,7 @@ Future<dynamic> weightSelectionPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.35,
           onTapOK: () {
-            /// if weight unit = kg
-            if (provider.getWeightUnit == 0) {
-              provider.setWeight = weightValue;
-            } else {
-              /// else if weight unit = lbs, convert it to kg then assign it
-              provider.setWeight = weightValue ~/ 2.205;
-            }
-
+            provider.setWeight(weight, provider.getWeightUnit);
             Navigator.pop(context);
           },
           content: Container(
@@ -403,9 +405,11 @@ Future<dynamic> weightSelectionPopup({
                         width: size.width * 0.2,
                         height: size.height * 0.3,
                         child: CupertinoPicker.builder(
-                          scrollController: FixedExtentScrollController(initialItem: weightValue),
+                          scrollController:
+                              FixedExtentScrollController(initialItem: weight),
                           itemExtent: 40,
-                          onSelectedItemChanged: (value) => setState(() => weightValue = value),
+                          onSelectedItemChanged: (value) =>
+                              setState(() => weight = value),
                           childCount: provider.getWeightUnit == 0 ? 400 : 882,
                           itemBuilder: (context, index) => Text(
                             index.toString(),
@@ -432,9 +436,6 @@ Future<dynamic> weightSelectionPopup({
   );
 }
 
-/// Convert hour and minutes to two digits if they are one digits
-String twoDigits(int n) => n.toString().padLeft(2, "0");
-
 /// Wake up and bed time popup
 Future<dynamic> wakeupAndBedtimePopup({
   required BuildContext context,
@@ -445,8 +446,8 @@ Future<dynamic> wakeupAndBedtimePopup({
   required int hour,
   required int minute,
 }) {
-  DateTime time =
-      DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day, hour, minute);
+  DateTime time = DateTime.utc(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, hour, minute);
 
   return showModalBottomSheet(
     context: context,
@@ -498,7 +499,8 @@ Future<dynamic> wakeupAndBedtimePopup({
                         initialDateTime: time,
                         mode: CupertinoDatePickerMode.time,
                         use24hFormat: true,
-                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                        onDateTimeChanged: (selectedTime) =>
+                            setState(() => time = selectedTime),
                       ),
                     ),
                   ),
@@ -528,8 +530,8 @@ Future<dynamic> setTimePopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.4,
           onTapOK: () {
-            provider.addScheduleRecord =
-                ScheduleRecord(time: '${time.hour}:${time.minute}', isSet: true);
+            provider.addScheduleRecord = ScheduleRecord(
+                time: '${time.hour}:${time.minute}', isSet: true);
             Navigator.pop(context);
           },
           content: SizedBox(
@@ -565,7 +567,8 @@ Future<dynamic> setTimePopup({
                         initialDateTime: time,
                         mode: CupertinoDatePickerMode.time,
                         use24hFormat: true,
-                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                        onDateTimeChanged: (selectedTime) =>
+                            setState(() => time = selectedTime),
                       ),
                     ),
                   ),

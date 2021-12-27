@@ -43,16 +43,17 @@ const List<IconData> kReminderModeIcons = [
 ];
 
 const List<String> kWeightUnitStrings = ['kg', 'lbs'];
+const List<int> kWeightChildCount = [400, 882];
 const List<String> kCapacityUnitStrings = ['ml', 'fl oz'];
 const List<String> kGenderStrings = ['Male', 'Female'];
 
 const List<String> kCupDivisionStrings = ['1/4', '2/4', '3/4', '4/4'];
 
 List<Cup> kCups = [
-  Cup(capacity: 100, image: 'assets/images/cup.png', selected: true),
+  Cup(capacity: 100, image: 'assets/images/cup.png', selected: false),
   Cup(capacity: 125, image: 'assets/images/cup.png', selected: false),
   Cup(capacity: 150, image: 'assets/images/cup.png', selected: false),
-  Cup(capacity: 175, image: 'assets/images/cup.png', selected: false),
+  Cup(capacity: 175, image: 'assets/images/cup.png', selected: true),
   Cup(capacity: 200, image: 'assets/images/cup.png', selected: false),
   Cup(capacity: 250, image: 'assets/images/cup.png', selected: false),
   Cup(capacity: 300, image: 'assets/images/cup.png', selected: false),

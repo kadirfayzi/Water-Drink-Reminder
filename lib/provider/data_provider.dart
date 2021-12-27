@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:water_reminder/boxes.dart';
 import 'package:water_reminder/models/bed_time.dart';
-import 'package:water_reminder/models/chart_data_model.dart';
+import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/models/cup.dart';
 import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/models/gender.dart';
@@ -13,7 +13,19 @@ import 'package:water_reminder/models/unit.dart';
 import 'package:water_reminder/models/wakeup_time.dart';
 import 'package:water_reminder/models/weight.dart';
 
+import '../functions.dart';
+
 class DataProvider extends ChangeNotifier {
+  /// Intro Preferences
+  set setIsInitialPrefsSet(bool value) {
+    final box = Boxes.getIsInitialPrefsSet();
+    box.put('isInitialPrefsSet', value);
+  }
+
+  get getIsInitialPrefsSet => Boxes.getIsInitialPrefsSet().values.isNotEmpty
+      ? Boxes.getIsInitialPrefsSet().values.first
+      : false;
+
   /// Reminder schedule
   set addScheduleRecord(ScheduleRecord scheduleRecord) {
     final scheduleRecords = Boxes.getScheduleRecords();
@@ -64,7 +76,7 @@ class DataProvider extends ChangeNotifier {
 
   get getIntakeGoalAmount => getCapacityUnit == 0
       ? Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount
-      : Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount / 29.574;
+      : mlToFlOz(Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount);
 
   /// Gender 0 = male, 1 = female
   set setGender(int genderValue) {
@@ -76,15 +88,16 @@ class DataProvider extends ChangeNotifier {
   get getGender => Boxes.getGender().get('gender')!.gender;
 
   /// Weight
-  set setWeight(int weightValue) {
+  setWeight(int weight, int unit) {
     final box = Boxes.getWeight();
-    box.put('weight', Weight(weight: weightValue));
+    if (unit == 1) weight = kgToLbs(weight);
+    box.put('weight', Weight(weight: weight));
     notifyListeners();
   }
 
   get getWeight => getWeightUnit == 0
       ? Boxes.getWeight().get('weight')!.weight
-      : (Boxes.getWeight().get('weight')!.weight * 2.205).toInt();
+      : kgToLbs(Boxes.getWeight().get('weight')!.weight);
 
   /// Wake-up time
   setWakeUpTime(int hour, int minute) {
@@ -107,7 +120,6 @@ class DataProvider extends ChangeNotifier {
   get getBedTimeMinute => Boxes.getBedTime().get('bed')!.bedMinute;
 
   /// Cup
-
   set addCup(Cup cup) {
     final cups = Boxes.getCups();
     cups.add(cup);
@@ -132,11 +144,13 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // get getCups => getCapacityUnit == 0 ? _cupCapacity : _cupCapacity / 29.574;
+  // get getCups => getCapacityUnit == 0 ? _cupCapacity : mlToFloz;
   get getCups => Boxes.getCups().values.toList();
-  get getSelectedCup => Boxes.getCups().values.toList().firstWhere((cup) => cup.selected == true);
+
+  get getSelectedCup =>
+      Boxes.getCups().values.firstWhere((cup) => cup.selected);
   get getSelectedCupIndex =>
-      Boxes.getCups().values.toList().indexWhere((cup) => cup.selected == true);
+      Boxes.getCups().values.toList().indexWhere((cup) => cup.selected);
 
   /// Drunk amount
   set addDrunkAmount(DrunkAmount drunkAmount) {
@@ -144,7 +158,6 @@ class DataProvider extends ChangeNotifier {
     if (getDrunkAmount + getSelectedCup.capacity <= getIntakeGoalAmount) {
       box.put('drunkAmount', drunkAmount);
     }
-
     notifyListeners();
   }
 
@@ -162,7 +175,9 @@ class DataProvider extends ChangeNotifier {
   //   notifyListeners();
   // }
 
-  get getDrunkAmount => Boxes.getDrunkAmount().get('drunkAmount')!.drunkAmount;
+  get getDrunkAmount => Boxes.getDrunkAmount().isNotEmpty
+      ? Boxes.getDrunkAmount().get('drunkAmount')!.drunkAmount
+      : 0.0;
 
   /// Records with hive
 
@@ -187,8 +202,6 @@ class DataProvider extends ChangeNotifier {
   get getRecords => Boxes.getRecords().values.toList();
 
   /// Chart Data
-  late final List<ChartData> _monthDayChartDataList = [];
-
   addMonthDayChartData({
     required int day,
     required double drunkAmount,
@@ -196,25 +209,22 @@ class DataProvider extends ChangeNotifier {
   }) {
     final int amountPercent = (drunkAmount * 100) ~/ intakeGoalAmount;
 
-    if (_monthDayChartDataList.isNotEmpty) {
-      for (var monthDay in _monthDayChartDataList) {
-        if (monthDay.x == day) {
-          _monthDayChartDataList.insert(
-            _monthDayChartDataList.indexWhere((element) => element.x == day),
-            ChartData(day, amountPercent),
-          );
-          break;
-        } else {
-          _monthDayChartDataList.add(ChartData(day, amountPercent));
-          break;
-        }
-      }
-    } else {
-      _monthDayChartDataList.add(ChartData(day, amountPercent));
-    }
+    final box = Boxes.getChartData();
+
+    // if (box.values.isNotEmpty) {
+    //   for (var monthDay in box.values) {
+    //     if (monthDay.x == day) {
+    //       box.put(day, ChartData(x: day, y: amountPercent));
+    //     }
+    //     break;
+    //   }
+    // } else {
+    //   box.put(day, ChartData(x: day, y: amountPercent));
+    // }
+    box.put(day, ChartData(x: day, y: amountPercent));
 
     notifyListeners();
   }
 
-  get getMonthDayChartDataList => _monthDayChartDataList;
+  get getMonthDayChartDataList => Boxes.getChartData().values.toList();
 }

@@ -16,7 +16,8 @@ class Boxes {
   static Box<Cup> getCups() => Hive.box<Cup>('cups');
   static Box<Record> getRecords() => Hive.box<Record>('records');
   static Box<ChartData> getChartData() => Hive.box<ChartData>('chartData');
-  static Box<ScheduleRecord> getScheduleRecords() => Hive.box<ScheduleRecord>('scheduleRecords');
+  static Box<ScheduleRecord> getScheduleRecords() =>
+      Hive.box<ScheduleRecord>('scheduleRecords');
   static Box<Sound> getSoundValue() => Hive.box<Sound>('sound');
   static Box<Unit> getUnits() => Hive.box<Unit>('units');
   static Box<IntakeGoal> getIntakeGoal() => Hive.box<IntakeGoal>('intakeGoal');
@@ -24,5 +25,7 @@ class Boxes {
   static Box<Weight> getWeight() => Hive.box<Weight>('weight');
   static Box<WakeupTime> getWakeupTime() => Hive.box<WakeupTime>('wakeupTime');
   static Box<BedTime> getBedTime() => Hive.box<BedTime>('bedTime');
-  static Box<DrunkAmount> getDrunkAmount() => Hive.box<DrunkAmount>('drunkAmount');
+  static Box<DrunkAmount> getDrunkAmount() =>
+      Hive.box<DrunkAmount>('drunkAmount');
+  static Box getIsInitialPrefsSet() => Hive.box('isInitialPrefsSet');
 }

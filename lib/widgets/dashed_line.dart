@@ -5,6 +5,7 @@ class DashedLine extends StatelessWidget {
   final double width;
   final Color color;
   final int count;
+  final Axis direction;
 
   const DashedLine({
     Key? key,
@@ -12,6 +13,7 @@ class DashedLine extends StatelessWidget {
     this.color = Colors.grey,
     this.width = 0.8,
     this.count = 4,
+    this.direction = Axis.vertical,
   }) : super(key: key);
 
   @override
@@ -27,7 +29,7 @@ class DashedLine extends StatelessWidget {
         );
       }),
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      direction: Axis.vertical,
+      direction: direction,
     );
   }
 }
