@@ -5,6 +5,7 @@ import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 import '../../constants.dart';
+import '../../functions.dart';
 import 'initial_preferences_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -21,7 +22,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       provider.addCup = cup;
     }
 
-    provider.setWeight(70, 0);
+    // provider.setWeight(70, 0);
+    provider.setWeight = 70;
     provider.setGender = 0;
     provider.setIntakeGoalAmount = 2800;
     provider.setSoundValue = 2;
@@ -29,6 +31,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     provider.setWakeUpTime(7, 0);
     provider.setBedTime(23, 0);
     provider.addDrunkAmount = DrunkAmount(drunkAmount: 0.0);
+    for (int i = 1; i <= monthDays(); i++) {
+      provider.addMonthDayChartData(
+        day: i,
+        drunkAmount: 0,
+        intakeGoalAmount: 2800,
+      );
+    }
   }
 
   @override
@@ -61,9 +70,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             SizedBox(height: size.height * 0.1),
             Container(
               width: size.width * 0.8,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(kRadius_30),
+                gradient: LinearGradient(
                   colors: [Colors.lightBlueAccent, Colors.blue],
                   begin: FractionalOffset(0.0, 0.0),
                   end: FractionalOffset(0.5, 0.0),
@@ -72,6 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               child: InkWell(
+                borderRadius: const BorderRadius.all(kRadius_30),
                 onTap: () => Navigator.push(
                   context,
                   CupertinoPageRoute(

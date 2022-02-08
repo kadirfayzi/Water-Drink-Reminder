@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:water_reminder/boxes.dart';
+import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/models/cup.dart';
@@ -88,12 +90,17 @@ class DataProvider extends ChangeNotifier {
   get getGender => Boxes.getGender().get('gender')!.gender;
 
   /// Weight
-  setWeight(int weight, int unit) {
+  set setWeight(int weight) {
     final box = Boxes.getWeight();
-    if (unit == 1) weight = kgToLbs(weight);
     box.put('weight', Weight(weight: weight));
     notifyListeners();
   }
+  // setWeight(int weight, int unit) {
+  //   final box = Boxes.getWeight();
+  //   if (unit == 1) weight = kgToLbs(weight);
+  //   box.put('weight', Weight(weight: weight));
+  //   notifyListeners();
+  // }
 
   get getWeight => getWeightUnit == 0
       ? Boxes.getWeight().get('weight')!.weight
@@ -129,15 +136,15 @@ class DataProvider extends ChangeNotifier {
   set setSelectedCup(int index) {
     final cups = Boxes.getCups();
 
-    for (var cup in cups.values) {
+    for (Cup cup in cups.values) {
       if (cup.selected) {
         cup.selected = false;
         cup.save();
+        break;
       }
-      break;
     }
 
-    final Cup cup = cups.values.toList()[index];
+    final cup = cups.values.toList()[index];
     cup.selected = true;
     cup.save();
 
@@ -207,9 +214,12 @@ class DataProvider extends ChangeNotifier {
     required double drunkAmount,
     required double intakeGoalAmount,
   }) {
-    final int amountPercent = (drunkAmount * 100) ~/ intakeGoalAmount;
+    // final double amountPercent =
+    //     ((drunkAmount * 100) ~/ intakeGoalAmount) as double;
+    final double amountPercent = ((drunkAmount * 100) / intakeGoalAmount);
 
     final box = Boxes.getChartData();
+    final DateTime now = DateTime.now();
 
     // if (box.values.isNotEmpty) {
     //   for (var monthDay in box.values) {
@@ -221,7 +231,18 @@ class DataProvider extends ChangeNotifier {
     // } else {
     //   box.put(day, ChartData(x: day, y: amountPercent));
     // }
-    box.put(day, ChartData(x: day, y: amountPercent));
+
+    // box.put(day, ChartData(x: day, y: amountPercent));
+    /// ///
+    box.put(
+        now.year + now.month + day,
+        ChartData(
+          day: day - 1,
+          month: now.month,
+          year: now.year,
+          name: day.toString(),
+          percent: amountPercent,
+        ));
 
     notifyListeners();
   }

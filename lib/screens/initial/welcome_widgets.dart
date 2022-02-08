@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:water_reminder/constants.dart';
 
 class StepContainer extends StatelessWidget {
   const StepContainer({
@@ -23,7 +24,7 @@ class StepContainer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: const BorderRadius.all(kRadius_5),
               color: Colors.grey,
               gradient: activeContainer
                   ? const LinearGradient(

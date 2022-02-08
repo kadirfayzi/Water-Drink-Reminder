@@ -31,7 +31,8 @@ class _GenderPageState extends State<GenderPage> {
               GestureDetector(
                 onTap: () {
                   provider.setGender = 0;
-                  provider.setWeight(70, provider.getWeightUnit);
+                  provider.setWeight = 70;
+                  // provider.setWeight(70, provider.getWeightUnit);
                 },
                 child: Column(
                   children: [
@@ -68,7 +69,8 @@ class _GenderPageState extends State<GenderPage> {
               GestureDetector(
                 onTap: () {
                   provider.setGender = 1;
-                  provider.setWeight(60, provider.getWeightUnit);
+                  provider.setWeight = 60;
+                  // provider.setWeight(60, provider.getWeightUnit);
                 },
                 child: Column(
                   children: [

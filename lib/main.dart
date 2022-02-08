@@ -20,6 +20,7 @@ import 'package:water_reminder/screens/settings/settings_screen.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
 import 'package:water_reminder/widgets/custom_tab.dart';
 
+import 'notification.dart';
 import 'screens/initial/welcome_screen.dart';
 
 void main() async {
@@ -52,13 +53,11 @@ void main() async {
   await Hive.openBox<DrunkAmount>('drunkAmount');
   await Hive.openBox('isInitialPrefsSet');
 
-  /// /// /// /// /// /// ///
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => DataProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationService()),
       ],
       child: const MyApp(),
     ),
@@ -77,6 +76,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    // Provider.of<NotificationService>(context, listen: false).initialize();
+    // Provider.of<NotificationService>(context, listen: false)
+    //     .scheduledNotification();
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -88,34 +90,35 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final provider = DataProvider();
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      debugShowCheckedModeBanner: false,
-      home: provider.getIsInitialPrefsSet
-          ? Scaffold(
-              appBar: BuildAppBar(
-                bottom: TabBar(
+    return Consumer<DataProvider>(
+      builder: (context, provider, _) => MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        debugShowCheckedModeBanner: false,
+        home: provider.getIsInitialPrefsSet
+            ? Scaffold(
+                appBar: BuildAppBar(
+                  bottom: TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      CustomTab(icon: Icons.water, title: 'Home'),
+                      CustomTab(icon: Icons.history, title: 'History'),
+                      CustomTab(icon: Icons.settings, title: 'Settings'),
+                    ],
+                  ),
+                ),
+                body: TabBarView(
                   controller: _tabController,
-                  tabs: const [
-                    CustomTab(icon: Icons.water, title: 'Home'),
-                    CustomTab(icon: Icons.history, title: 'History'),
-                    CustomTab(icon: Icons.settings, title: 'Settings'),
+                  children: const [
+                    HomeScreen(),
+                    HistoryScreen(),
+                    SettingsScreen()
                   ],
                 ),
-              ),
-              body: TabBarView(
-                controller: _tabController,
-                children: const [
-                  HomeScreen(),
-                  HistoryScreen(),
-                  SettingsScreen()
-                ],
-              ),
-            )
-          : const WelcomeScreen(),
-      // home: const WelcomeScreen(),
+              )
+            : const WelcomeScreen(),
+        // home: const WelcomeScreen(),
+      ),
     );
   }
 }

@@ -38,7 +38,7 @@ class _WakeupTimePageState extends State<WakeupTimePage> {
               SizedBox(width: size.width * 0.1),
               SizedBox(
                 width: size.width * 0.35,
-                height: size.height * 0.2,
+                height: size.height * 0.25,
                 child: CupertinoTheme(
                   data: const CupertinoThemeData(
                     textTheme: CupertinoTextThemeData(

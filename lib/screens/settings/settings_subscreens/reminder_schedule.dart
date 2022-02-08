@@ -78,9 +78,11 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                               children: [
                                 Material(
                                   elevation: 2.0,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius:
+                                      const BorderRadius.all(kRadius_10),
                                   child: InkWell(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius:
+                                        const BorderRadius.all(kRadius_10),
                                     onTap: () =>
                                         provider.deleteScheduleRecord = index,
                                     child: Container(

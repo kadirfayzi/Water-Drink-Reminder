@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/models/cup.dart';
 import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/models/record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
@@ -15,7 +17,8 @@ Future<dynamic> editRecordPopup({
   required Size size,
   required int recordIndex,
 }) {
-  int selectedCupDivisionIndex = provider.getRecords[recordIndex].cupDivisionIndex;
+  int selectedCupDivisionIndex =
+      provider.getRecords[recordIndex].cupDivisionIndex;
 
   final Record record = provider.getRecords[recordIndex];
   return showModalBottomSheet(
@@ -28,8 +31,8 @@ Future<dynamic> editRecordPopup({
           heightPercent: 0.45,
           onTapOK: () {
             // provider.removeDrunkAmount = record.dividedCapacity;
-            provider.removeDrunkAmount =
-                DrunkAmount(drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
+            provider.removeDrunkAmount = DrunkAmount(
+                drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
             provider.editRecord(
               recordIndex,
               Record(
@@ -78,19 +81,22 @@ Future<dynamic> editRecordPopup({
                   children: List.generate(
                     4,
                     (index) => GestureDetector(
-                      onTap: () => setState(() => selectedCupDivisionIndex = index),
+                      onTap: () =>
+                          setState(() => selectedCupDivisionIndex = index),
                       child: Column(
                         children: [
                           ElevatedContainer(
                             width: 40,
                             height: 40,
                             blurRadius: 2,
-                            color: selectedCupDivisionIndex == index ? kPrimaryColor : Colors.white,
+                            color: selectedCupDivisionIndex == index
+                                ? kPrimaryColor
+                                : Colors.white,
                             shape: BoxShape.rectangle,
                             borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(25),
-                              topRight: Radius.circular(25),
-                              bottomRight: Radius.circular(25),
+                              bottomLeft: kRadius_25,
+                              topRight: kRadius_25,
+                              bottomRight: kRadius_25,
                             ),
                             child: Center(
                               child: Text(
@@ -107,7 +113,9 @@ Future<dynamic> editRecordPopup({
                           Text(
                             '${((record.defaultAmount * (index + 1)) / 4).toStringAsFixed(0)}ml',
                             style: TextStyle(
-                              color: selectedCupDivisionIndex == index ? Colors.black : Colors.grey,
+                              color: selectedCupDivisionIndex == index
+                                  ? Colors.black
+                                  : Colors.grey,
                             ),
                           ),
                         ],
@@ -130,7 +138,6 @@ Future<dynamic> switchCup({
   required DataProvider provider,
   required Size size,
 }) {
-  debugPrint('${provider.getSelectedCupIndex}');
   int selectedIndex = provider.getSelectedCupIndex;
   return showModalBottomSheet(
     context: context,
@@ -138,7 +145,7 @@ Future<dynamic> switchCup({
     isScrollControlled: true,
     builder: (context) => StatefulBuilder(
       builder: (context, setState) => BuildDialog(
-        heightPercent: 0.6,
+        heightPercent: 0.5,
         content: Column(
           children: [
             const Padding(
@@ -158,30 +165,51 @@ Future<dynamic> switchCup({
             SizedBox(height: size.height * 0.03),
             Container(
               width: size.width,
-              height: size.height * 0.415,
+              height: size.height * 0.35,
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: GridView.count(
                 physics: const AlwaysScrollableScrollPhysics(),
                 crossAxisCount: 3,
                 mainAxisSpacing: 20,
                 children: List.generate(
-                  provider.getCups.length,
-                  (index) => InkWell(
-                    onTap: () => setState(() => selectedIndex = index),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Image.asset(
-                          provider.getCups[index].image,
-                          scale: 6,
-                          color: selectedIndex == index ? null : Colors.grey,
-                        ),
-                        Text(
-                          '${provider.getCups[index].capacity.toStringAsFixed(0)}ml',
+                  provider.getCups.length + 1,
+                  (index) => index == provider.getCups.length
+                      ? InkWell(
+                          onTap: () => addCustomCup(
+                            context: context,
+                            provider: provider,
+                            size: size,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Image.asset(
+                                'assets/images/cups/custom-128.png',
+                                scale: 3.5,
+                                color: Colors.grey,
+                              ),
+                              const Text('Customize')
+                            ],
+                          ),
                         )
-                      ],
-                    ),
-                  ),
+                      : InkWell(
+                          onTap: () => setState(() => selectedIndex = index),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Image.asset(
+                                provider.getCups[index].image,
+                                scale: 3.5,
+                                color: selectedIndex == index
+                                    ? kPrimaryColor
+                                    : Colors.grey,
+                              ),
+                              Text(
+                                '${provider.getCups[index].capacity.toStringAsFixed(0)}ml',
+                              )
+                            ],
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -189,6 +217,76 @@ Future<dynamic> switchCup({
         ),
         onTapOK: () {
           provider.setSelectedCup = selectedIndex;
+          Navigator.pop(context);
+        },
+      ),
+    ),
+  );
+}
+
+/// Add custom cup
+Future<dynamic> addCustomCup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  final TextEditingController controller = TextEditingController();
+  return showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) => BuildDialog(
+        heightPercent: 0.25,
+        content: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Text(
+                'Customize your drinking cup',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                  color: Colors.black54,
+                ),
+              ),
+            ),
+            Container(
+              width: size.width,
+              height: size.height * 0.15,
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/cups/custom-128.png', scale: 3.5),
+                  SizedBox(width: size.width * 0.05),
+                  SizedBox(
+                    width: size.width * 0.35,
+                    child: TextField(
+                      controller: controller,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      maxLength: 3,
+                      decoration: const InputDecoration(counterText: ''),
+                      cursorHeight: 25,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.05),
+                  const Text('ml'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        onTapOK: () {
+          provider.addCup = Cup(
+              capacity: double.parse(controller.value.text),
+              image: 'assets/images/cups/custom-128.png',
+              selected: false);
           Navigator.pop(context);
         },
       ),
@@ -214,9 +312,10 @@ Future<dynamic> addForgottenRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.4,
           onTapOK: () {
-            if (provider.getDrunkAmount + waterAmount <= provider.getIntakeGoalAmount) {
-              provider.addDrunkAmount =
-                  DrunkAmount(drunkAmount: provider.getDrunkAmount + waterAmount);
+            if (provider.getDrunkAmount + waterAmount <=
+                provider.getIntakeGoalAmount) {
+              provider.addDrunkAmount = DrunkAmount(
+                  drunkAmount: provider.getDrunkAmount + waterAmount);
             }
 
             provider.addRecord(
@@ -284,9 +383,11 @@ Future<dynamic> addForgottenRecordPopup({
                           flex: 2,
                           child: CupertinoPicker(
                             itemExtent: 35,
-                            onSelectedItemChanged: (selectedIndex) =>
-                                setState(() => waterAmount = waterAmounts[selectedIndex]),
-                            scrollController: FixedExtentScrollController(initialItem: 5),
+                            onSelectedItemChanged: (selectedIndex) => setState(
+                                () =>
+                                    waterAmount = waterAmounts[selectedIndex]),
+                            scrollController:
+                                FixedExtentScrollController(initialItem: 5),
                             looping: true,
                             children: List.generate(
                               waterAmounts.length,

@@ -20,7 +20,7 @@ class BuildDialog extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.all(kRadius_10),
       ),
       child: SizedBox(
         height: size.height * heightPercent,

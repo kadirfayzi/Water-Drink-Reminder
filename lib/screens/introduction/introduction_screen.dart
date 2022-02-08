@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/main.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/introduction/pages/daily_water_intake.dart';
@@ -70,7 +71,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   height: size.height * 0.725,
                   child: PageView(
                     controller: pageController,
-                    // physics: const NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     children: const [
                       DailyWaterIntake(),
                       HowMuchShouldDrink(),
@@ -85,7 +86,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: Material(
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: const BorderRadius.all(kRadius_30),
                         onTap: () => Navigator.pushReplacement(
                           context,
                           CupertinoPageRoute(
@@ -93,10 +94,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                         ),
                         child: Container(
                           width: size.width * 0.65,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.blue,
-                            borderRadius: BorderRadius.circular(30),
-                            gradient: const LinearGradient(
+                            borderRadius: BorderRadius.all(kRadius_30),
+                            gradient: LinearGradient(
                               colors: [Colors.lightBlueAccent, Colors.blue],
                               begin: FractionalOffset(0.0, 0.0),
                               end: FractionalOffset(0.5, 0.0),
@@ -128,14 +129,15 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
+                          borderRadius: const BorderRadius.all(kRadius_30),
                           onTap: () => pageController.animateToPage(3,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.ease),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.blue,
-                              borderRadius: BorderRadius.circular(50),
-                              gradient: const LinearGradient(
+                              borderRadius: BorderRadius.all(kRadius_50),
+                              gradient: LinearGradient(
                                 colors: [Colors.lightBlueAccent, Colors.blue],
                                 begin: FractionalOffset(0.0, 0.0),
                                 end: FractionalOffset(0.5, 0.0),
@@ -159,15 +161,16 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                           ),
                         ),
                         InkWell(
+                          borderRadius: const BorderRadius.all(kRadius_30),
                           onTap: () => pageController.nextPage(
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.ease,
                           ),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.blue,
-                              borderRadius: BorderRadius.circular(30),
-                              gradient: const LinearGradient(
+                              borderRadius: BorderRadius.all(kRadius_30),
+                              gradient: LinearGradient(
                                 colors: [Colors.lightBlueAccent, Colors.blue],
                                 begin: FractionalOffset(0.0, 0.0),
                                 end: FractionalOffset(0.5, 0.0),

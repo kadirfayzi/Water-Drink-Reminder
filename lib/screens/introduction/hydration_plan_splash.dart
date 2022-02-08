@@ -42,7 +42,6 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
           isSet: true,
         );
       }
-
       minute += 30;
       hour += 1;
       if (minute >= 60) {

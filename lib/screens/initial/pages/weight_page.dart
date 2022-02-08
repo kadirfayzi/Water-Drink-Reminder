@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 class WeightPage extends StatefulWidget {
@@ -43,15 +44,19 @@ class _WeightPageState extends State<WeightPage> {
                   children: [
                     SizedBox(
                       width: size.width * 0.25,
-                      height: size.height * 0.2,
+                      height: size.height * 0.25,
                       child: CupertinoPicker(
-                        key: ValueKey<Object>(provider.getWeightUnit),
-                        onSelectedItemChanged: (weight) =>
-                            provider.setWeight(weight, provider.getWeightUnit),
-                        itemExtent: 48,
+                        key: ValueKey(provider.getWeightUnit),
                         scrollController: FixedExtentScrollController(
                           initialItem: provider.getWeight,
                         ),
+                        useMagnifier: true,
+                        magnification: 1.15,
+                        onSelectedItemChanged: (weight) =>
+                            provider.getWeightUnit == 0
+                                ? provider.setWeight = weight
+                                : provider.setWeight = kgToLbs(weight),
+                        itemExtent: 48,
                         children: List.generate(
                           kWeightChildCount[provider.getWeightUnit],
                           (index) => Center(
@@ -59,7 +64,7 @@ class _WeightPageState extends State<WeightPage> {
                               index.toString(),
                               style: const TextStyle(
                                 fontSize: 35,
-                                color: Colors.blue,
+                                color: kPrimaryColor,
                               ),
                             ),
                           ),
@@ -75,7 +80,7 @@ class _WeightPageState extends State<WeightPage> {
                         onValueChanged: (value) =>
                             provider.setUnit(value as int, 0),
                       ),
-                    )
+                    ),
                   ],
                 )
               ],

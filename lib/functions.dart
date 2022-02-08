@@ -20,3 +20,8 @@ int calculateReminderCount(int bedHour, int wakeUpHour) =>
 
 /// Convert hour and minutes to two digits if they are one digits
 String twoDigits(int n) => n.toString().padLeft(2, "0");
+
+/// Get month days
+int monthDays() => DateTime(DateTime.now().year, DateTime.now().month + 1, 0)
+    .difference(DateTime(DateTime.now().year, DateTime.now().month, 0))
+    .inDays;

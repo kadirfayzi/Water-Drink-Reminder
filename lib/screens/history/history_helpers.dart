@@ -51,7 +51,7 @@ Widget buildTimeRangeSelectionButton({
         ),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: const BorderRadius.all(kRadius_5),
           border: Border.all(color: kPrimaryColor, width: 1.5),
         ),
         child: Center(

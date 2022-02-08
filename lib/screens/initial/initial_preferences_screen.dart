@@ -119,10 +119,10 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           }
                         },
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.blue,
-                            borderRadius: BorderRadius.circular(50),
-                            gradient: const LinearGradient(
+                            borderRadius: BorderRadius.all(kRadius_50),
+                            gradient: LinearGradient(
                               colors: [Colors.lightBlueAccent, Colors.blue],
                               begin: FractionalOffset(0.0, 0.0),
                               end: FractionalOffset(0.5, 0.0),
@@ -159,10 +159,10 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           }
                         },
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.blue,
-                            borderRadius: BorderRadius.circular(30),
-                            gradient: const LinearGradient(
+                            borderRadius: BorderRadius.all(kRadius_30),
+                            gradient: LinearGradient(
                               colors: [Colors.lightBlueAccent, Colors.blue],
                               begin: FractionalOffset(0.0, 0.0),
                               end: FractionalOffset(0.5, 0.0),

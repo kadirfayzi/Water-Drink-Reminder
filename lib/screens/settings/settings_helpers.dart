@@ -379,7 +379,10 @@ Future<dynamic> weightSelectionPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.35,
           onTapOK: () {
-            provider.setWeight(weight, provider.getWeightUnit);
+            // provider.setWeight(weight, provider.getWeightUnit);
+            provider.getWeightUnit == 0
+                ? provider.setWeight = weight
+                : provider.setWeight = kgToLbs(weight);
             Navigator.pop(context);
           },
           content: Container(
