@@ -17,10 +17,10 @@ import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/history/history_screen.dart';
 import 'package:water_reminder/screens/home/home_screen.dart';
 import 'package:water_reminder/screens/settings/settings_screen.dart';
+import 'package:water_reminder/services/notification_service.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
 import 'package:water_reminder/widgets/custom_tab.dart';
 
-import 'notification.dart';
 import 'screens/initial/welcome_screen.dart';
 
 void main() async {
@@ -57,7 +57,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationService()),
       ],
       child: const MyApp(),
     ),
@@ -73,12 +72,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  late final NotificationHelper _notificationHelper;
+
   @override
   void initState() {
     super.initState();
-    // Provider.of<NotificationService>(context, listen: false).initialize();
-    // Provider.of<NotificationService>(context, listen: false)
-    //     .scheduledNotification();
+    _notificationHelper = NotificationHelper();
+    _notificationHelper.initializeNotification();
+    // _notificationHelper.requestIOSPermissions();
+
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -109,11 +111,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 ),
                 body: TabBarView(
                   controller: _tabController,
-                  children: const [
-                    HomeScreen(),
-                    HistoryScreen(),
-                    SettingsScreen()
-                  ],
+                  children: const [HomeScreen(), HistoryScreen(), SettingsScreen()],
                 ),
               )
             : const WelcomeScreen(),

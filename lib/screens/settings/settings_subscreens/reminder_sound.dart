@@ -3,6 +3,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/provider/data_provider.dart';
+import 'package:water_reminder/services/notification_service.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
 
 class ReminderSound extends StatefulWidget {
@@ -14,6 +15,7 @@ class ReminderSound extends StatefulWidget {
 
 class _ReminderSoundState extends State<ReminderSound> with TickerProviderStateMixin {
   final _player = AudioPlayer();
+  final _notificationHelper = NotificationHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +45,19 @@ class _ReminderSoundState extends State<ReminderSound> with TickerProviderStateM
                       ),
                       child: InkWell(
                         onTap: () async {
+                          _notificationHelper.cancelAll();
                           await _player.setAsset('assets/sounds/$index.mp3');
                           _player.play();
                           provider.setSoundValue = index;
+
+                          for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                            _notificationHelper.scheduledNotification(
+                              hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                              minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                              id: provider.getScheduleRecords[i].id,
+                              sound: 'sound$index',
+                            );
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),

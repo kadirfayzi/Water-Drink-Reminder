@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
@@ -6,6 +7,7 @@ import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/introduction/introduction_screen.dart';
+import 'package:water_reminder/services/notification_service.dart';
 
 class HydrationPlanSplash extends StatefulWidget {
   const HydrationPlanSplash({Key? key}) : super(key: key);
@@ -14,30 +16,35 @@ class HydrationPlanSplash extends StatefulWidget {
   State<HydrationPlanSplash> createState() => _HydrationPlanSplashState();
 }
 
-class _HydrationPlanSplashState extends State<HydrationPlanSplash>
-    with TickerProviderStateMixin {
+class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerProviderStateMixin {
   late AnimationController _animationController;
 
+  late final DataProvider _provider;
+  late final NotificationHelper _notificationHelper;
+  late final Random _random;
+
   setHydrationPlan() {
-    final provider = DataProvider();
-    if (provider.getWeightUnit == 0) {
-      provider.setIntakeGoalAmount =
-          calculateIntakeGoalAmount(provider.getWeight);
+    _provider = DataProvider();
+    _notificationHelper = NotificationHelper();
+    _random = Random();
+    if (_provider.getWeightUnit == 0) {
+      _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(_provider.getWeight);
     } else {
-      final int weight = lbsToKg(provider.getWeight);
-      provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
+      final int weight = lbsToKg(_provider.getWeight);
+      _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
     }
 
     int reminderCount = calculateReminderCount(
-      provider.getBedTimeHour,
-      provider.getWakeUpTimeHour,
+      _provider.getBedTimeHour,
+      _provider.getWakeUpTimeHour,
     );
 
-    int hour = provider.getWakeUpTimeHour;
-    int minute = provider.getWakeUpTimeMinute;
+    int hour = _provider.getWakeUpTimeHour;
+    int minute = _provider.getWakeUpTimeMinute;
     for (int i = 0; i <= reminderCount; i++) {
-      if (hour <= provider.getBedTimeHour) {
-        provider.addScheduleRecord = ScheduleRecord(
+      if (hour <= _provider.getBedTimeHour) {
+        _provider.addScheduleRecord = ScheduleRecord(
+          id: _random.nextInt(1000000000),
           time: '${twoDigits(hour)}:${twoDigits(minute)}',
           isSet: true,
         );
@@ -50,13 +57,24 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
       }
     }
 
-    provider.setIsInitialPrefsSet = true;
+    /// Set initial notifications
+    for (int i = 0; i < _provider.getScheduleRecords.length; i++) {
+      _notificationHelper.scheduledNotification(
+        hour: int.parse(_provider.getScheduleRecords[i].time.split(":")[0]),
+        minutes: int.parse(_provider.getScheduleRecords[i].time.split(":")[1]),
+        id: _provider.getScheduleRecords[i].id,
+        sound: 'sound0',
+      );
+    }
+
+    _provider.setIsInitialPrefsSet = true;
   }
 
   @override
   void initState() {
     super.initState();
     setHydrationPlan();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4000),
@@ -98,8 +116,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
         valueColor: const AlwaysStoppedAnimation(
           Colors.blue,
         ), // Defaults to the current Theme's accentColor.
-        backgroundColor:
-            Colors.white, // Defaults to the current Theme's backgroundColor.
+        backgroundColor: Colors.white, // Defaults to the current Theme's backgroundColor.
         borderColor: Colors.white,
         borderWidth: 0.0,
         direction: Axis
@@ -111,9 +128,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
               'Generating your hydration plan...',
               style: TextStyle(
                 fontSize: 20,
-                color: _animationController.value < 0.7
-                    ? Colors.blue
-                    : Colors.white,
+                color: _animationController.value < 0.7 ? Colors.blue : Colors.white,
               ),
             ),
             SizedBox(height: size.height * 0.05),
@@ -125,8 +140,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Image.asset(
-                  Provider.of<DataProvider>(context, listen: false).getGender ==
-                          0
+                  Provider.of<DataProvider>(context, listen: false).getGender == 0
                       ? 'assets/images/boy.png'
                       : 'assets/images/girl.png',
                   scale: 4,
@@ -145,9 +159,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
                     percentage.toStringAsFixed(0),
                     style: TextStyle(
                       fontSize: size.width * 0.2,
-                      color: _animationController.value < 0.35
-                          ? Colors.blue
-                          : Colors.white,
+                      color: _animationController.value < 0.35 ? Colors.blue : Colors.white,
                     ),
                   ),
                 ),
@@ -155,9 +167,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash>
                   '%',
                   style: TextStyle(
                     fontSize: size.width * 0.2,
-                    color: _animationController.value < 0.3
-                        ? Colors.blue
-                        : Colors.white,
+                    color: _animationController.value < 0.3 ? Colors.blue : Colors.white,
                   ),
                 ),
               ],

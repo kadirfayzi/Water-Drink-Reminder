@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:water_reminder/boxes.dart';
-import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/models/cup.dart';
@@ -48,6 +46,8 @@ class DataProvider extends ChangeNotifier {
   }
 
   get getScheduleRecords => Boxes.getScheduleRecords().values.toList();
+  // get getScheduleRecords =>
+  //     Boxes.getScheduleRecords().values.toList()..sort((a, b) => a.time.compareTo(b.time));
 
   /// Reminder sound
   set setSoundValue(int soundValue) {
@@ -154,10 +154,8 @@ class DataProvider extends ChangeNotifier {
   // get getCups => getCapacityUnit == 0 ? _cupCapacity : mlToFloz;
   get getCups => Boxes.getCups().values.toList();
 
-  get getSelectedCup =>
-      Boxes.getCups().values.firstWhere((cup) => cup.selected);
-  get getSelectedCupIndex =>
-      Boxes.getCups().values.toList().indexWhere((cup) => cup.selected);
+  get getSelectedCup => Boxes.getCups().values.firstWhere((cup) => cup.selected);
+  get getSelectedCupIndex => Boxes.getCups().values.toList().indexWhere((cup) => cup.selected);
 
   /// Drunk amount
   set addDrunkAmount(DrunkAmount drunkAmount) {

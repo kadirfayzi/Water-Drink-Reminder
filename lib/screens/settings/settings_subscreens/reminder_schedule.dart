@@ -8,6 +8,8 @@ import 'package:water_reminder/screens/settings/settings_helpers.dart';
 import 'package:water_reminder/widgets/build_appbar.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
 
+import '../../../services/notification_service.dart';
+
 class ReminderSchedule extends StatefulWidget {
   const ReminderSchedule({Key? key}) : super(key: key);
 
@@ -16,6 +18,7 @@ class ReminderSchedule extends StatefulWidget {
 }
 
 class _ReminderScheduleState extends State<ReminderSchedule> {
+  final _notificationHelper = NotificationHelper();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -45,11 +48,9 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                               title: Container(
                                 height: size.height * 0.06,
                                 width: size.width,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       '${provider.getScheduleRecords[index].time}',
@@ -59,17 +60,34 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                                       ),
                                     ),
                                     CupertinoSwitch(
-                                      value: provider
-                                          .getScheduleRecords[index].isSet,
-                                      onChanged: (isSet) =>
-                                          provider.editScheduleRecord(
-                                        index,
-                                        ScheduleRecord(
-                                          time: provider
-                                              .getScheduleRecords[index].time,
-                                          isSet: isSet,
-                                        ),
-                                      ),
+                                      value: provider.getScheduleRecords[index].isSet,
+                                      onChanged: (isSet) {
+                                        /// set or reset notification
+                                        if (!isSet) {
+                                          _notificationHelper
+                                              .cancel(provider.getScheduleRecords[index].id);
+                                        } else {
+                                          _notificationHelper.scheduledNotification(
+                                            hour: int.parse(provider.getScheduleRecords[index].time
+                                                .split(":")[0]),
+                                            minutes: int.parse(provider
+                                                .getScheduleRecords[index].time
+                                                .split(":")[1]),
+                                            id: provider.getScheduleRecords[index].id,
+                                            sound: 'sound${provider.getSoundValue}',
+                                          );
+                                        }
+
+                                        /// Edit schedule record
+                                        provider.editScheduleRecord(
+                                          index,
+                                          ScheduleRecord(
+                                            id: provider.getScheduleRecords[index].id,
+                                            time: provider.getScheduleRecords[index].time,
+                                            isSet: isSet,
+                                          ),
+                                        );
+                                      },
                                       activeColor: kPrimaryColor,
                                     )
                                   ],
@@ -78,13 +96,15 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                               children: [
                                 Material(
                                   elevation: 2.0,
-                                  borderRadius:
-                                      const BorderRadius.all(kRadius_10),
+                                  borderRadius: const BorderRadius.all(kRadius_10),
                                   child: InkWell(
-                                    borderRadius:
-                                        const BorderRadius.all(kRadius_10),
-                                    onTap: () =>
-                                        provider.deleteScheduleRecord = index,
+                                    borderRadius: const BorderRadius.all(kRadius_10),
+                                    onTap: () {
+                                      /// Delete schedule record and notification
+                                      _notificationHelper
+                                          .cancel(provider.getScheduleRecords[index].id);
+                                      provider.deleteScheduleRecord = index;
+                                    },
                                     child: Container(
                                       padding: const EdgeInsets.all(8),
                                       width: size.width,
@@ -112,6 +132,8 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
               ),
             ),
           ),
+
+          /// Add new schedule record
           floatingActionButton: ElevatedContainer(
             color: kPrimaryColor,
             padding: const EdgeInsets.all(10),
@@ -128,8 +150,7 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
               ),
             ),
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         );
       },
     );

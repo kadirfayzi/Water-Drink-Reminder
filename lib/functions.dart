@@ -8,8 +8,6 @@ String getRandomTip() {
   return tips[i];
 }
 
-/// Convert kg to lbs
-
 int kgToLbs(int kg) => (kg * 2.205).toInt().round();
 int lbsToKg(int lbs) => (lbs ~/ 2.205).round();
 double mlToFlOz(double ml) => (ml / 29.574).roundToDouble();
@@ -25,3 +23,5 @@ String twoDigits(int n) => n.toString().padLeft(2, "0");
 int monthDays() => DateTime(DateTime.now().year, DateTime.now().month + 1, 0)
     .difference(DateTime(DateTime.now().year, DateTime.now().month, 0))
     .inDays;
+
+/// Convert String time to integer
