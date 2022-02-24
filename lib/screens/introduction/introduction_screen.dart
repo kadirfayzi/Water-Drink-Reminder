@@ -48,9 +48,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: Image.asset(
-                          Provider.of<DataProvider>(context, listen: false)
-                                      .getGender ==
-                                  0
+                          Provider.of<DataProvider>(context, listen: false).getGender == 0
                               ? 'assets/images/boy.png'
                               : 'assets/images/girl.png',
                           scale: 15,
@@ -84,37 +82,34 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                 if (currentPage == 3)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Material(
-                      child: InkWell(
-                        borderRadius: const BorderRadius.all(kRadius_30),
-                        onTap: () => Navigator.pushReplacement(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => const MyApp()),
-                        ),
-                        child: Container(
-                          width: size.width * 0.65,
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.all(kRadius_30),
-                            gradient: LinearGradient(
-                              colors: [Colors.lightBlueAccent, Colors.blue],
-                              begin: FractionalOffset(0.0, 0.0),
-                              end: FractionalOffset(0.5, 0.0),
-                              stops: [0.0, 1.0],
-                              tileMode: TileMode.clamp,
-                            ),
+                    child: InkWell(
+                      borderRadius: const BorderRadius.all(kRadius_30),
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        CupertinoPageRoute(builder: (context) => const MyApp()),
+                      ),
+                      child: Container(
+                        width: size.width * 0.65,
+                        decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.all(kRadius_30),
+                          gradient: LinearGradient(
+                            colors: [Colors.lightBlueAccent, Colors.blue],
+                            begin: FractionalOffset(0.0, 0.0),
+                            end: FractionalOffset(0.5, 0.0),
+                            stops: [0.0, 1.0],
+                            tileMode: TileMode.clamp,
                           ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(15.0),
-                            child: Center(
-                              child: Text(
-                                'START',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(15.0),
+                          child: Center(
+                            child: Text(
+                              'START',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -129,10 +124,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          borderRadius: const BorderRadius.all(kRadius_30),
+                          borderRadius: const BorderRadius.all(kRadius_50),
                           onTap: () => pageController.animateToPage(3,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.ease),
+                              duration: const Duration(milliseconds: 300), curve: Curves.ease),
                           child: Container(
                             decoration: const BoxDecoration(
                               color: Colors.blue,

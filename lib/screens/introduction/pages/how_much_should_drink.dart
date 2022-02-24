@@ -14,8 +14,10 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
   late int howMuchEachTime;
   setHowMuchShouldDrink() {
     final provider = DataProvider();
-    howManyTimes =
-        (provider.getBedTimeHour - provider.getWakeUpTimeHour) ~/ 1.5;
+    int wakeUpHour = provider.getWakeUpTimeHour;
+    int bedHour = provider.getBedTimeHour;
+    if (wakeUpHour >= bedHour) bedHour += 24;
+    howManyTimes = (bedHour - wakeUpHour) ~/ 1.5;
     howMuchEachTime = provider.getIntakeGoalAmount ~/ howManyTimes;
   }
 

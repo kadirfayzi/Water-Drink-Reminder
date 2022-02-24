@@ -25,8 +25,6 @@ const List<String> kWeekDays = [
   'Sat',
 ];
 
-const double kIntakeGoalDefaultValue = 2030.0;
-
 const List<String> kReminderModeStrings = [
   'As device settings',
   'Sound and vibrate',

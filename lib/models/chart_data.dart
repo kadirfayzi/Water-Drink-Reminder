@@ -14,6 +14,8 @@ class ChartData extends HiveObject {
   late String name;
   @HiveField(4)
   late double percent;
+  @HiveField(5)
+  late double drunkAmount;
 
   ChartData({
     required this.day,
@@ -21,5 +23,6 @@ class ChartData extends HiveObject {
     required this.year,
     required this.name,
     required this.percent,
+    required this.drunkAmount,
   });
 }

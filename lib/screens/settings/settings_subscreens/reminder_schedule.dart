@@ -95,10 +95,10 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                               ),
                               children: [
                                 Material(
-                                  elevation: 2.0,
-                                  borderRadius: const BorderRadius.all(kRadius_10),
+                                  elevation: 0.5,
+                                  borderRadius: const BorderRadius.all(kRadius_5),
                                   child: InkWell(
-                                    borderRadius: const BorderRadius.all(kRadius_10),
+                                    borderRadius: const BorderRadius.all(kRadius_5),
                                     onTap: () {
                                       /// Delete schedule record and notification
                                       _notificationHelper
@@ -111,7 +111,7 @@ class _ReminderScheduleState extends State<ReminderSchedule> {
                                       child: Text(
                                         'Delete',
                                         style: TextStyle(
-                                          color: Colors.red[800],
+                                          color: Colors.red[600],
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16,
                                         ),

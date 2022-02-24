@@ -32,15 +32,13 @@ class _GenderPageState extends State<GenderPage> {
                 onTap: () {
                   provider.setGender = 0;
                   provider.setWeight = 70;
-                  // provider.setWeight(70, provider.getWeightUnit);
+                  provider.setTempWeight = 70;
                 },
                 child: Column(
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: provider.getGender == 0
-                            ? Colors.grey
-                            : Colors.grey[300],
+                        color: provider.getGender == 0 ? Colors.grey : Colors.grey[300],
                         shape: BoxShape.circle,
                       ),
                       child: Padding(
@@ -55,9 +53,7 @@ class _GenderPageState extends State<GenderPage> {
                     Text(
                       'Male',
                       style: TextStyle(
-                        color: provider.getGender == 0
-                            ? Colors.blue
-                            : Colors.grey[400],
+                        color: provider.getGender == 0 ? Colors.blue : Colors.grey[400],
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
@@ -70,15 +66,13 @@ class _GenderPageState extends State<GenderPage> {
                 onTap: () {
                   provider.setGender = 1;
                   provider.setWeight = 60;
-                  // provider.setWeight(60, provider.getWeightUnit);
+                  provider.setTempWeight = 60;
                 },
                 child: Column(
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: provider.getGender == 1
-                            ? Colors.grey
-                            : Colors.grey[300],
+                        color: provider.getGender == 1 ? Colors.grey : Colors.grey[300],
                         shape: BoxShape.circle,
                       ),
                       child: Padding(
@@ -93,9 +87,7 @@ class _GenderPageState extends State<GenderPage> {
                     Text(
                       'Female',
                       style: TextStyle(
-                        color: provider.getGender == 1
-                            ? Colors.blue
-                            : Colors.grey[400],
+                        color: provider.getGender == 1 ? Colors.blue : Colors.grey[400],
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),

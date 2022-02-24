@@ -20,9 +20,20 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   Object? timeRangeValue = 0;
-  final DateTime _date = DateTime.now();
+  final DateTime _now = DateTime.now();
+  late List<dynamic> selectedDate = [_now.year, _now.month, _now.day];
+  late final DataProvider _provider;
+  int monthlyAverage = 0;
 
-  late List<dynamic> selectedDate = [_date.year, _date.month, _date.day];
+  @override
+  void initState() {
+    super.initState();
+    _provider = DataProvider();
+    monthlyAverage = calculateMonthlyAverage(
+      monthDayChartDataList: _provider.getMonthDayChartDataList,
+      intakeGoalAmount: _provider.getIntakeGoalAmount,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,22 +53,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     IconButton(
                       onPressed: () {
                         if (timeRangeValue == 0) {
-                          if (chartDataList.any((chartData) =>
-                              chartData.month == _date.month - 1)) {
-                            setState(() => selectedDate = [
-                                  _date.year,
-                                  _date.month - 1,
-                                  _date.day
-                                ]);
+                          if (chartDataList.any((chartData) => chartData.month == _now.month - 1)) {
+                            setState(() => selectedDate = [_now.year, _now.month - 1, _now.day]);
                           }
                         } else {
-                          if (chartDataList.any((chartData) =>
-                              chartData.year == _date.year - 1)) {
-                            setState(() => selectedDate = [
-                                  _date.year - 1,
-                                  _date.month,
-                                  _date.day
-                                ]);
+                          if (chartDataList.any((chartData) => chartData.year == _now.year - 1)) {
+                            setState(() => selectedDate = [_now.year - 1, _now.month, _now.day]);
                           }
                         }
                       },
@@ -65,8 +66,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: chartDataList.any((chartData) =>
-                                  chartData.month == _date.month - 1)
+                          color: chartDataList.any((chartData) => chartData.month == _now.month - 1)
                               ? Colors.blue
                               : Colors.grey,
                         ),
@@ -93,22 +93,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     IconButton(
                       onPressed: () {
                         if (timeRangeValue == 0) {
-                          if (chartDataList.any((chartData) =>
-                              chartData.month == _date.month + 1)) {
-                            setState(() => selectedDate = [
-                                  _date.year,
-                                  _date.month + 1,
-                                  _date.day
-                                ]);
+                          if (chartDataList.any((chartData) => chartData.month == _now.month + 1)) {
+                            setState(() => selectedDate = [_now.year, _now.month + 1, _now.day]);
                           }
                         } else {
-                          if (chartDataList.any((chartData) =>
-                              chartData.year == _date.year + 1)) {
-                            setState(() => selectedDate = [
-                                  _date.year + 1,
-                                  _date.month,
-                                  _date.day
-                                ]);
+                          if (chartDataList.any((chartData) => chartData.year == _now.year + 1)) {
+                            setState(() => selectedDate = [_now.year + 1, _now.month, _now.day]);
                           }
                         }
                       },
@@ -116,8 +106,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: chartDataList.any((chartData) =>
-                                  chartData.month == _date.month + 1)
+                          color: chartDataList.any((chartData) => chartData.month == _now.month + 1)
                               ? Colors.blue
                               : Colors.grey,
                         ),
@@ -184,8 +173,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       leftTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
-                        getTitles: (value) =>
-                            value == 120 ? '(%)' : value.toStringAsFixed(0),
+                        getTitles: (value) => value == 120 ? '(%)' : value.toStringAsFixed(0),
                         getTextStyles: (context, value) => value == 120
                             ? const TextStyle(
                                 color: Color(0xff939393),
@@ -242,8 +230,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               CupertinoSlidingSegmentedControl(
                 groupValue: timeRangeValue,
                 children: const {0: Text('Month'), 1: Text('Year')},
-                onValueChanged: (value) =>
-                    setState(() => timeRangeValue = value),
+                onValueChanged: (value) => setState(() => timeRangeValue = value),
               ),
 
               SizedBox(height: size.height * 0.03),
@@ -253,13 +240,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 width: double.infinity,
                 height: size.height * 0.185,
                 padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
                       kPrimaryColor,
-                      Colors.blue[200]!,
+                      Colors.lightBlueAccent,
                     ],
                   ),
                 ),
@@ -290,9 +277,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   blurRadius: 1,
                                   width: 40,
                                   height: 40,
-                                  child: Center(
-                                      child:
-                                          Image.asset('assets/images/3.png')),
+                                  child: Center(child: Image.asset('assets/images/3.png')),
                                 ),
                                 SizedBox(height: size.height * 0.01),
                                 Text(
@@ -336,7 +321,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 size: size,
                 iconColor: kPrimaryColor,
                 title: 'Monthly average',
-                content: '1955 ml / day',
+                content: '$monthlyAverage ml / day',
               ),
               const Divider(),
               buildReportRow(
@@ -403,9 +388,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   /// Get year group data
   List<BarChartGroupData> getYearGroupData(List<ChartData> chartDataList) {
-    final List<ChartData> chartDataMonthList = chartDataList
-        .where((element) => element.year == selectedDate[0])
-        .toList();
+    final List<ChartData> chartDataMonthList =
+        chartDataList.where((element) => element.year == selectedDate[0]).toList();
 
     return List.generate(
       kMonths.length,
@@ -416,7 +400,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           barRods: [
             BarChartRodData(
               y: Random().nextInt(100) + 10.toDouble(),
-              colors: [kPrimaryColor],
+              colors: [Colors.lightBlueAccent, kPrimaryColor],
               borderRadius: BorderRadius.zero,
             )
           ],
@@ -426,21 +410,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   /// Get month group data
-  List<BarChartGroupData> getMonthGroupData(List<ChartData> chartDataList) =>
-      chartDataList
-          .map<BarChartGroupData>(
-            (ChartData data) => BarChartGroupData(
-              x: data.day,
-              barRods: [
-                BarChartRodData(
-                  y: data.percent,
-                  colors: [kPrimaryColor],
-                  borderRadius: BorderRadius.zero,
-                )
-              ],
-            ),
-          )
-          .toList();
+  List<BarChartGroupData> getMonthGroupData(List<ChartData> chartDataList) => chartDataList
+      .map<BarChartGroupData>(
+        (ChartData data) => BarChartGroupData(
+          x: data.day,
+          barRods: [
+            BarChartRodData(
+              y: data.percent,
+              colors: [Colors.lightBlueAccent, kPrimaryColor],
+              borderRadius: BorderRadius.zero,
+            )
+          ],
+        ),
+      )
+      .toList();
   // List<BarChartGroupData> getMonthGroupData(DataProvider provider) =>
   //     List.generate(
   //       getMonthDays(),

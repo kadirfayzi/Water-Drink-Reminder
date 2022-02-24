@@ -20,12 +20,12 @@ class InitialPreferences extends StatefulWidget {
 }
 
 class _InitialPreferencesState extends State<InitialPreferences> {
-  final PageController pageController = PageController();
+  final _pageController = PageController();
   int currentPage = 0;
 
   @override
   void dispose() {
-    pageController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -44,6 +44,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     StepContainer(
+                      size: size,
                       image: 'assets/images/gender.png',
                       text: kGenderStrings[provider.getGender],
                       textColor: currentPage == 0 ? Colors.blue : Colors.grey,
@@ -55,9 +56,11 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                       child: CustomPaint(painter: DashedLine()),
                     ),
                     StepContainer(
+                      key: ValueKey<Object>(provider.getWeightUnit),
+                      size: size,
                       image: 'assets/images/weight.png',
                       text:
-                          '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
+                          '${provider.getTempWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
                       textColor: currentPage == 1 ? Colors.blue : Colors.grey,
                       activeContainer: currentPage == 1,
                     ),
@@ -67,6 +70,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                       child: CustomPaint(painter: DashedLine()),
                     ),
                     StepContainer(
+                      size: size,
                       image: 'assets/images/alarm.png',
                       text:
                           '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
@@ -79,6 +83,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                       child: CustomPaint(painter: DashedLine()),
                     ),
                     StepContainer(
+                      size: size,
                       image: 'assets/images/sleep.png',
                       text:
                           '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
@@ -91,7 +96,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                 SizedBox(
                   height: size.height * 0.675,
                   child: PageView(
-                    controller: pageController,
+                    controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     children: const [
                       GenderPage(),
@@ -108,11 +113,12 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
+                        borderRadius: const BorderRadius.all(kRadius_50),
                         onTap: () {
-                          if (pageController.page == 0) {
+                          if (_pageController.page == 0) {
                             Navigator.pop(context);
                           } else {
-                            pageController.previousPage(
+                            _pageController.previousPage(
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.ease,
                             );
@@ -142,9 +148,10 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                         ),
                       ),
                       InkWell(
+                        borderRadius: const BorderRadius.all(kRadius_30),
                         onTap: () {
-                          if (pageController.page! < 3) {
-                            pageController.nextPage(
+                          if (_pageController.page! < 3) {
+                            _pageController.nextPage(
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.ease,
                             );
@@ -153,8 +160,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 CupertinoPageRoute(
-                                    builder: (context) =>
-                                        const HydrationPlanSplash()),
+                                    builder: (context) => const HydrationPlanSplash()),
                                 (route) => false);
                           }
                         },

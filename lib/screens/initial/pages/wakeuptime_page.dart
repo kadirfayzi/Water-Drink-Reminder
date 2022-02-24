@@ -11,6 +11,7 @@ class WakeupTimePage extends StatefulWidget {
 }
 
 class _WakeupTimePageState extends State<WakeupTimePage> {
+  final _now = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -30,9 +31,7 @@ class _WakeupTimePageState extends State<WakeupTimePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                provider.getGender == 0
-                    ? 'assets/images/boy.png'
-                    : 'assets/images/girl.png',
+                provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
                 scale: 5,
               ),
               SizedBox(width: size.width * 0.1),
@@ -50,9 +49,9 @@ class _WakeupTimePageState extends State<WakeupTimePage> {
                   ),
                   child: CupertinoDatePicker(
                     initialDateTime: DateTime.utc(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      DateTime.now().day,
+                      _now.year,
+                      _now.month,
+                      _now.day,
                       provider.getWakeUpTimeHour,
                       provider.getWakeUpTimeMinute,
                     ),

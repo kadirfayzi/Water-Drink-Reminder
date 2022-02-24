@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:water_reminder/constants.dart';
@@ -238,7 +237,8 @@ Future<dynamic> intakeGoalPopup({
                     ),
                     SizedBox(width: size.width * 0.05),
                     InkWell(
-                      onTap: () => setState(() => intakeGoalValue = kIntakeGoalDefaultValue),
+                      onTap: () => setState(
+                          () => intakeGoalValue = calculateIntakeGoalAmount(provider.getWeight)),
                       child: const Padding(
                         padding: EdgeInsets.all(10),
                         child: Icon(
@@ -357,7 +357,7 @@ Future<dynamic> genderSelectionPopup({
   );
 }
 
-/// Weight selection popup dialog
+/// Update weight popup dialog
 Future<dynamic> weightSelectionPopup({
   required BuildContext context,
   required DataProvider provider,
@@ -374,10 +374,9 @@ Future<dynamic> weightSelectionPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.35,
           onTapOK: () {
-            // provider.setWeight(weight, provider.getWeightUnit);
-            provider.getWeightUnit == 0
-                ? provider.setWeight = weight
-                : provider.setWeight = kgToLbs(weight);
+            if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
+            provider.setWeight = weight;
+            provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
             Navigator.pop(context);
           },
           content: Container(
@@ -442,8 +441,14 @@ Future<dynamic> wakeupAndBedtimePopup({
   required int hour,
   required int minute,
 }) {
-  DateTime time =
-      DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day, hour, minute);
+  final now = DateTime.now();
+  DateTime time = DateTime.utc(
+    now.year,
+    now.month,
+    now.day,
+    hour,
+    minute,
+  );
 
   return showModalBottomSheet(
     context: context,
@@ -454,10 +459,58 @@ Future<dynamic> wakeupAndBedtimePopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.4,
           onTapOK: () {
+            final _notificationHelper = NotificationHelper();
+            _notificationHelper.cancelAll();
+            provider.deleteAllScheduleRecords();
+
+            final _random = Random();
+            int wakeUpHour = provider.getWakeUpTimeHour;
+            int wakeUpMinute = provider.getWakeUpTimeMinute;
+            int bedHour = provider.getBedTimeHour;
+
             if (isWakeUp) {
-              provider.setWakeUpTime(hour, minute);
+              provider.setWakeUpTime(time.hour, time.minute);
+              wakeUpHour = time.hour;
+              wakeUpMinute = time.minute;
             } else {
-              provider.setBedTime(hour, minute);
+              provider.setBedTime(time.hour, time.minute);
+              bedHour = time.hour;
+            }
+
+            if (wakeUpHour >= bedHour) bedHour += 24;
+
+            int reminderCount = calculateReminderCount(
+              bedHour: bedHour,
+              wakeUpHour: wakeUpHour,
+            );
+
+            for (int i = 0; i <= reminderCount; i++) {
+              if (wakeUpHour < bedHour) {
+                int tempWakeUpHour = wakeUpHour;
+                if (wakeUpHour >= 24) tempWakeUpHour -= 24;
+
+                provider.addScheduleRecord = ScheduleRecord(
+                  id: _random.nextInt(1000000000),
+                  time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
+                  isSet: true,
+                );
+              }
+              wakeUpMinute += 30;
+              wakeUpHour += 1;
+              if (wakeUpMinute >= 60) {
+                wakeUpHour += 1;
+                wakeUpMinute -= 60;
+              }
+            }
+
+            /// Set notifications for given time
+            for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+              _notificationHelper.scheduledNotification(
+                hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                id: provider.getScheduleRecords[i].id,
+                sound: 'sound${provider.getSoundValue}',
+              );
             }
 
             Navigator.pop(context);
@@ -491,11 +544,14 @@ Future<dynamic> wakeupAndBedtimePopup({
                           ),
                         ),
                       ),
-                      child: CupertinoDatePicker(
-                        initialDateTime: time,
-                        mode: CupertinoDatePickerMode.time,
-                        use24hFormat: true,
-                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                      child: SizedBox(
+                        width: size.width * 0.3,
+                        child: CupertinoDatePicker(
+                          initialDateTime: time,
+                          mode: CupertinoDatePickerMode.time,
+                          use24hFormat: true,
+                          onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                        ),
                       ),
                     ),
                   ),
@@ -515,7 +571,7 @@ Future<dynamic> setTimePopup({
   required DataProvider provider,
   required Size size,
 }) {
-  DateTime time = DateTime.now();
+  DateTime _time = DateTime.now();
   final _random = Random();
   final _notificationHelper = NotificationHelper();
   return showModalBottomSheet(
@@ -532,14 +588,14 @@ Future<dynamic> setTimePopup({
             /// Add new schedule record
             provider.addScheduleRecord = ScheduleRecord(
               id: id,
-              time: '${twoDigits(time.hour)}:${twoDigits(time.minute)}',
+              time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
               isSet: true,
             );
 
             /// Set new notification
             _notificationHelper.scheduledNotification(
-              hour: time.hour,
-              minutes: time.minute,
+              hour: _time.hour,
+              minutes: _time.minute,
               id: id,
               sound: 'sound${provider.getSoundValue}',
             );
@@ -575,10 +631,10 @@ Future<dynamic> setTimePopup({
                         ),
                       ),
                       child: CupertinoDatePicker(
-                        initialDateTime: time,
+                        initialDateTime: _time,
                         mode: CupertinoDatePickerMode.time,
                         use24hFormat: true,
-                        onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
+                        onDateTimeChanged: (selectedTime) => setState(() => _time = selectedTime),
                       ),
                     ),
                   ),

@@ -401,13 +401,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
-  liquid_progress_indicator:
-    dependency: "direct main"
-    description:
-      name: liquid_progress_indicator
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.0"
   logging:
     dependency: transitive
     description:
@@ -602,13 +595,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sleek_circular_slider:
-    dependency: "direct main"
-    description:
-      name: sleek_circular_slider
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
   source_gen:
     dependency: transitive
     description:

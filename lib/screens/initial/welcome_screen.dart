@@ -18,11 +18,13 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   setInitialSettingsValue() {
     final provider = DataProvider();
-    for (Cup cup in kCups) {
-      provider.addCup = cup;
+
+    if (provider.getCups.length == 0) {
+      for (Cup cup in kCups) {
+        provider.addCup = cup;
+      }
     }
 
-    // provider.setWeight(70, 0);
     provider.setWeight = 70;
     provider.setGender = 0;
     provider.setIntakeGoalAmount = 2800;
@@ -30,13 +32,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     provider.setUnit(0, 0);
     provider.setWakeUpTime(7, 0);
     provider.setBedTime(23, 0);
-    provider.addDrunkAmount = DrunkAmount(drunkAmount: 0.0);
-    for (int i = 1; i <= monthDays(); i++) {
-      provider.addMonthDayChartData(
-        day: i,
-        drunkAmount: 0,
-        intakeGoalAmount: 2800,
-      );
+    provider.addDrunkAmount = DrunkAmount(drunkAmount: 0);
+    if (provider.getMonthDayChartDataList.length == 0) {
+      for (int i = 1; i <= monthDays(); i++) {
+        provider.addMonthDayChartData(
+          day: i,
+          drunkAmount: 0,
+          intakeGoalAmount: 2800,
+        );
+      }
     }
   }
 

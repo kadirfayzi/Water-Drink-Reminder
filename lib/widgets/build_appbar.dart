@@ -18,6 +18,17 @@ class BuildAppBar extends StatelessWidget with PreferredSizeWidget {
       ),
       bottom: bottom,
       title: title,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.lightBlueAccent, Colors.blue],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 1.0],
+            tileMode: TileMode.clamp,
+          ),
+        ),
+      ),
     );
   }
 

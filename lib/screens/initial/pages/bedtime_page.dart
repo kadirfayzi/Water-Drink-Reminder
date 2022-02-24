@@ -11,6 +11,7 @@ class BedTimePage extends StatefulWidget {
 }
 
 class _BedTimePageState extends State<BedTimePage> {
+  final _now = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -30,9 +31,7 @@ class _BedTimePageState extends State<BedTimePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                provider.getGender == 0
-                    ? 'assets/images/boy.png'
-                    : 'assets/images/girl.png',
+                provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
                 scale: 5,
               ),
               SizedBox(width: size.width * 0.1),
@@ -50,9 +49,9 @@ class _BedTimePageState extends State<BedTimePage> {
                   ),
                   child: CupertinoDatePicker(
                     initialDateTime: DateTime.utc(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      DateTime.now().day,
+                      _now.year,
+                      _now.month,
+                      _now.day,
                       provider.getBedTimeHour,
                       provider.getBedTimeMinute,
                     ),

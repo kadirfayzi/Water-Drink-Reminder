@@ -1,13 +1,14 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/introduction/introduction_screen.dart';
 import 'package:water_reminder/services/notification_service.dart';
+
+import '../../widgets/liquid_progress_indicator/liquid_linear_progress_indicator.dart';
 
 class HydrationPlanSplash extends StatefulWidget {
   const HydrationPlanSplash({Key? key}) : super(key: key);
@@ -27,32 +28,34 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
     _provider = DataProvider();
     _notificationHelper = NotificationHelper();
     _random = Random();
-    if (_provider.getWeightUnit == 0) {
-      _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(_provider.getWeight);
-    } else {
-      final int weight = lbsToKg(_provider.getWeight);
-      _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
-    }
+    _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(_provider.getWeight);
+
+    /// Set initial schedule records
+    int wakeUpHour = _provider.getWakeUpTimeHour;
+    int minute = _provider.getWakeUpTimeMinute;
+    int bedHour = _provider.getBedTimeHour;
+    if (wakeUpHour >= bedHour) bedHour += 24;
 
     int reminderCount = calculateReminderCount(
-      _provider.getBedTimeHour,
-      _provider.getWakeUpTimeHour,
+      bedHour: bedHour,
+      wakeUpHour: wakeUpHour,
     );
 
-    int hour = _provider.getWakeUpTimeHour;
-    int minute = _provider.getWakeUpTimeMinute;
     for (int i = 0; i <= reminderCount; i++) {
-      if (hour <= _provider.getBedTimeHour) {
+      if (wakeUpHour < bedHour) {
+        int tempWakeUpHour = wakeUpHour;
+        if (wakeUpHour >= 24) tempWakeUpHour -= 24;
+
         _provider.addScheduleRecord = ScheduleRecord(
           id: _random.nextInt(1000000000),
-          time: '${twoDigits(hour)}:${twoDigits(minute)}',
+          time: '${twoDigits(tempWakeUpHour)}:${twoDigits(minute)}',
           isSet: true,
         );
       }
       minute += 30;
-      hour += 1;
+      wakeUpHour += 1;
       if (minute >= 60) {
-        hour += 1;
+        wakeUpHour += 1;
         minute -= 60;
       }
     }
@@ -115,12 +118,11 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
         value: _animationController.value,
         valueColor: const AlwaysStoppedAnimation(
           Colors.blue,
-        ), // Defaults to the current Theme's accentColor.
-        backgroundColor: Colors.white, // Defaults to the current Theme's backgroundColor.
+        ),
+        backgroundColor: Colors.white,
         borderColor: Colors.white,
         borderWidth: 0.0,
-        direction: Axis
-            .vertical, // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.horizontal.
+        direction: Axis.vertical,
         center: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

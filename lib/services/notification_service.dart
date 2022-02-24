@@ -10,11 +10,7 @@ class NotificationHelper {
   /// Initialize notification
   initializeNotification() async {
     _configureLocalTimeZone();
-    const IOSInitializationSettings initializationSettingsIOS = IOSInitializationSettings(
-        // requestSoundPermission: false,
-        // requestBadgePermission: false,
-        // requestAlertPermission: false,
-        );
+    const IOSInitializationSettings initializationSettingsIOS = IOSInitializationSettings();
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings("ic_launcher");

@@ -4,12 +4,14 @@ import 'package:water_reminder/constants.dart';
 class StepContainer extends StatelessWidget {
   const StepContainer({
     Key? key,
+    required this.size,
     required this.image,
     required this.text,
     this.textColor = Colors.grey,
     this.activeContainer = false,
   }) : super(key: key);
 
+  final Size size;
   final String image;
   final String text;
   final Color textColor;
@@ -42,10 +44,15 @@ class StepContainer extends StatelessWidget {
               scale: 8,
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-          Text(
-            text,
-            style: TextStyle(color: textColor),
+          SizedBox(height: size.height * 0.01),
+          SizedBox(
+            width: size.width * 0.125,
+            child: Center(
+              child: Text(
+                text,
+                style: TextStyle(color: textColor),
+              ),
+            ),
           ),
         ],
       ),
@@ -70,7 +77,7 @@ class DashedLine extends CustomPainter {
   }
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
-    // Chage to your preferred size
+    // Change to your preferred size
     const int dashWidth = 3;
     const int dashSpace = 3;
 

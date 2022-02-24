@@ -17,8 +17,7 @@ Future<dynamic> editRecordPopup({
   required Size size,
   required int recordIndex,
 }) {
-  int selectedCupDivisionIndex =
-      provider.getRecords[recordIndex].cupDivisionIndex;
+  int selectedCupDivisionIndex = provider.getRecords[recordIndex].cupDivisionIndex;
 
   final Record record = provider.getRecords[recordIndex];
   return showModalBottomSheet(
@@ -30,9 +29,8 @@ Future<dynamic> editRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.45,
           onTapOK: () {
-            // provider.removeDrunkAmount = record.dividedCapacity;
-            provider.removeDrunkAmount = DrunkAmount(
-                drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
+            provider.addDrunkAmount =
+                DrunkAmount(drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
             provider.editRecord(
               recordIndex,
               Record(
@@ -81,17 +79,14 @@ Future<dynamic> editRecordPopup({
                   children: List.generate(
                     4,
                     (index) => GestureDetector(
-                      onTap: () =>
-                          setState(() => selectedCupDivisionIndex = index),
+                      onTap: () => setState(() => selectedCupDivisionIndex = index),
                       child: Column(
                         children: [
                           ElevatedContainer(
                             width: 40,
                             height: 40,
                             blurRadius: 2,
-                            color: selectedCupDivisionIndex == index
-                                ? kPrimaryColor
-                                : Colors.white,
+                            color: selectedCupDivisionIndex == index ? kPrimaryColor : Colors.white,
                             shape: BoxShape.rectangle,
                             borderRadius: const BorderRadius.only(
                               bottomLeft: kRadius_25,
@@ -113,9 +108,7 @@ Future<dynamic> editRecordPopup({
                           Text(
                             '${((record.defaultAmount * (index + 1)) / 4).toStringAsFixed(0)}ml',
                             style: TextStyle(
-                              color: selectedCupDivisionIndex == index
-                                  ? Colors.black
-                                  : Colors.grey,
+                              color: selectedCupDivisionIndex == index ? Colors.black : Colors.grey,
                             ),
                           ),
                         ],
@@ -200,9 +193,7 @@ Future<dynamic> switchCup({
                               Image.asset(
                                 provider.getCups[index].image,
                                 scale: 3.5,
-                                color: selectedIndex == index
-                                    ? kPrimaryColor
-                                    : Colors.grey,
+                                color: selectedIndex == index ? kPrimaryColor : Colors.grey,
                               ),
                               Text(
                                 '${provider.getCups[index].capacity.toStringAsFixed(0)}ml',
@@ -312,15 +303,14 @@ Future<dynamic> addForgottenRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.4,
           onTapOK: () {
-            if (provider.getDrunkAmount + waterAmount <=
-                provider.getIntakeGoalAmount) {
-              provider.addDrunkAmount = DrunkAmount(
-                  drunkAmount: provider.getDrunkAmount + waterAmount);
+            if (provider.getDrunkAmount + waterAmount <= provider.getIntakeGoalAmount) {
+              provider.addDrunkAmount =
+                  DrunkAmount(drunkAmount: provider.getDrunkAmount + waterAmount);
             }
 
             provider.addRecord(
               Record(
-                image: 'assets/images/cup.png',
+                image: 'assets/images/cups/custom-128.png',
                 time: DateFormat("h:mm a").format(time),
                 defaultAmount: waterAmount,
               ),
@@ -353,7 +343,7 @@ Future<dynamic> addForgottenRecordPopup({
                         const Expanded(
                           child: Icon(
                             Icons.access_time,
-                            size: 30,
+                            size: 32,
                             color: Colors.grey,
                           ),
                         ),
@@ -378,16 +368,18 @@ Future<dynamic> addForgottenRecordPopup({
                           ),
                         ),
                         SizedBox(width: size.width * 0.1),
-                        Expanded(child: Image.asset('assets/images/cup.png')),
+                        Expanded(
+                            child: Image.asset(
+                          'assets/images/cups/custom-128.png',
+                          color: Colors.grey,
+                        )),
                         Expanded(
                           flex: 2,
                           child: CupertinoPicker(
                             itemExtent: 35,
-                            onSelectedItemChanged: (selectedIndex) => setState(
-                                () =>
-                                    waterAmount = waterAmounts[selectedIndex]),
-                            scrollController:
-                                FixedExtentScrollController(initialItem: 5),
+                            onSelectedItemChanged: (selectedIndex) =>
+                                setState(() => waterAmount = waterAmounts[selectedIndex]),
+                            scrollController: FixedExtentScrollController(initialItem: 5),
                             looping: true,
                             children: List.generate(
                               waterAmounts.length,
@@ -419,5 +411,44 @@ Future<dynamic> addForgottenRecordPopup({
         ),
       );
     },
+  );
+}
+
+/// Clear all records
+Future<dynamic> clearAllRecords({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  final _time = DateTime.now();
+  return showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) => BuildDialog(
+        heightPercent: 0.25,
+        content: const Center(
+          child: Text(
+            'Are you sure you want to clear all records ?',
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        onTapOK: () {
+          provider.deleteAllRecords();
+          provider.removeAllDrunkAmount();
+          provider.addMonthDayChartData(
+            day: _time.day,
+            drunkAmount: provider.getDrunkAmount,
+            intakeGoalAmount: provider.getIntakeGoalAmount,
+          );
+          Navigator.pop(context);
+        },
+      ),
+    ),
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:water_reminder/boxes.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
@@ -30,6 +31,13 @@ class DataProvider extends ChangeNotifier {
   set addScheduleRecord(ScheduleRecord scheduleRecord) {
     final scheduleRecords = Boxes.getScheduleRecords();
     scheduleRecords.add(scheduleRecord);
+
+    final List<ScheduleRecord> tempScheduleRecords = scheduleRecords.values.toList()
+      ..sort((a, b) => a.time.compareTo(b.time));
+
+    scheduleRecords.deleteAll(scheduleRecords.keys);
+    scheduleRecords.addAll(tempScheduleRecords);
+
     notifyListeners();
   }
 
@@ -42,6 +50,12 @@ class DataProvider extends ChangeNotifier {
   set deleteScheduleRecord(int index) {
     final scheduleRecords = Boxes.getScheduleRecords();
     scheduleRecords.deleteAt(index);
+    notifyListeners();
+  }
+
+  deleteAllScheduleRecords() {
+    final scheduleRecords = Boxes.getScheduleRecords();
+    scheduleRecords.deleteAll(scheduleRecords.keys);
     notifyListeners();
   }
 
@@ -95,16 +109,19 @@ class DataProvider extends ChangeNotifier {
     box.put('weight', Weight(weight: weight));
     notifyListeners();
   }
-  // setWeight(int weight, int unit) {
-  //   final box = Boxes.getWeight();
-  //   if (unit == 1) weight = kgToLbs(weight);
-  //   box.put('weight', Weight(weight: weight));
-  //   notifyListeners();
-  // }
 
   get getWeight => getWeightUnit == 0
       ? Boxes.getWeight().get('weight')!.weight
       : kgToLbs(Boxes.getWeight().get('weight')!.weight);
+
+  /// Temporary weight for initial preferences page
+  late int _tempWeight = getWeight;
+  set setTempWeight(int weight) {
+    _tempWeight = weight;
+    notifyListeners();
+  }
+
+  get getTempWeight => _tempWeight;
 
   /// Wake-up time
   setWakeUpTime(int hour, int minute) {
@@ -151,7 +168,6 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // get getCups => getCapacityUnit == 0 ? _cupCapacity : mlToFloz;
   get getCups => Boxes.getCups().values.toList();
 
   get getSelectedCup => Boxes.getCups().values.firstWhere((cup) => cup.selected);
@@ -160,32 +176,22 @@ class DataProvider extends ChangeNotifier {
   /// Drunk amount
   set addDrunkAmount(DrunkAmount drunkAmount) {
     final box = Boxes.getDrunkAmount();
-    if (getDrunkAmount + getSelectedCup.capacity <= getIntakeGoalAmount) {
-      box.put('drunkAmount', drunkAmount);
-    }
-    notifyListeners();
-  }
-
-  set removeDrunkAmount(DrunkAmount drunkAmount) {
-    final box = Boxes.getDrunkAmount();
     box.put('drunkAmount', drunkAmount);
+
     notifyListeners();
   }
 
-  // set removeDrunkAmount(double drunkAmount) {
-  //   final box=Boxes.getDrunkAmount();
-  //   if ((box.values.toList().cast<DrunkAmount>().first.drunkAmount - drunkAmount) >= 0) {
-  //     _drunkAmount -= drunkAmount;
-  //   }
-  //   notifyListeners();
-  // }
+  removeAllDrunkAmount() {
+    final drunkAmount = Boxes.getDrunkAmount();
+    drunkAmount.deleteAll(drunkAmount.keys);
+    notifyListeners();
+  }
 
   get getDrunkAmount => Boxes.getDrunkAmount().isNotEmpty
       ? Boxes.getDrunkAmount().get('drunkAmount')!.drunkAmount
       : 0.0;
 
-  /// Records with hive
-
+  /// Intake records
   addRecord(Record record, {bool forgottenRecord = false}) {
     final records = Boxes.getRecords();
     forgottenRecord ? records.putAt(0, record) : records.add(record);
@@ -204,6 +210,12 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  deleteAllRecords() {
+    final records = Boxes.getRecords();
+    records.deleteAll(records.keys);
+    notifyListeners();
+  }
+
   get getRecords => Boxes.getRecords().values.toList();
 
   /// Chart Data
@@ -217,7 +229,7 @@ class DataProvider extends ChangeNotifier {
     final double amountPercent = ((drunkAmount * 100) / intakeGoalAmount);
 
     final box = Boxes.getChartData();
-    final DateTime now = DateTime.now();
+    final now = DateTime.now();
 
     // if (box.values.isNotEmpty) {
     //   for (var monthDay in box.values) {
@@ -240,6 +252,7 @@ class DataProvider extends ChangeNotifier {
           year: now.year,
           name: day.toString(),
           percent: amountPercent,
+          drunkAmount: drunkAmount,
         ));
 
     notifyListeners();

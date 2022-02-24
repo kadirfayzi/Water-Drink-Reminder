@@ -33,9 +33,7 @@ class _WeightPageState extends State<WeightPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  provider.getGender == 0
-                      ? 'assets/images/boy.png'
-                      : 'assets/images/girl.png',
+                  provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
                   scale: 5,
                 ),
                 SizedBox(width: size.width * 0.1),
@@ -52,10 +50,12 @@ class _WeightPageState extends State<WeightPage> {
                         ),
                         useMagnifier: true,
                         magnification: 1.15,
-                        onSelectedItemChanged: (weight) =>
-                            provider.getWeightUnit == 0
-                                ? provider.setWeight = weight
-                                : provider.setWeight = kgToLbs(weight),
+                        onSelectedItemChanged: (weight) {
+                          provider.setTempWeight = weight;
+                          provider.getWeightUnit == 0
+                              ? provider.setWeight = weight
+                              : provider.setWeight = lbsToKg(weight);
+                        },
                         itemExtent: 48,
                         children: List.generate(
                           kWeightChildCount[provider.getWeightUnit],
@@ -77,8 +77,10 @@ class _WeightPageState extends State<WeightPage> {
                       child: CupertinoSlidingSegmentedControl(
                         groupValue: provider.getWeightUnit,
                         children: const {0: Text('kg'), 1: Text('lbs')},
-                        onValueChanged: (value) =>
-                            provider.setUnit(value as int, 0),
+                        onValueChanged: (weightUnit) {
+                          provider.setUnit(weightUnit as int, 0);
+                          provider.setTempWeight = provider.getWeight;
+                        },
                       ),
                     ),
                   ],
