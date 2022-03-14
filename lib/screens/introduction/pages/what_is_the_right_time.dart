@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WhatIsTheRightTime extends StatefulWidget {
   const WhatIsTheRightTime({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class _WhatIsTheRightTimeState extends State<WhatIsTheRightTime> {
         ),
         SizedBox(height: size.height * 0.05),
         Text(
-          'What is the right time',
+          AppLocalizations.of(context)!.whatIsTheRightTime,
           style: TextStyle(
             fontSize: size.width * 0.06,
             color: Colors.grey[700],
@@ -43,7 +44,7 @@ class _WhatIsTheRightTimeState extends State<WhatIsTheRightTime> {
         ),
         SizedBox(height: size.height * 0.03),
         Text(
-          'Don\'t worry I\'ll remind you on time',
+          AppLocalizations.of(context)!.dontWorryIllRemindYouOnTime,
           style: TextStyle(
             fontSize: 18,
             color: Colors.grey[700],

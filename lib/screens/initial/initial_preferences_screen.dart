@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/initial/welcome_widgets.dart';
 import 'package:water_reminder/screens/introduction/hydration_plan_splash.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../constants.dart';
 import '../../functions.dart';
@@ -46,7 +47,9 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                     StepContainer(
                       size: size,
                       image: 'assets/images/gender.png',
-                      text: kGenderStrings[provider.getGender],
+                      text: provider.getGender == 0
+                          ? AppLocalizations.of(context)!.male
+                          : AppLocalizations.of(context)!.female,
                       textColor: currentPage == 0 ? Colors.blue : Colors.grey,
                       activeContainer: currentPage == 0,
                     ),
@@ -176,12 +179,12 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                               tileMode: TileMode.clamp,
                             ),
                           ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(15.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
                             child: Center(
                               child: Text(
-                                'NEXT',
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.next,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,

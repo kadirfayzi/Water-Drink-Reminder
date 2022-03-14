@@ -7,6 +7,7 @@ import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/introduction/introduction_screen.dart';
 import 'package:water_reminder/services/notification_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/liquid_progress_indicator/liquid_linear_progress_indicator.dart';
 
@@ -66,7 +67,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
         hour: int.parse(_provider.getScheduleRecords[i].time.split(":")[0]),
         minutes: int.parse(_provider.getScheduleRecords[i].time.split(":")[1]),
         id: _provider.getScheduleRecords[i].id,
-        sound: 'sound0',
+        sound: 'sound2',
       );
     }
 
@@ -127,7 +128,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Generating your hydration plan...',
+              AppLocalizations.of(context)!.genHydraPlan,
               style: TextStyle(
                 fontSize: 20,
                 color: _animationController.value < 0.7 ? Colors.blue : Colors.white,

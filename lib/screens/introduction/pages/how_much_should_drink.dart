@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:water_reminder/provider/data_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HowMuchShouldDrink extends StatefulWidget {
   const HowMuchShouldDrink({Key? key}) : super(key: key);
@@ -73,7 +74,7 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
         ),
         SizedBox(height: size.height * 0.05),
         Text(
-          'How much should you drink',
+          AppLocalizations.of(context)!.howMuchShouldDrink,
           style: TextStyle(
             fontSize: size.width * 0.06,
             color: Colors.grey[700],
@@ -81,14 +82,16 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
         ),
         SizedBox(height: size.height * 0.03),
         Text(
-          '$howManyTimes times a day',
+          // '$howManyTimes times a day',
+          AppLocalizations.of(context)!.timesADay('$howManyTimes'),
           style: TextStyle(
             fontSize: 18,
             color: Colors.grey[700],
           ),
         ),
         Text(
-          '$howMuchEachTime ml each time',
+          // '$howMuchEachTime ml each time',
+          AppLocalizations.of(context)!.eachTime('$howMuchEachTime ml'),
           style: TextStyle(
             fontSize: 18,
             color: Colors.grey[700],

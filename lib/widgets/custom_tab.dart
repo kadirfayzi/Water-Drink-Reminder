@@ -13,14 +13,14 @@ class CustomTab extends StatelessWidget {
   final double iconSize;
 
   @override
-  Widget build(BuildContext context) {
-    return Tab(
+  Widget build(BuildContext context) => Tab(
         child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Icon(icon, size: iconSize),
-        Text(title),
-      ],
-    ));
-  }
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: iconSize),
+            const SizedBox(width: 10),
+            Text(title),
+          ],
+        ),
+      );
 }

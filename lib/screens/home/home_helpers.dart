@@ -4,11 +4,105 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/models/cup.dart';
-import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/models/record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/build_dialog.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+/// Tips popup
+Future<dynamic> tipsPopup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) => Dismissible(
+      key: const Key('key'),
+      direction: DismissDirection.vertical,
+      onDismissed: (_) => Navigator.pop(context),
+      child: CupertinoActionSheet(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                child: const Icon(
+                  Icons.close,
+                  size: 30,
+                  color: Colors.transparent,
+                ),
+                onTap: () {},
+              ),
+            ),
+            const Text(
+              'How to drink water correctly ?',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                child: Icon(
+                  Icons.close,
+                  size: 30,
+                  color: Colors.grey[600],
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            height: size.height * 0.7,
+            child: Scaffold(
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    height: size.height * 0.7,
+                    child: ListView(
+                      children: List.generate(
+                        tips.length,
+                        (index) => ElevatedContainer(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 15,
+                          ),
+                          shape: BoxShape.rectangle,
+                          blurRadius: 1.5,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Image.asset(
+                                  'assets/images/1.png',
+                                  scale: 5,
+                                ),
+                              ),
+                              SizedBox(width: size.width * 0.02),
+                              Expanded(
+                                flex: 5,
+                                child: Text(tips[index]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    ),
+  );
+}
 
 /// Edit record popup dialog
 Future<dynamic> editRecordPopup({
@@ -29,8 +123,7 @@ Future<dynamic> editRecordPopup({
         builder: (context, setState) => BuildDialog(
           heightPercent: 0.45,
           onTapOK: () {
-            provider.addDrunkAmount =
-                DrunkAmount(drunkAmount: provider.getDrunkAmount - record.dividedCapacity);
+            provider.addDrunkAmount = provider.getDrunkAmount - record.dividedCapacity;
             provider.editRecord(
               recordIndex,
               Record(
@@ -40,38 +133,14 @@ Future<dynamic> editRecordPopup({
                 cupDivisionIndex: selectedCupDivisionIndex,
               ),
             );
-
-            // provider.addOrRemoveDrunkAmount =
-            //     (record.defaultAmount * (selectedCupDivisionIndex + 1)) / 4;
-
             Navigator.pop(context);
           },
           content: Container(
             height: size.height * 0.4,
             padding: const EdgeInsets.all(20),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      const Text(
-                        'Intake at ',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                      Text(
-                        record.time,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: kPrimaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: size.height * 0.05),
                 Image.asset('assets/images/cup.png', scale: 2),
                 SizedBox(height: size.height * 0.05),
                 Row(
@@ -132,84 +201,104 @@ Future<dynamic> switchCup({
   required Size size,
 }) {
   int selectedIndex = provider.getSelectedCupIndex;
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) => BuildDialog(
-        heightPercent: 0.5,
-        content: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Switch Cup',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18,
-                    color: Colors.black54,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.switchCup,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: SizedBox(
+                height: size.height * 0.5,
+                child: Container(
+                  width: size.width,
+                  height: size.height * 0.45,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: GridView.count(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 15,
+                    children: List.generate(
+                      provider.getCups.length + 1,
+                      (index) => index == provider.getCups.length
+                          ? GestureDetector(
+                              onTap: () => addCustomCup(
+                                context: context,
+                                provider: provider,
+                                size: size,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/cups/custom-128.png',
+                                    scale: 3.5,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    AppLocalizations.of(context)!.customize,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 15,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () => setState(() => selectedIndex = index),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(
+                                    provider.getCups[index].image,
+                                    scale: 3.5,
+                                    color: selectedIndex == index ? kPrimaryColor : Colors.grey,
+                                  ),
+                                  Text(
+                                    '${provider.getCups[index].capacity.toStringAsFixed(0)} ml',
+                                    style: TextStyle(
+                                      color: selectedIndex == index ? kPrimaryColor : Colors.grey,
+                                      fontSize: 15,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: size.height * 0.03),
-            Container(
-              width: size.width,
-              height: size.height * 0.35,
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: GridView.count(
-                physics: const AlwaysScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                mainAxisSpacing: 20,
-                children: List.generate(
-                  provider.getCups.length + 1,
-                  (index) => index == provider.getCups.length
-                      ? InkWell(
-                          onTap: () => addCustomCup(
-                            context: context,
-                            provider: provider,
-                            size: size,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Image.asset(
-                                'assets/images/cups/custom-128.png',
-                                scale: 3.5,
-                                color: Colors.grey,
-                              ),
-                              const Text('Customize')
-                            ],
-                          ),
-                        )
-                      : InkWell(
-                          onTap: () => setState(() => selectedIndex = index),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Image.asset(
-                                provider.getCups[index].image,
-                                scale: 3.5,
-                                color: selectedIndex == index ? kPrimaryColor : Colors.grey,
-                              ),
-                              Text(
-                                '${provider.getCups[index].capacity.toStringAsFixed(0)}ml',
-                              )
-                            ],
-                          ),
-                        ),
-                ),
-              ),
-            ),
+            )
           ],
+          cancelButton: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  provider.setSelectedCup = selectedIndex;
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
         ),
-        onTapOK: () {
-          provider.setSelectedCup = selectedIndex;
-          Navigator.pop(context);
-        },
       ),
     ),
   );
@@ -222,64 +311,79 @@ Future<dynamic> addCustomCup({
   required Size size,
 }) {
   final TextEditingController controller = TextEditingController();
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) => BuildDialog(
-        heightPercent: 0.25,
-        content: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text(
-                'Customize your drinking cup',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: Colors.black54,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.customizeYourDrinkingCup,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: SizedBox(
+                height: size.height * 0.25,
+                child: Container(
+                  width: size.width,
+                  height: size.height * 0.15,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/images/cups/custom-128.png', scale: 3.5),
+                      SizedBox(width: size.width * 0.05),
+                      SizedBox(
+                        width: size.width * 0.35,
+                        child: TextField(
+                          controller: controller,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          maxLength: 3,
+                          decoration: const InputDecoration(counterText: ''),
+                          cursorHeight: 25,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                      SizedBox(width: size.width * 0.05),
+                      const Text('ml'),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              width: size.width,
-              height: size.height * 0.15,
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/cups/custom-128.png', scale: 3.5),
-                  SizedBox(width: size.width * 0.05),
-                  SizedBox(
-                    width: size.width * 0.35,
-                    child: TextField(
-                      controller: controller,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      maxLength: 3,
-                      decoration: const InputDecoration(counterText: ''),
-                      cursorHeight: 25,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.05),
-                  const Text('ml'),
-                ],
-              ),
-            ),
+            )
           ],
+          cancelButton: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  provider.addCup = Cup(
+                    capacity: double.parse(controller.value.text),
+                    image: 'assets/images/cups/custom-128.png',
+                    selected: false,
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
         ),
-        onTapOK: () {
-          provider.addCup = Cup(
-              capacity: double.parse(controller.value.text),
-              image: 'assets/images/cups/custom-128.png',
-              selected: false);
-          Navigator.pop(context);
-        },
       ),
     ),
   );
@@ -294,123 +398,127 @@ Future<dynamic> addForgottenRecordPopup({
   final List<double> waterAmounts = [for (double i = 50; i <= 1500; i += 25) i];
   double waterAmount = waterAmounts.elementAt(5);
   DateTime time = DateTime.now();
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.4,
-          onTapOK: () {
-            if (provider.getDrunkAmount + waterAmount <= provider.getIntakeGoalAmount) {
-              provider.addDrunkAmount =
-                  DrunkAmount(drunkAmount: provider.getDrunkAmount + waterAmount);
-            }
-
-            provider.addRecord(
-              Record(
-                image: 'assets/images/cups/custom-128.png',
-                time: DateFormat("h:mm a").format(time),
-                defaultAmount: waterAmount,
-              ),
-              forgottenRecord: true,
-            );
-            Navigator.pop(context);
-          },
-          content: SizedBox(
-            height: size.height * 0.35,
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Add a record of drinking water in the past that you forgot to confirm',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.addForgottenDrinkingRecord,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: SizedBox(
+                height: size.height * 0.4,
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Icon(
+                          Icons.access_time,
+                          size: 32,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Icon(
-                            Icons.access_time,
-                            size: 32,
-                            color: Colors.grey,
+                      Expanded(
+                        flex: 3,
+                        child: CupertinoTheme(
+                          data: const CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: TextStyle(
+                                fontSize: 20,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          child: CupertinoDatePicker(
+                            initialDateTime: time,
+                            mode: CupertinoDatePickerMode.time,
+                            use24hFormat: true,
+                            onDateTimeChanged: (selectedTime) =>
+                                setState(() => time = selectedTime),
                           ),
                         ),
-                        Expanded(
-                          flex: 3,
-                          child: CupertinoTheme(
-                            data: const CupertinoThemeData(
-                              textTheme: CupertinoTextThemeData(
-                                dateTimePickerTextStyle: TextStyle(
+                      ),
+                      SizedBox(width: size.width * 0.1),
+                      Expanded(
+                        child: Image.asset(
+                          'assets/images/cups/custom-128.png',
+                          color: Colors.grey,
+                          scale: 4,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: CupertinoPicker(
+                          itemExtent: 35,
+                          onSelectedItemChanged: (selectedIndex) =>
+                              setState(() => waterAmount = waterAmounts[selectedIndex]),
+                          scrollController: FixedExtentScrollController(initialItem: 5),
+                          looping: true,
+                          children: List.generate(
+                            waterAmounts.length,
+                            (index) => Center(
+                              child: Text(
+                                waterAmounts[index].toStringAsFixed(0),
+                                style: const TextStyle(
                                   fontSize: 20,
                                   color: Colors.blue,
                                 ),
                               ),
                             ),
-                            child: CupertinoDatePicker(
-                              initialDateTime: time,
-                              mode: CupertinoDatePickerMode.time,
-                              use24hFormat: true,
-                              onDateTimeChanged: (selectedTime) =>
-                                  setState(() => time = selectedTime),
-                            ),
                           ),
                         ),
-                        SizedBox(width: size.width * 0.1),
-                        Expanded(
-                            child: Image.asset(
-                          'assets/images/cups/custom-128.png',
-                          color: Colors.grey,
-                        )),
-                        Expanded(
-                          flex: 2,
-                          child: CupertinoPicker(
-                            itemExtent: 35,
-                            onSelectedItemChanged: (selectedIndex) =>
-                                setState(() => waterAmount = waterAmounts[selectedIndex]),
-                            scrollController: FixedExtentScrollController(initialItem: 5),
-                            looping: true,
-                            children: List.generate(
-                              waterAmounts.length,
-                              (index) => Center(
-                                child: Text(
-                                  waterAmounts[index].toStringAsFixed(0),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'ml',
+                          style: TextStyle(fontSize: 16),
                         ),
-                        const Expanded(
-                          child: Text(
-                            'ml',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            )
+          ],
+          cancelButton: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  provider.addDrunkAmount = provider.getDrunkAmount + waterAmount;
+
+                  provider.addRecord(
+                    Record(
+                      image: 'assets/images/cups/custom-128.png',
+                      time: DateFormat("h:mm a").format(time),
+                      defaultAmount: waterAmount,
+                    ),
+                    forgottenRecord: true,
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
@@ -420,7 +528,7 @@ Future<dynamic> clearAllRecords({
   required DataProvider provider,
   required Size size,
 }) {
-  final _time = DateTime.now();
+  final DateTime now = DateTime.now();
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -441,10 +549,13 @@ Future<dynamic> clearAllRecords({
         onTapOK: () {
           provider.deleteAllRecords();
           provider.removeAllDrunkAmount();
-          provider.addMonthDayChartData(
-            day: _time.day,
+          provider.addToChartData(
+            day: now.day,
+            month: now.month,
+            year: now.year,
             drunkAmount: provider.getDrunkAmount,
             intakeGoalAmount: provider.getIntakeGoalAmount,
+            recordCount: 0,
           );
           Navigator.pop(context);
         },

@@ -1,32 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:water_reminder/boxes.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/models/cup.dart';
-import 'package:water_reminder/models/drunk_amount.dart';
-import 'package:water_reminder/models/gender.dart';
-import 'package:water_reminder/models/intake_goal.dart';
 import 'package:water_reminder/models/record.dart';
 import 'package:water_reminder/models/schedule_record.dart';
-import 'package:water_reminder/models/sound.dart';
-import 'package:water_reminder/models/unit.dart';
 import 'package:water_reminder/models/wakeup_time.dart';
-import 'package:water_reminder/models/weight.dart';
 
 import '../functions.dart';
+import '../l10n/l10n.dart';
 
 class DataProvider extends ChangeNotifier {
-  /// Intro Preferences
-  set setIsInitialPrefsSet(bool value) {
-    final box = Boxes.getIsInitialPrefsSet();
-    box.put('isInitialPrefsSet', value);
-  }
-
-  get getIsInitialPrefsSet => Boxes.getIsInitialPrefsSet().values.isNotEmpty
-      ? Boxes.getIsInitialPrefsSet().values.first
-      : false;
-
   /// Reminder schedule
   set addScheduleRecord(ScheduleRecord scheduleRecord) {
     final scheduleRecords = Boxes.getScheduleRecords();
@@ -59,60 +43,64 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getScheduleRecords => Boxes.getScheduleRecords().values.toList();
-  // get getScheduleRecords =>
-  //     Boxes.getScheduleRecords().values.toList()..sort((a, b) => a.time.compareTo(b.time));
+  List<ScheduleRecord> get getScheduleRecords => Boxes.getScheduleRecords().values.toList();
 
   /// Reminder sound
   set setSoundValue(int soundValue) {
     final box = Boxes.getSoundValue();
-    box.put('soundValue', Sound(soundValue: soundValue));
+    box.put('soundValue', soundValue);
     notifyListeners();
   }
 
-  get getSoundValue => Boxes.getSoundValue().get('soundValue')!.soundValue;
+  int get getSoundValue => Boxes.getSoundValue().values.first;
 
   /// Weight unit 0 = kg, 1 = lbs
+  set setWeightUnit(int weightUnit) {
+    final box = Boxes.getWeightUnit();
+    box.put('weightUnit', weightUnit);
+    notifyListeners();
+  }
+
+  int get getWeightUnit => Boxes.getWeightUnit().values.first;
+
   /// Capacity unit 0 = ml, 1 = fl oz
-  setUnit(int weightUnit, int capacityUnit) {
-    final box = Boxes.getUnits();
-    box.put('unit', Unit(weightUnit: weightUnit, capacityUnit: capacityUnit));
+  set setCapacityUnit(int capacityUnit) {
+    final box = Boxes.getCapacityUnit();
+    box.put('capacityUnit', capacityUnit);
     notifyListeners();
   }
 
-  get getWeightUnit => Boxes.getUnits().get('unit')!.weightUnit;
-  get getCapacityUnit => Boxes.getUnits().get('unit')!.capacityUnit;
+  int get getCapacityUnit => Boxes.getCapacityUnit().values.first;
 
-  /// Intake goal
+  /// Intake goal amount
   set setIntakeGoalAmount(double intakeGoalAmount) {
-    final box = Boxes.getIntakeGoal();
-    box.put('intakeGoal', IntakeGoal(intakeGoalAmount: intakeGoalAmount));
+    final box = Boxes.getIntakeGoalAmount();
+    box.put('intakeGoalAmount', intakeGoalAmount);
     notifyListeners();
   }
 
-  get getIntakeGoalAmount => getCapacityUnit == 0
-      ? Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount
-      : mlToFlOz(Boxes.getIntakeGoal().get('intakeGoal')!.intakeGoalAmount);
+  double get getIntakeGoalAmount => getCapacityUnit == 0
+      ? Boxes.getIntakeGoalAmount().values.first
+      : mlToFlOz(Boxes.getIntakeGoalAmount().values.first);
 
   /// Gender 0 = male, 1 = female
-  set setGender(int genderValue) {
+  set setGender(int gender) {
     final box = Boxes.getGender();
-    box.put('gender', Gender(gender: genderValue));
+    box.put('gender', gender);
     notifyListeners();
   }
 
-  get getGender => Boxes.getGender().get('gender')!.gender;
+  int get getGender => Boxes.getGender().values.first;
 
   /// Weight
   set setWeight(int weight) {
     final box = Boxes.getWeight();
-    box.put('weight', Weight(weight: weight));
+    box.put('weight', weight);
     notifyListeners();
   }
 
-  get getWeight => getWeightUnit == 0
-      ? Boxes.getWeight().get('weight')!.weight
-      : kgToLbs(Boxes.getWeight().get('weight')!.weight);
+  int get getWeight =>
+      getWeightUnit == 0 ? Boxes.getWeight().values.first : kgToLbs(Boxes.getWeight().values.first);
 
   /// Temporary weight for initial preferences page
   late int _tempWeight = getWeight;
@@ -121,7 +109,7 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getTempWeight => _tempWeight;
+  int get getTempWeight => _tempWeight;
 
   /// Wake-up time
   setWakeUpTime(int hour, int minute) {
@@ -130,8 +118,8 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getWakeUpTimeHour => Boxes.getWakeupTime().get('wakeup')!.wakeupHour;
-  get getWakeUpTimeMinute => Boxes.getWakeupTime().get('wakeup')!.wakeupMinute;
+  int get getWakeUpTimeHour => Boxes.getWakeupTime().get('wakeup')!.wakeupHour;
+  int get getWakeUpTimeMinute => Boxes.getWakeupTime().get('wakeup')!.wakeupMinute;
 
   /// Bed time hour
   setBedTime(int hour, int minute) {
@@ -140,8 +128,8 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getBedTimeHour => Boxes.getBedTime().get('bed')!.bedHour;
-  get getBedTimeMinute => Boxes.getBedTime().get('bed')!.bedMinute;
+  int get getBedTimeHour => Boxes.getBedTime().get('bed')!.bedHour;
+  int get getBedTimeMinute => Boxes.getBedTime().get('bed')!.bedMinute;
 
   /// Cup
   set addCup(Cup cup) {
@@ -168,13 +156,13 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getCups => Boxes.getCups().values.toList();
+  List<Cup> get getCups => Boxes.getCups().values.toList();
 
-  get getSelectedCup => Boxes.getCups().values.firstWhere((cup) => cup.selected);
-  get getSelectedCupIndex => Boxes.getCups().values.toList().indexWhere((cup) => cup.selected);
+  Cup get getSelectedCup => Boxes.getCups().values.firstWhere((cup) => cup.selected);
+  int get getSelectedCupIndex => Boxes.getCups().values.toList().indexWhere((cup) => cup.selected);
 
   /// Drunk amount
-  set addDrunkAmount(DrunkAmount drunkAmount) {
+  set addDrunkAmount(double drunkAmount) {
     final box = Boxes.getDrunkAmount();
     box.put('drunkAmount', drunkAmount);
 
@@ -187,11 +175,11 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getDrunkAmount => Boxes.getDrunkAmount().isNotEmpty
-      ? Boxes.getDrunkAmount().get('drunkAmount')!.drunkAmount
-      : 0.0;
+  double get getDrunkAmount =>
+      Boxes.getDrunkAmount().isNotEmpty ? Boxes.getDrunkAmount().values.first : 0.0;
 
   /// Intake records
+  //TODO:putting forgotten record is buggy
   addRecord(Record record, {bool forgottenRecord = false}) {
     final records = Boxes.getRecords();
     forgottenRecord ? records.putAt(0, record) : records.add(record);
@@ -216,47 +204,63 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getRecords => Boxes.getRecords().values.toList();
+  List<Record> get getRecords => Boxes.getRecords().values.toList();
 
   /// Chart Data
-  addMonthDayChartData({
+  addToChartData({
     required int day,
+    required int month,
+    required int year,
     required double drunkAmount,
     required double intakeGoalAmount,
+    required int recordCount,
   }) {
-    // final double amountPercent =
-    //     ((drunkAmount * 100) ~/ intakeGoalAmount) as double;
+    final box = Boxes.getChartData();
     final double amountPercent = ((drunkAmount * 100) / intakeGoalAmount);
 
-    final box = Boxes.getChartData();
-    final now = DateTime.now();
-
-    // if (box.values.isNotEmpty) {
-    //   for (var monthDay in box.values) {
-    //     if (monthDay.x == day) {
-    //       box.put(day, ChartData(x: day, y: amountPercent));
-    //     }
-    //     break;
-    //   }
-    // } else {
-    //   box.put(day, ChartData(x: day, y: amountPercent));
-    // }
-
-    // box.put(day, ChartData(x: day, y: amountPercent));
-    /// ///
     box.put(
-        now.year + now.month + day,
+        year + month + day,
         ChartData(
           day: day - 1,
-          month: now.month,
-          year: now.year,
+          month: month,
+          year: year,
           name: day.toString(),
-          percent: amountPercent,
+          percent: amountPercent >= 100 ? 100 : amountPercent,
           drunkAmount: drunkAmount,
+          recordCount: recordCount,
         ));
 
     notifyListeners();
   }
 
-  get getMonthDayChartDataList => Boxes.getChartData().values.toList();
+  List<ChartData> get getChartDataList => Boxes.getChartData().values.toList();
+
+  /// Next drink time
+  late String _nextDrinkTime = '';
+  set setNextDrinkTime(String nextDrinkTime) {
+    _nextDrinkTime = nextDrinkTime;
+    notifyListeners();
+  }
+
+  String get getNextDrinkTime => _nextDrinkTime;
+
+  /// Intro Preferences
+  set setIsInitialPrefsSet(bool value) {
+    final box = Boxes.getIsInitialPrefsSet();
+    box.put('isInitialPrefsSet', value);
+  }
+
+  bool get getIsInitialPrefsSet => Boxes.getIsInitialPrefsSet().values.isNotEmpty
+      ? Boxes.getIsInitialPrefsSet().values.first
+      : false;
+
+  /// Set/Get locale
+  set setLangCode(String langCode) {
+    if (!L10n.all.contains(Locale(langCode))) return;
+    final box = Boxes.getLangCode();
+    box.put('langCode', langCode);
+    notifyListeners();
+  }
+
+  String get getLangCode => Boxes.getLangCode().values.first;
 }

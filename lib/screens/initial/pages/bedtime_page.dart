@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 class BedTimePage extends StatefulWidget {
@@ -11,16 +12,16 @@ class BedTimePage extends StatefulWidget {
 }
 
 class _BedTimePageState extends State<BedTimePage> {
-  final _now = DateTime.now();
+  final DateTime _now = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Consumer<DataProvider>(
       builder: (context, provider, _) => Column(
         children: [
-          const Text(
-            'Bedtime',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.bedTime,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,

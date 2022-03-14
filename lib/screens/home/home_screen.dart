@@ -1,22 +1,21 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/functions.dart';
-import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/models/record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/home/home_helpers.dart';
-import 'package:water_reminder/screens/home/home_subscreens/tips_screen.dart';
 import 'package:water_reminder/widgets/dashed_line.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/circular_slider/appearance.dart';
 import '../../widgets/circular_slider/circular_slider.dart';
 import '../../widgets/liquid_progress_indicator/liquid_circular_progress_indicator.dart';
-import '../../widgets/sliding_number.dart';
+import '../../widgets/odometer/odometer_number.dart';
+import '../../widgets/odometer/slide_odometer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -29,19 +28,20 @@ class _HomeScreenState extends State<HomeScreen> {
   final DateTime _now = DateTime.now();
   bool _buttonPressed = false;
 
-  String _nextTime = '';
-
   Timer? _timer;
+  late final DataProvider _provider;
 
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      if (mounted) {
-        setState(() => _nextTime = calculateNextDrinkTime(
-            scheduleRecords: Provider.of<DataProvider>(context, listen: false).getScheduleRecords));
-      }
+    _provider = Provider.of<DataProvider>(context, listen: false);
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      removeAllRecordsIfDayChanges(provider: _provider);
+      _provider.setNextDrinkTime =
+          calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
     });
+
     _tip = getRandomTip();
   }
 
@@ -62,13 +62,15 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
+                SizedBox(height: size.height * 0.01),
+
                 /// Tips
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Image.asset(
-                        'assets/images/1.png',
+                        'assets/images/water-glass-with-light-bulb.png',
                         scale: 1,
                       ),
                     ),
@@ -103,20 +105,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(width: size.width * 0.02),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context, CupertinoPageRoute(builder: (context) => const TipsScreen())),
+                        onTap: () => tipsPopup(context: context, provider: provider, size: size),
                         child: Column(
                           children: [
                             Image.asset(
                               'assets/images/light.png',
                               scale: 5,
                             ),
-                            const Text(
-                              'More tips',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.moreTips,
+                              style: const TextStyle(
                                 color: kPrimaryColor,
                                 fontSize: 13,
                               ),
+                              textAlign: TextAlign.center,
                             )
                           ],
                         ),
@@ -164,9 +166,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SlidingNumber(
-                                      number: provider.getDrunkAmount.toInt(),
-                                      style: TextStyle(
+                                    AnimatedSlideOdometerNumber(
+                                      odometerNumber:
+                                          OdometerNumber(provider.getDrunkAmount.toInt()),
+                                      duration: const Duration(milliseconds: 500),
+                                      letterWidth: 14,
+                                      numberTextStyle: TextStyle(
                                         color: (provider.getDrunkAmount /
                                                     provider.getIntakeGoalAmount) >
                                                 0.525
@@ -174,8 +179,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             : kPrimaryColor,
                                         fontSize: 22,
                                       ),
-                                      duration: const Duration(milliseconds: 1000),
-                                      curve: Curves.easeOutQuint,
                                     ),
                                     RichText(
                                       text: TextSpan(
@@ -200,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 SizedBox(height: size.height * 0.01),
                                 Text(
-                                  'Daily Drink Target',
+                                  AppLocalizations.of(context)!.dailyDrinkTarget,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color:
@@ -217,10 +220,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           setState(() => _buttonPressed = true);
 
                                           /// Add drunk amount
-                                          provider.addDrunkAmount = DrunkAmount(
-                                            drunkAmount: provider.getDrunkAmount +
-                                                provider.getSelectedCup.capacity,
-                                          );
+                                          provider.addDrunkAmount = provider.getDrunkAmount +
+                                              provider.getSelectedCup.capacity;
 
                                           provider.addRecord(
                                             Record(
@@ -230,21 +231,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           );
 
-                                          double drunkAmountForChart = provider.getDrunkAmount;
-                                          if (provider.getDrunkAmount >
-                                              provider.getIntakeGoalAmount) {
-                                            drunkAmountForChart = provider.getIntakeGoalAmount;
-                                          }
-                                          provider.addMonthDayChartData(
+                                          provider.addToChartData(
                                             day: _now.day,
-                                            drunkAmount: drunkAmountForChart,
+                                            month: _now.month,
+                                            year: _now.year,
+                                            drunkAmount: provider.getDrunkAmount,
                                             intakeGoalAmount: provider.getIntakeGoalAmount,
+                                            recordCount: provider.getRecords.length,
                                           );
 
                                           Future.delayed(
                                             const Duration(milliseconds: 150),
                                             () => setState(() => _buttonPressed = false),
                                           );
+                                          setState(() => _tip = getRandomTip());
                                         }
                                       : () {},
                                   child: Padding(
@@ -309,14 +309,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     Positioned.fill(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: const [
-                          Icon(
+                        children: [
+                          const Icon(
                             Icons.arrow_drop_up,
                             color: Colors.black54,
                           ),
                           Text(
-                            'Confirm that you have just drunk water',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.confirmDrankWater,
+                            style: const TextStyle(
                               color: Colors.black54,
                               fontSize: 12,
                             ),
@@ -366,11 +366,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: Text(
-                        'Today\'s Records',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.todaysRecords,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -421,10 +421,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
-                                          Text(_nextTime),
-                                          const Text(
-                                            'Next time',
-                                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                                          Text(provider.getNextDrinkTime),
+                                          Text(
+                                            AppLocalizations.of(context)!.nextTime,
+                                            style:
+                                                const TextStyle(color: Colors.grey, fontSize: 13),
                                           ),
                                         ],
                                       ),
@@ -437,7 +438,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     Expanded(
                                       flex: 2,
-                                      child: provider.getRecords.length != 0
+                                      child: provider.getRecords.isNotEmpty
                                           ? InkWell(
                                               child: const Icon(Icons.refresh),
                                               onTap: () => clearAllRecords(
@@ -452,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               Visibility(
-                                visible: provider.getRecords.length > 0 ? true : false,
+                                visible: provider.getRecords.isNotEmpty ? true : false,
                                 child: Expanded(
                                   child: Row(
                                     children: const [
@@ -497,7 +498,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           flex: 2,
                                           child: PopupMenuButton<dynamic>(
                                             padding: const EdgeInsets.all(0),
-                                            tooltip: 'Edit/Delete Record',
+                                            tooltip:
+                                                AppLocalizations.of(context)!.editOrDeleteRecord,
                                             icon: const Icon(
                                               Icons.more_vert,
                                               color: Colors.grey,
@@ -516,18 +518,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         provider
                                                             .getRecords[index].dividedCapacity) >=
                                                     0) {
-                                                  provider.addDrunkAmount = DrunkAmount(
-                                                      drunkAmount: provider.getDrunkAmount -
-                                                          provider
-                                                              .getRecords[index].dividedCapacity);
+                                                  provider.addDrunkAmount = provider
+                                                          .getDrunkAmount -
+                                                      provider.getRecords[index].dividedCapacity;
                                                 }
 
                                                 provider.deleteRecord = index;
 
-                                                provider.addMonthDayChartData(
+                                                provider.addToChartData(
                                                   day: _now.day,
+                                                  month: _now.month,
+                                                  year: _now.year,
                                                   drunkAmount: provider.getDrunkAmount,
                                                   intakeGoalAmount: provider.getIntakeGoalAmount,
+                                                  recordCount: provider.getRecords.length,
                                                 );
                                               }
                                             },
@@ -535,18 +539,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                               PopupMenuItem(
                                                 value: 0,
                                                 height: size.height * 0.025,
-                                                child: const Text(
-                                                  'Edit',
-                                                  style: TextStyle(fontSize: 14),
+                                                child: Text(
+                                                  AppLocalizations.of(context)!.edit,
+                                                  style: const TextStyle(fontSize: 14),
                                                 ),
                                               ),
                                               const PopupMenuDivider(),
                                               PopupMenuItem(
                                                 value: 1,
                                                 height: size.height * 0.025,
-                                                child: const Text(
-                                                  'Delete',
-                                                  style: TextStyle(fontSize: 14),
+                                                child: Text(
+                                                  AppLocalizations.of(context)!.delete,
+                                                  style: const TextStyle(fontSize: 14),
                                                 ),
                                               ),
                                             ],

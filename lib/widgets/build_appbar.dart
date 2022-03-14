@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 class BuildAppBar extends StatelessWidget with PreferredSizeWidget {
   const BuildAppBar({
     Key? key,
@@ -11,26 +9,21 @@ class BuildAppBar extends StatelessWidget with PreferredSizeWidget {
   final Widget? title;
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-      ),
-      bottom: bottom,
-      title: title,
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlueAccent, Colors.blue],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.0, 1.0],
-            tileMode: TileMode.clamp,
+  Widget build(BuildContext context) => AppBar(
+        bottom: bottom,
+        title: title,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black26, Colors.black54],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp,
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   @override
   Size get preferredSize => const Size.fromHeight(60);

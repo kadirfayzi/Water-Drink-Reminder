@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 class GenderPage extends StatefulWidget {
@@ -16,9 +17,9 @@ class _GenderPageState extends State<GenderPage> {
     return Consumer<DataProvider>(
       builder: (context, provider, _) => Column(
         children: [
-          const Text(
-            'Your Gender',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.yourGender,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,
@@ -51,7 +52,7 @@ class _GenderPageState extends State<GenderPage> {
                     ),
                     SizedBox(height: size.height * 0.02),
                     Text(
-                      'Male',
+                      AppLocalizations.of(context)!.male,
                       style: TextStyle(
                         color: provider.getGender == 0 ? Colors.blue : Colors.grey[400],
                         fontSize: 20,
@@ -85,7 +86,7 @@ class _GenderPageState extends State<GenderPage> {
                     ),
                     SizedBox(height: size.height * 0.02),
                     Text(
-                      'Female',
+                      AppLocalizations.of(context)!.female,
                       style: TextStyle(
                         color: provider.getGender == 1 ? Colors.blue : Colors.grey[400],
                         fontSize: 20,

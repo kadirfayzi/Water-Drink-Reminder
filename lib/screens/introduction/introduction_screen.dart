@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/main.dart';
@@ -48,7 +49,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: Image.asset(
-                          Provider.of<DataProvider>(context, listen: false).getGender == 0
+                          provider.getGender == 0
                               ? 'assets/images/boy.png'
                               : 'assets/images/girl.png',
                           scale: 15,
@@ -57,7 +58,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Personal hydration plan',
+                      AppLocalizations.of(context)!.personalHydraPlan,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.grey[700],
@@ -101,12 +102,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             tileMode: TileMode.clamp,
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(15.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
                           child: Center(
                             child: Text(
-                              'START',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.start,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -139,12 +140,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                 tileMode: TileMode.clamp,
                               ),
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(15.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
                               child: Center(
                                 child: Text(
-                                  'Skip',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.skip,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
@@ -172,12 +173,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                 tileMode: TileMode.clamp,
                               ),
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(15.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
                               child: Center(
                                 child: Text(
-                                  'NEXT',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.next,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
@@ -13,6 +14,13 @@ class DailyWaterIntake extends StatefulWidget {
 }
 
 class _DailyWaterIntakeState extends State<DailyWaterIntake> {
+  late final DataProvider _provider;
+  @override
+  void initState() {
+    super.initState();
+    _provider = Provider.of<DataProvider>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -20,7 +28,7 @@ class _DailyWaterIntakeState extends State<DailyWaterIntake> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Your proper daily water intake',
+          AppLocalizations.of(context)!.dailyWaterIntake,
           style: TextStyle(
             fontSize: size.width * 0.06,
             color: Colors.grey[700],
@@ -36,7 +44,7 @@ class _DailyWaterIntakeState extends State<DailyWaterIntake> {
               totalRepeatCount: 1,
               animatedTexts: [
                 WavyAnimatedText(
-                  '${Provider.of<DataProvider>(context, listen: false).getIntakeGoalAmount.toStringAsFixed(0)}',
+                  _provider.getIntakeGoalAmount.toStringAsFixed(0),
                   textStyle: TextStyle(
                     fontSize: size.width * 0.15,
                     fontWeight: FontWeight.w500,
@@ -46,9 +54,7 @@ class _DailyWaterIntakeState extends State<DailyWaterIntake> {
               ],
             ),
             Text(
-              kCapacityUnitStrings[
-                  Provider.of<DataProvider>(context, listen: false)
-                      .getCapacityUnit],
+              kCapacityUnitStrings[_provider.getCapacityUnit],
               style: TextStyle(
                 fontSize: size.width * 0.08,
                 color: Colors.grey,

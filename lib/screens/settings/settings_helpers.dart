@@ -1,12 +1,16 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/services/notification_service.dart';
-import 'package:water_reminder/widgets/build_dialog.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:water_reminder/l10n/l10n.dart';
+
+import '../../widgets/elevated_container.dart';
 
 /// Build Custom Title For Settings
 Widget buildTitle({
@@ -77,246 +81,597 @@ Widget buildTappableRow({
   );
 }
 
-/// Build custom row for reminder mode popup dialog
-Row buildReminderModeRow(int index, int selectedIndex) {
-  return Row(
-    children: [
-      Icon(
-        kReminderModeIcons[index],
-        size: 25,
-        color: selectedIndex == index ? kPrimaryColor : Colors.grey,
-      ),
-      const SizedBox(width: 15),
-      Text(
-        kReminderModeStrings[index],
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ],
-  );
-}
-
-/// Unit popup dialog
-Future<dynamic> unitPopup({
+/// Reminder schedule popup dialog
+Future<dynamic> reminderSchedulePopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
-  dynamic weightUnitValue = provider.getWeightUnit;
-  dynamic capacityUnitValue = provider.getCapacityUnit;
-  return showModalBottomSheet(
+  final NotificationHelper _notificationHelper = NotificationHelper();
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.3,
-          onTapOK: () {
-            provider.setUnit(weightUnitValue, capacityUnitValue);
-            Navigator.pop(context);
-          },
-          content: Container(
-            height: size.height * 0.25,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Unit',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+    builder: (BuildContext context) => Dismissible(
+      key: const Key('key'),
+      direction: DismissDirection.vertical,
+      onDismissed: (_) => Navigator.pop(context),
+      child: CupertinoActionSheet(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                child: const Icon(
+                  Icons.close,
+                  size: 30,
+                  color: Colors.transparent,
+                ),
+                onTap: () {},
+              ),
+            ),
+            Text(
+              AppLocalizations.of(context)!.reminderSchedule,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                child: Icon(
+                  Icons.close,
+                  size: 30,
+                  color: Colors.grey[600],
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            height: size.height * 0.8,
+            child: Scaffold(
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    height: size.height * 0.8,
+                    child: ListView(
+                      children: List.generate(
+                        provider.getScheduleRecords.length,
+                        (index) {
+                          return Column(
+                            children: [
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  dividerColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                ),
+                                child: ExpansionTile(
+                                  childrenPadding: const EdgeInsets.all(10),
+                                  backgroundColor: Colors.grey[200],
+                                  collapsedIconColor: Colors.grey,
+                                  title: Container(
+                                    height: size.height * 0.06,
+                                    width: size.width,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          provider.getScheduleRecords[index].time,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        CupertinoSwitch(
+                                          value: provider.getScheduleRecords[index].isSet,
+                                          onChanged: (isSet) {
+                                            /// set or reset notification
+                                            if (!isSet) {
+                                              _notificationHelper
+                                                  .cancel(provider.getScheduleRecords[index].id);
+                                            } else {
+                                              _notificationHelper.scheduledNotification(
+                                                hour: int.parse(provider
+                                                    .getScheduleRecords[index].time
+                                                    .split(":")[0]),
+                                                minutes: int.parse(provider
+                                                    .getScheduleRecords[index].time
+                                                    .split(":")[1]),
+                                                id: provider.getScheduleRecords[index].id,
+                                                sound: 'sound${provider.getSoundValue}',
+                                              );
+                                            }
+
+                                            /// Edit schedule record
+                                            provider.editScheduleRecord(
+                                              index,
+                                              ScheduleRecord(
+                                                id: provider.getScheduleRecords[index].id,
+                                                time: provider.getScheduleRecords[index].time,
+                                                isSet: isSet,
+                                              ),
+                                            );
+                                          },
+                                          activeColor: kPrimaryColor,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  children: [
+                                    Material(
+                                      elevation: 0.5,
+                                      borderRadius: const BorderRadius.all(kRadius_5),
+                                      child: InkWell(
+                                        borderRadius: const BorderRadius.all(kRadius_5),
+                                        onTap: () {
+                                          /// Delete schedule record and notification
+                                          _notificationHelper
+                                              .cancel(provider.getScheduleRecords[index].id);
+                                          provider.deleteScheduleRecord = index;
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          width: size.width,
+                                          child: Text(
+                                            AppLocalizations.of(context)!.delete,
+                                            style: TextStyle(
+                                              color: Colors.red[600],
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(indent: 10, endIndent: 10),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: size.height * 0.03),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Weight',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(
-                      width: size.width * 0.3,
-                      child: CupertinoSlidingSegmentedControl(
-                        groupValue: weightUnitValue,
-                        children: const {0: Text('kg'), 1: Text('lbs')},
-                        onValueChanged: (value) => setState(() => weightUnitValue = value),
-                      ),
-                    ),
-                  ],
+              ),
+
+              /// Add new schedule record
+              floatingActionButton: ElevatedContainer(
+                color: kPrimaryColor,
+                padding: const EdgeInsets.all(10),
+                child: GestureDetector(
+                  onTap: () => setReminderTimePopup(
+                    context: context,
+                    provider: provider,
+                    size: size,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ),
-                SizedBox(height: size.height * 0.01),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Capacity',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(
-                      width: size.width * 0.3,
-                      child: CupertinoSlidingSegmentedControl(
-                        groupValue: capacityUnitValue,
-                        children: const {0: Text('ml'), 1: Text('fl oz')},
-                        onValueChanged: (value) => setState(() => capacityUnitValue = value),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            ),
+          )
+        ],
+      ),
+    ),
+  );
+}
+
+/// Set sound popup dialog
+Future<dynamic> setSoundPopup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  final AudioPlayer _player = AudioPlayer();
+  final NotificationHelper _notificationHelper = NotificationHelper();
+  int selectedSoundValue = provider.getSoundValue;
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.selectSound,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
             ),
           ),
+          actions: List.generate(
+            kSounds.length,
+            (index) => Container(
+              height: size.height * 0.1,
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey.shade300,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Material(
+                child: InkWell(
+                  onTap: () async {
+                    setState(() => selectedSoundValue = index);
+                    await _player.setAsset('assets/sounds/$selectedSoundValue.mp3');
+                    _player.play();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          kSounds[index],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Icon(
+                          selectedSoundValue == index ? Icons.check_circle_rounded : null,
+                          color: kPrimaryColor,
+                          size: 30,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          cancelButton: Column(
+            children: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  _notificationHelper.cancelAll();
+                  provider.setSoundValue = selectedSoundValue;
+                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                    _notificationHelper.scheduledNotification(
+                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                      id: provider.getScheduleRecords[i].id,
+                      sound: 'sound$selectedSoundValue',
+                    );
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
         ),
-      );
-    },
+      ),
+    ),
+  );
+}
+
+/// Unit popup dialog
+Future<dynamic> setUnitPopup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  dynamic selectedWeightUnitValue = provider.getWeightUnit;
+  dynamic selectedCapacityUnitValue = provider.getCapacityUnit;
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.selectUnits,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: Container(
+                height: size.height * 0.25,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.weight,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(
+                          width: size.width * 0.3,
+                          child: CupertinoSlidingSegmentedControl(
+                            groupValue: selectedWeightUnitValue,
+                            children: const {0: Text('kg'), 1: Text('lbs')},
+                            onValueChanged: (value) =>
+                                setState(() => selectedWeightUnitValue = value),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.capacity,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(
+                          width: size.width * 0.3,
+                          child: CupertinoSlidingSegmentedControl(
+                            groupValue: selectedCapacityUnitValue,
+                            children: const {0: Text('ml'), 1: Text('fl oz')},
+                            onValueChanged: (value) =>
+                                setState(() => selectedCapacityUnitValue = value),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          cancelButton: Column(
+            children: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  provider.setWeightUnit = selectedWeightUnitValue;
+                  provider.setCapacityUnit = selectedCapacityUnitValue;
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
 
 /// Intake goal popup dialog
-Future<dynamic> intakeGoalPopup({
+Future<dynamic> setIntakeGoalPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
   double intakeGoalValue = provider.getIntakeGoalAmount;
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.35,
-          onTapOK: () {
-            /// if capacity unit = ml
-            if (provider.getCapacityUnit == 0) {
-              provider.setIntakeGoalAmount = intakeGoalValue;
-            } else {
-              /// else if capacity unit = fl oz, convert to ml then assign it
-              provider.setIntakeGoalAmount = flOzToMl(intakeGoalValue);
-            }
-
-            Navigator.pop(context);
-          },
-          content: Container(
-            height: size.height * 0.25,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Adjust intake goal',
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.04),
-                Row(
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.adjustIntakeGoal,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: Container(
+                height: size.height * 0.3,
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      intakeGoalValue.toStringAsFixed(0),
-                      style: const TextStyle(fontSize: 30, color: kPrimaryColor),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          intakeGoalValue.toStringAsFixed(0),
+                          style: const TextStyle(fontSize: 30, color: kPrimaryColor),
+                        ),
+                        Text(
+                          kCapacityUnitStrings[provider.getCapacityUnit],
+                          style: const TextStyle(color: kPrimaryColor),
+                        ),
+                        SizedBox(width: size.width * 0.05),
+                        InkWell(
+                          onTap: () => setState(() =>
+                              intakeGoalValue = calculateIntakeGoalAmount(provider.getWeight)),
+                          child: const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Icon(
+                              CupertinoIcons.arrow_clockwise,
+                              size: 25,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      kCapacityUnitStrings[provider.getCapacityUnit],
-                      style: const TextStyle(color: kPrimaryColor),
-                    ),
-                    SizedBox(width: size.width * 0.05),
-                    InkWell(
-                      onTap: () => setState(
-                          () => intakeGoalValue = calculateIntakeGoalAmount(provider.getWeight)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Icon(
-                          CupertinoIcons.arrow_clockwise,
-                          size: 25,
-                          color: Colors.grey,
+                    SliderTheme(
+                      data: const SliderThemeData(
+                        trackHeight: 2,
+                        inactiveTrackColor: Colors.grey,
+                        thumbColor: Colors.white,
+                        activeTickMarkColor: Colors.transparent,
+                        inactiveTickMarkColor: Colors.transparent,
+                        thumbShape: RoundSliderThumbShape(
+                          elevation: 5,
+                          enabledThumbRadius: 15,
+                        ),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: CupertinoSlider(
+                          value: intakeGoalValue,
+                          onChanged: (value) => setState(() => intakeGoalValue = value),
+                          min: provider.getCapacityUnit == 0 ? 800 : mlToFlOz(800),
+                          max: provider.getCapacityUnit == 0 ? 6000 : mlToFlOz(6000),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SliderTheme(
-                  data: const SliderThemeData(
-                    trackHeight: 2,
-                    inactiveTrackColor: Colors.grey,
-                    thumbColor: Colors.white,
-                    activeTickMarkColor: Colors.transparent,
-                    inactiveTickMarkColor: Colors.transparent,
-                    thumbShape: RoundSliderThumbShape(
-                      elevation: 5,
-                      enabledThumbRadius: 15,
-                    ),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: CupertinoSlider(
-                      value: intakeGoalValue,
-                      onChanged: (value) => setState(() => intakeGoalValue = value),
-                      min: provider.getCapacityUnit == 0 ? 800 : mlToFlOz(800),
-                      max: provider.getCapacityUnit == 0 ? 6000 : mlToFlOz(6000),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
+          ],
+          cancelButton: Column(
+            children: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  /// if capacity unit = ml
+                  if (provider.getCapacityUnit == 0) {
+                    provider.setIntakeGoalAmount = intakeGoalValue;
+                  } else {
+                    /// else if capacity unit = fl oz, convert to ml then assign it
+                    provider.setIntakeGoalAmount = flOzToMl(intakeGoalValue);
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
         ),
-      );
-    },
+      ),
+    ),
+  );
+}
+
+/// Set language popup dialog
+Future<dynamic> setLanguagePopup({
+  required BuildContext context,
+  required DataProvider provider,
+  required Size size,
+}) {
+  List<String> languages = ['English', 'Türkçe', 'Español', 'Deutsch'];
+  String selectedLangCode = provider.getLangCode;
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.selectLanguage,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: List.generate(
+            L10n.all.length,
+            (index) => Container(
+              color:
+                  selectedLangCode == L10n.all[index].languageCode ? Colors.white : Colors.white10,
+              child: CupertinoActionSheetAction(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(languages[index]),
+                    Text(L10n.getFlag(L10n.all[index].languageCode)),
+                  ],
+                ),
+                onPressed: () => setState(() => selectedLangCode = L10n.all[index].languageCode),
+              ),
+            ),
+          ),
+          cancelButton: Column(
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  provider.setLangCode = selectedLangCode;
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
 
 /// Gender selection popup dialog
+//TODO:ui needs to be updated
 Future<dynamic> genderSelectionPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
   dynamic genderValue = provider.getGender;
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.325,
-          onTapOK: () {
-            provider.setGender = genderValue;
-            Navigator.pop(context);
-          },
-          content: Container(
-            height: size.height * 0.2,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Gender',
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.03),
-                Column(
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.selectGender,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: Container(
+                height: size.height * 0.2,
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   children: [
                     Row(
                       children: [
@@ -329,7 +684,7 @@ Future<dynamic> genderSelectionPopup({
                             activeColor: kPrimaryColor,
                           ),
                         ),
-                        const Text('Male'),
+                        Text(AppLocalizations.of(context)!.male),
                       ],
                     ),
                     Row(
@@ -343,91 +698,109 @@ Future<dynamic> genderSelectionPopup({
                             activeColor: kPrimaryColor,
                           ),
                         ),
-                        const Text('Female'),
+                        Text(AppLocalizations.of(context)!.female),
                       ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
+          ],
+          cancelButton: Column(
+            children: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  provider.setGender = genderValue;
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
-/// Update weight popup dialog
+/// Edit weight popup dialog
+//TODO:Update weight popup ui nicely
 Future<dynamic> weightSelectionPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
   int weight = provider.getWeight;
-
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.35,
-          onTapOK: () {
-            if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
-            provider.setWeight = weight;
-            provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
-            Navigator.pop(context);
-          },
-          content: Container(
-            height: size.height * 0.3,
-            padding: const EdgeInsets.all(20),
-            child: Column(
+    builder: (BuildContext context) => Dismissible(
+      key: const Key('key'),
+      direction: DismissDirection.vertical,
+      onDismissed: (_) => Navigator.pop(context),
+      child: CupertinoActionSheet(
+        title: Text(
+          AppLocalizations.of(context)!.selectWeight,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        actions: [
+          Material(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Weight',
-                    style: TextStyle(
-                      fontSize: 18,
+                SizedBox(
+                  width: size.width * 0.2,
+                  height: size.height * 0.3,
+                  child: CupertinoPicker.builder(
+                    scrollController: FixedExtentScrollController(initialItem: weight),
+                    itemExtent: 40,
+                    onSelectedItemChanged: (value) => weight = value,
+                    childCount: provider.getWeightUnit == 0 ? 400 : 882,
+                    itemBuilder: (context, index) => Text(
+                      index.toString(),
+                      style: const TextStyle(fontSize: 32),
                     ),
                   ),
                 ),
-                SizedBox(height: size.height * 0.03),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: size.width * 0.2,
-                        height: size.height * 0.3,
-                        child: CupertinoPicker.builder(
-                          scrollController: FixedExtentScrollController(initialItem: weight),
-                          itemExtent: 40,
-                          onSelectedItemChanged: (value) => setState(() => weight = value),
-                          childCount: provider.getWeightUnit == 0 ? 400 : 882,
-                          itemBuilder: (context, index) => Text(
-                            index.toString(),
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        provider.getWeightUnit == 0 ? 'kg' : 'lbs',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                Text(
+                  provider.getWeightUnit == 0 ? 'kg' : 'lbs',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
-          ),
+          )
+        ],
+        cancelButton: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CupertinoActionSheetAction(
+              child: Text(AppLocalizations.of(context)!.save),
+              onPressed: () {
+                if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
+                provider.setWeight = weight;
+                provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            CupertinoActionSheetAction(
+              child: Text(AppLocalizations.of(context)!.cancel),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
@@ -437,11 +810,10 @@ Future<dynamic> wakeupAndBedtimePopup({
   required DataProvider provider,
   required Size size,
   required bool isWakeUp,
-  required String title,
   required int hour,
   required int minute,
 }) {
-  final now = DateTime.now();
+  final DateTime now = DateTime.now();
   DateTime time = DateTime.utc(
     now.year,
     now.month,
@@ -449,201 +821,224 @@ Future<dynamic> wakeupAndBedtimePopup({
     hour,
     minute,
   );
-
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.4,
-          onTapOK: () {
-            final _notificationHelper = NotificationHelper();
-            _notificationHelper.cancelAll();
-            provider.deleteAllScheduleRecords();
-
-            final _random = Random();
-            int wakeUpHour = provider.getWakeUpTimeHour;
-            int wakeUpMinute = provider.getWakeUpTimeMinute;
-            int bedHour = provider.getBedTimeHour;
-
-            if (isWakeUp) {
-              provider.setWakeUpTime(time.hour, time.minute);
-              wakeUpHour = time.hour;
-              wakeUpMinute = time.minute;
-            } else {
-              provider.setBedTime(time.hour, time.minute);
-              bedHour = time.hour;
-            }
-
-            if (wakeUpHour >= bedHour) bedHour += 24;
-
-            int reminderCount = calculateReminderCount(
-              bedHour: bedHour,
-              wakeUpHour: wakeUpHour,
-            );
-
-            for (int i = 0; i <= reminderCount; i++) {
-              if (wakeUpHour < bedHour) {
-                int tempWakeUpHour = wakeUpHour;
-                if (wakeUpHour >= 24) tempWakeUpHour -= 24;
-
-                provider.addScheduleRecord = ScheduleRecord(
-                  id: _random.nextInt(1000000000),
-                  time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
-                  isSet: true,
-                );
-              }
-              wakeUpMinute += 30;
-              wakeUpHour += 1;
-              if (wakeUpMinute >= 60) {
-                wakeUpHour += 1;
-                wakeUpMinute -= 60;
-              }
-            }
-
-            /// Set notifications for given time
-            for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-              _notificationHelper.scheduledNotification(
-                hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
-                minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
-                id: provider.getScheduleRecords[i].id,
-                sound: 'sound${provider.getSoundValue}',
-              );
-            }
-
-            Navigator.pop(context);
-          },
-          content: SizedBox(
-            height: size.height * 0.35,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: CupertinoTheme(
-                      data: const CupertinoThemeData(
-                        textTheme: CupertinoTextThemeData(
-                          dateTimePickerTextStyle: TextStyle(
-                            fontSize: 25,
-                            color: Colors.blue,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            isWakeUp
+                ? AppLocalizations.of(context)!.wakeUpTime
+                : AppLocalizations.of(context)!.bedTime,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: SizedBox(
+                height: size.height * 0.35,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: CupertinoTheme(
+                          data: const CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: TextStyle(
+                                fontSize: 25,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          child: CupertinoDatePicker(
+                            initialDateTime: time,
+                            mode: CupertinoDatePickerMode.time,
+                            use24hFormat: true,
+                            onDateTimeChanged: (selectedTime) =>
+                                setState(() => time = selectedTime),
                           ),
                         ),
                       ),
-                      child: SizedBox(
-                        width: size.width * 0.3,
-                        child: CupertinoDatePicker(
-                          initialDateTime: time,
-                          mode: CupertinoDatePickerMode.time,
-                          use24hFormat: true,
-                          onDateTimeChanged: (selectedTime) => setState(() => time = selectedTime),
-                        ),
-                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            )
+          ],
+          cancelButton: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  final NotificationHelper _notificationHelper = NotificationHelper();
+                  _notificationHelper.cancelAll();
+                  provider.deleteAllScheduleRecords();
+
+                  final Random _random = Random();
+                  int wakeUpHour = provider.getWakeUpTimeHour;
+                  int wakeUpMinute = provider.getWakeUpTimeMinute;
+                  int bedHour = provider.getBedTimeHour;
+
+                  if (isWakeUp) {
+                    provider.setWakeUpTime(time.hour, time.minute);
+                    wakeUpHour = time.hour;
+                    wakeUpMinute = time.minute;
+                  } else {
+                    provider.setBedTime(time.hour, time.minute);
+                    bedHour = time.hour;
+                  }
+
+                  if (wakeUpHour >= bedHour) bedHour += 24;
+
+                  int reminderCount = calculateReminderCount(
+                    bedHour: bedHour,
+                    wakeUpHour: wakeUpHour,
+                  );
+
+                  for (int i = 0; i <= reminderCount; i++) {
+                    if (wakeUpHour < bedHour) {
+                      int tempWakeUpHour = wakeUpHour;
+                      if (wakeUpHour >= 24) tempWakeUpHour -= 24;
+
+                      provider.addScheduleRecord = ScheduleRecord(
+                        id: _random.nextInt(1000000000),
+                        time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
+                        isSet: true,
+                      );
+                    }
+                    wakeUpMinute += 30;
+                    wakeUpHour += 1;
+                    if (wakeUpMinute >= 60) {
+                      wakeUpHour += 1;
+                      wakeUpMinute -= 60;
+                    }
+                  }
+
+                  /// Set notifications for given time
+                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                    _notificationHelper.scheduledNotification(
+                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                      id: provider.getScheduleRecords[i].id,
+                      sound: 'sound${provider.getSoundValue}',
+                    );
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
 /// Reminder schedule set time popup dialog
-Future<dynamic> setTimePopup({
+Future<dynamic> setReminderTimePopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
 }) {
   DateTime _time = DateTime.now();
-  final _random = Random();
-  final _notificationHelper = NotificationHelper();
-  return showModalBottomSheet(
+  return showCupertinoModalPopup(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => BuildDialog(
-          heightPercent: 0.4,
-          onTapOK: () {
-            final int id = _random.nextInt(1000000000);
-
-            /// Add new schedule record
-            provider.addScheduleRecord = ScheduleRecord(
-              id: id,
-              time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
-              isSet: true,
-            );
-
-            /// Set new notification
-            _notificationHelper.scheduledNotification(
-              hour: _time.hour,
-              minutes: _time.minute,
-              id: id,
-              sound: 'sound${provider.getSoundValue}',
-            );
-            Navigator.pop(context);
-          },
-          content: SizedBox(
-            height: size.height * 0.35,
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Set time',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: CupertinoTheme(
-                      data: const CupertinoThemeData(
-                        textTheme: CupertinoTextThemeData(
-                          dateTimePickerTextStyle: TextStyle(
-                            fontSize: 25,
-                            color: Colors.blue,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => Dismissible(
+        key: const Key('key'),
+        direction: DismissDirection.vertical,
+        onDismissed: (_) => Navigator.pop(context),
+        child: CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.setNewReminder,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            Material(
+              child: SizedBox(
+                height: size.height * 0.35,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: CupertinoTheme(
+                          data: const CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: TextStyle(
+                                fontSize: 25,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          child: SizedBox(
+                            width: size.width * 0.3,
+                            child: CupertinoDatePicker(
+                              initialDateTime: _time,
+                              mode: CupertinoDatePickerMode.time,
+                              use24hFormat: true,
+                              onDateTimeChanged: (selectedTime) =>
+                                  setState(() => _time = selectedTime),
+                            ),
                           ),
                         ),
                       ),
-                      child: CupertinoDatePicker(
-                        initialDateTime: _time,
-                        mode: CupertinoDatePickerMode.time,
-                        use24hFormat: true,
-                        onDateTimeChanged: (selectedTime) => setState(() => _time = selectedTime),
-                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            )
+          ],
+          cancelButton: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.save),
+                onPressed: () {
+                  final NotificationHelper _notificationHelper = NotificationHelper();
+                  final int id = Random().nextInt(1000000000);
+
+                  /// Add new schedule record
+                  provider.addScheduleRecord = ScheduleRecord(
+                    id: id,
+                    time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
+                    isSet: true,
+                  );
+
+                  /// Set new notification
+                  _notificationHelper.scheduledNotification(
+                    hour: _time.hour,
+                    minutes: _time.minute,
+                    id: id,
+                    sound: 'sound${provider.getSoundValue}',
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              CupertinoActionSheetAction(
+                child: Text(AppLocalizations.of(context)!.cancel),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
         ),
-      );
-    },
+      ),
+    ),
   );
 }

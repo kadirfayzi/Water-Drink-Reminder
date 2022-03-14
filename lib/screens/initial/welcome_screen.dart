@@ -1,7 +1,8 @@
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/models/cup.dart';
-import 'package:water_reminder/models/drunk_amount.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 import '../../constants.dart';
@@ -17,9 +18,11 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   setInitialSettingsValue() {
-    final provider = DataProvider();
+    final DataProvider provider = DataProvider();
+    final DateTime now = DateTime.now();
+    provider.setLangCode = ui.window.locale.languageCode;
 
-    if (provider.getCups.length == 0) {
+    if (provider.getCups.isEmpty) {
       for (Cup cup in kCups) {
         provider.addCup = cup;
       }
@@ -29,16 +32,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     provider.setGender = 0;
     provider.setIntakeGoalAmount = 2800;
     provider.setSoundValue = 2;
-    provider.setUnit(0, 0);
+    provider.setWeightUnit = 0;
+    provider.setCapacityUnit = 0;
     provider.setWakeUpTime(7, 0);
     provider.setBedTime(23, 0);
-    provider.addDrunkAmount = DrunkAmount(drunkAmount: 0);
-    if (provider.getMonthDayChartDataList.length == 0) {
-      for (int i = 1; i <= monthDays(); i++) {
-        provider.addMonthDayChartData(
+    provider.addDrunkAmount = 0;
+    if (provider.getChartDataList.isEmpty) {
+      int currentMonthDaysCount = getCurrentMonthDaysCount(now: now);
+      for (int i = 1; i <= currentMonthDaysCount; i++) {
+        provider.addToChartData(
           day: i,
+          month: now.month,
+          year: now.year,
           drunkAmount: 0,
           intakeGoalAmount: 2800,
+          recordCount: 0,
         );
       }
     }
@@ -59,17 +67,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Hi,\nI\'m your personal hydration companion',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.appGreeting1,
+              style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(height: size.height * 0.03),
-            const Text(
-              'In order to provide tailored hydration advice,I need to get some basic information. And I\'ll keep this a secret.',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              AppLocalizations.of(context)!.appGreeting2,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: size.height * 0.1),
             Container(
@@ -92,12 +100,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     builder: (ctx) => const InitialPreferences(),
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(
-                      'LET\'S GO',
-                      style: TextStyle(color: Colors.white, fontSize: 22),
+                      AppLocalizations.of(context)!.letsGo,
+                      style: const TextStyle(color: Colors.white, fontSize: 22),
                     ),
                   ),
                 ),

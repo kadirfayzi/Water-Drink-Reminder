@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/functions.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 class WeightPage extends StatefulWidget {
@@ -20,9 +21,9 @@ class _WeightPageState extends State<WeightPage> {
       builder: (context, provider, _) {
         return Column(
           children: [
-            const Text(
-              'Your Weight',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.yourWeight,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -78,7 +79,8 @@ class _WeightPageState extends State<WeightPage> {
                         groupValue: provider.getWeightUnit,
                         children: const {0: Text('kg'), 1: Text('lbs')},
                         onValueChanged: (weightUnit) {
-                          provider.setUnit(weightUnit as int, 0);
+                          provider.setWeightUnit = weightUnit as int;
+                          provider.setCapacityUnit = 0;
                           provider.setTempWeight = provider.getWeight;
                         },
                       ),

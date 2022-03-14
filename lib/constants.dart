@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'models/cup.dart';
 
 const Color kPrimaryColor = Color(0xff2196f3);
@@ -15,23 +14,6 @@ const List<String> tips = [
   'Always drink water before urinating and do not drink water immediately after urinating'
 ];
 
-const List<String> kWeekDays = [
-  'Sun',
-  'Mon',
-  'Tue',
-  'Wed',
-  'Thu',
-  'Fri',
-  'Sat',
-];
-
-const List<String> kReminderModeStrings = [
-  'As device settings',
-  'Sound and vibrate',
-  'Vibrate only',
-  'Display only',
-  'Turn off',
-];
 const List<IconData> kReminderModeIcons = [
   Icons.mobile_friendly,
   Icons.notifications_active,
@@ -43,8 +25,6 @@ const List<IconData> kReminderModeIcons = [
 const List<String> kWeightUnitStrings = ['kg', 'lbs'];
 const List<int> kWeightChildCount = [400, 882];
 const List<String> kCapacityUnitStrings = ['ml', 'fl oz'];
-const List<String> kGenderStrings = ['Male', 'Female'];
-
 const List<String> kCupDivisionStrings = ['1/4', '2/4', '3/4', '4/4'];
 
 List<Cup> kCups = [
@@ -64,18 +44,3 @@ const kRadius_20 = Radius.circular(20);
 const kRadius_25 = Radius.circular(25);
 const kRadius_30 = Radius.circular(30);
 const kRadius_50 = Radius.circular(50);
-
-const kMonths = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec'
-];
