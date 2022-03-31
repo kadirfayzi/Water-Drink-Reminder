@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HowMuchShouldDrink extends StatefulWidget {
-  const HowMuchShouldDrink({Key? key}) : super(key: key);
+  const HowMuchShouldDrink({Key? key, required this.provider}) : super(key: key);
+  final DataProvider provider;
 
   @override
   _HowMuchShouldDrinkState createState() => _HowMuchShouldDrinkState();
@@ -14,12 +17,11 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
   late int howManyTimes;
   late int howMuchEachTime;
   setHowMuchShouldDrink() {
-    final provider = DataProvider();
-    int wakeUpHour = provider.getWakeUpTimeHour;
-    int bedHour = provider.getBedTimeHour;
+    int wakeUpHour = widget.provider.getWakeUpTimeHour;
+    int bedHour = widget.provider.getBedTimeHour;
     if (wakeUpHour >= bedHour) bedHour += 24;
     howManyTimes = (bedHour - wakeUpHour) ~/ 1.5;
-    howMuchEachTime = provider.getIntakeGoalAmount ~/ howManyTimes;
+    howMuchEachTime = widget.provider.getIntakeGoalAmount ~/ howManyTimes;
   }
 
   @override
@@ -60,7 +62,8 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
                     ),
                     SizedBox(height: size.height * 0.01),
                     Text(
-                      '$howMuchEachTime ml',
+                      '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
+                      ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: size.width * 0.05,
@@ -82,7 +85,6 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
         ),
         SizedBox(height: size.height * 0.03),
         Text(
-          // '$howManyTimes times a day',
           AppLocalizations.of(context)!.timesADay('$howManyTimes'),
           style: TextStyle(
             fontSize: 18,
@@ -90,8 +92,9 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
           ),
         ),
         Text(
-          // '$howMuchEachTime ml each time',
-          AppLocalizations.of(context)!.eachTime('$howMuchEachTime ml'),
+          AppLocalizations.of(context)!.eachTime(
+              '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
+              ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}'),
           style: TextStyle(
             fontSize: 18,
             color: Colors.grey[700],

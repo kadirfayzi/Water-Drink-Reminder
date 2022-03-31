@@ -114,17 +114,19 @@ class CircularSliderAppearance {
   TextStyle get infoTopLabelStyle {
     return _topLabelStyle ??
         TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: size / 10.0,
-            color: const Color.fromRGBO(147, 81, 120, 1.0));
+          fontWeight: FontWeight.w600,
+          fontSize: size / 10.0,
+          // color: const Color.fromRGBO(147, 81, 120, 1.0),
+        );
   }
 
   TextStyle get infoBottomLabelStyle {
     return _bottomLabelStyle ??
         TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: size / 10.0,
-            color: const Color.fromRGBO(147, 81, 120, 1.0));
+          fontWeight: FontWeight.w600,
+          fontSize: size / 10.0,
+          // color: const Color.fromRGBO(147, 81, 120, 1.0),
+        );
   }
 
   const CircularSliderAppearance(

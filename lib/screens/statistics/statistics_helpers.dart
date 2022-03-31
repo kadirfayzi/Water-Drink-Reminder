@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:water_reminder/constants.dart';
 
 Widget buildReportRow({
   required Size size,
@@ -9,23 +8,24 @@ Widget buildReportRow({
 }) =>
     SizedBox(
       height: size.height * 0.0625,
-      width: size.width * 0.95,
-      child: Row(
-        children: [
-          Expanded(child: Icon(Icons.circle, size: 12, color: iconColor)),
-          Expanded(flex: 6, child: Text(title)),
-          Expanded(
-            flex: 3,
-            child: Text(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.circle, size: 12, color: iconColor),
+                const SizedBox(width: 10),
+                Text(title),
+              ],
+            ),
+            Text(
               content,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: kPrimaryColor,
-              ),
+              style: const TextStyle(fontSize: 15),
               textAlign: TextAlign.end,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );

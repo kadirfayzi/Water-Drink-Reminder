@@ -1,10 +1,11 @@
 import 'package:hive/hive.dart';
-import 'package:water_reminder/models/bed_time.dart';
-import 'package:water_reminder/models/chart_data.dart';
-import 'package:water_reminder/models/cup.dart';
-import 'package:water_reminder/models/record.dart';
-import 'package:water_reminder/models/schedule_record.dart';
-import 'package:water_reminder/models/wakeup_time.dart';
+import 'models/bed_time.dart';
+import 'models/chart_data.dart';
+import 'models/cup.dart';
+import 'models/record.dart';
+import 'models/schedule_record.dart';
+import 'models/wakeup_time.dart';
+import 'models/week_data.dart';
 
 class Boxes {
   static Box<Cup> getCups() => Hive.box<Cup>('cups');
@@ -13,6 +14,7 @@ class Boxes {
   static Box<ScheduleRecord> getScheduleRecords() => Hive.box<ScheduleRecord>('scheduleRecords');
   static Box<WakeupTime> getWakeupTime() => Hive.box<WakeupTime>('wakeupTime');
   static Box<BedTime> getBedTime() => Hive.box<BedTime>('bedTime');
+  static Box<WeekData> getWeekData() => Hive.box<WeekData>('weekData');
 
   static Box getWeightUnit() => Hive.box('weightUnit');
   static Box getCapacityUnit() => Hive.box('capacityUnit');
@@ -20,7 +22,8 @@ class Boxes {
   static Box getIntakeGoalAmount() => Hive.box('intakeGoalAmount');
   static Box getGender() => Hive.box('gender');
   static Box getWeight() => Hive.box('weight');
-  static Box getDrunkAmount() => Hive.box('drunkAmount');
+  static Box getDrankAmount() => Hive.box('drankAmount');
   static Box getLangCode() => Hive.box('langCode');
   static Box getIsInitialPrefsSet() => Hive.box('isInitialPrefsSet');
+  static Box getAppLastUseDateTime() => Hive.box('appLastUseDateTime');
 }

@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'wakeup_time.g.dart';
 
-@HiveType(typeId: 9)
+@HiveType(typeId: 4)
 class WakeupTime extends HiveObject {
   @HiveField(0)
   late int wakeupHour;

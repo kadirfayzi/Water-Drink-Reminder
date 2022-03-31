@@ -16,30 +16,29 @@ import '../../widgets/elevated_container.dart';
 Widget buildTitle({
   required Size size,
   required String title,
-}) {
-  return Padding(
-    padding: const EdgeInsets.all(15.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[500],
-            fontSize: 15,
+}) =>
+    Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[500],
+              fontSize: 15,
+            ),
           ),
-        ),
-        SizedBox(height: size.height * 0.0125),
-        Container(
-          width: size.width * 0.4,
-          height: 0.625,
-          color: Colors.grey[400],
-        ),
-      ],
-    ),
-  );
-}
+          SizedBox(height: size.height * 0.0125),
+          Container(
+            width: size.width * 0.4,
+            height: 0.625,
+            color: Colors.grey[400],
+          ),
+        ],
+      ),
+    );
 
 /// Build custom inkwell for setting's item
 Widget buildTappableRow({
@@ -48,38 +47,42 @@ Widget buildTappableRow({
   Widget? content,
   bool contentVisible = false,
   Function()? onTap,
-}) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      height: size.height * 0.06,
-      width: size.width,
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
-            ),
-            contentVisible
-                ? content!
-                : const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 15,
-                    color: Colors.grey,
+}) =>
+    Material(
+      color: Colors.transparent,
+      child: InkWell(
+        highlightColor: Colors.grey.shade300,
+        splashColor: Colors.grey.shade300,
+        onTap: onTap,
+        child: Container(
+          height: size.height * 0.06,
+          width: size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
                   ),
-          ],
+                ),
+                contentVisible
+                    ? content!
+                    : const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 15,
+                        color: Colors.grey,
+                      ),
+              ],
+            ),
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
 
 /// Reminder schedule popup dialog
 Future<dynamic> reminderSchedulePopup({
@@ -95,146 +98,111 @@ Future<dynamic> reminderSchedulePopup({
       direction: DismissDirection.vertical,
       onDismissed: (_) => Navigator.pop(context),
       child: CupertinoActionSheet(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                child: const Icon(
-                  Icons.close,
-                  size: 30,
-                  color: Colors.transparent,
-                ),
-                onTap: () {},
-              ),
-            ),
-            Text(
-              AppLocalizations.of(context)!.reminderSchedule,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                child: Icon(
-                  Icons.close,
-                  size: 30,
-                  color: Colors.grey[600],
-                ),
-                onTap: () => Navigator.pop(context),
-              ),
-            ),
-          ],
-        ),
+        title: Text(AppLocalizations.of(context)!.reminderSchedule),
         actions: [
           SizedBox(
-            height: size.height * 0.8,
+            height: size.height * 0.725,
             child: Scaffold(
-              body: Scrollbar(
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    height: size.height * 0.8,
-                    child: ListView(
-                      children: List.generate(
-                        provider.getScheduleRecords.length,
-                        (index) {
-                          return Column(
-                            children: [
-                              Theme(
-                                data: Theme.of(context).copyWith(
-                                  dividerColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                ),
-                                child: ExpansionTile(
-                                  childrenPadding: const EdgeInsets.all(10),
-                                  backgroundColor: Colors.grey[200],
-                                  collapsedIconColor: Colors.grey,
-                                  title: Container(
-                                    height: size.height * 0.06,
-                                    width: size.width,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          provider.getScheduleRecords[index].time,
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        CupertinoSwitch(
-                                          value: provider.getScheduleRecords[index].isSet,
-                                          onChanged: (isSet) {
-                                            /// set or reset notification
-                                            if (!isSet) {
-                                              _notificationHelper
-                                                  .cancel(provider.getScheduleRecords[index].id);
-                                            } else {
-                                              _notificationHelper.scheduledNotification(
-                                                hour: int.parse(provider
-                                                    .getScheduleRecords[index].time
-                                                    .split(":")[0]),
-                                                minutes: int.parse(provider
-                                                    .getScheduleRecords[index].time
-                                                    .split(":")[1]),
-                                                id: provider.getScheduleRecords[index].id,
-                                                sound: 'sound${provider.getSoundValue}',
-                                              );
-                                            }
-
-                                            /// Edit schedule record
-                                            provider.editScheduleRecord(
-                                              index,
-                                              ScheduleRecord(
-                                                id: provider.getScheduleRecords[index].id,
-                                                time: provider.getScheduleRecords[index].time,
-                                                isSet: isSet,
-                                              ),
-                                            );
-                                          },
-                                          activeColor: kPrimaryColor,
-                                        )
-                                      ],
-                                    ),
-                                  ),
+              body: SizedBox(
+                height: size.height * 0.725,
+                child: ListView(
+                  children: List.generate(
+                    provider.getScheduleRecords.length,
+                    (index) => Padding(
+                      padding: index == provider.getScheduleRecords.length - 1
+                          ? EdgeInsets.only(bottom: size.height * 0.1)
+                          : const EdgeInsets.all(0),
+                      child: Column(
+                        children: [
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              dividerColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                            ),
+                            child: ExpansionTile(
+                              childrenPadding: const EdgeInsets.all(10),
+                              backgroundColor: Colors.grey[200],
+                              collapsedIconColor: Colors.grey,
+                              title: Container(
+                                height: size.height * 0.06,
+                                width: size.width,
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Material(
-                                      elevation: 0.5,
-                                      borderRadius: const BorderRadius.all(kRadius_5),
-                                      child: InkWell(
-                                        borderRadius: const BorderRadius.all(kRadius_5),
-                                        onTap: () {
-                                          /// Delete schedule record and notification
-                                          _notificationHelper
-                                              .cancel(provider.getScheduleRecords[index].id);
-                                          provider.deleteScheduleRecord = index;
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          width: size.width,
-                                          child: Text(
-                                            AppLocalizations.of(context)!.delete,
-                                            style: TextStyle(
-                                              color: Colors.red[600],
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 16,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
+                                    Text(
+                                      provider.getScheduleRecords[index].time,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
                                       ),
                                     ),
+                                    CupertinoSwitch(
+                                      value: provider.getScheduleRecords[index].isSet,
+                                      onChanged: (isSet) {
+                                        /// set or reset notification
+                                        if (!isSet) {
+                                          _notificationHelper
+                                              .cancel(provider.getScheduleRecords[index].id);
+                                        } else {
+                                          _notificationHelper.scheduledNotification(
+                                            hour: int.parse(provider.getScheduleRecords[index].time
+                                                .split(":")[0]),
+                                            minutes: int.parse(provider
+                                                .getScheduleRecords[index].time
+                                                .split(":")[1]),
+                                            id: provider.getScheduleRecords[index].id,
+                                            sound: 'sound${provider.getSoundValue}',
+                                          );
+                                        }
+
+                                        /// Edit schedule record
+                                        provider.editScheduleRecord(
+                                          index,
+                                          ScheduleRecord(
+                                            id: provider.getScheduleRecords[index].id,
+                                            time: provider.getScheduleRecords[index].time,
+                                            isSet: isSet,
+                                          ),
+                                        );
+                                      },
+                                      activeColor: kPrimaryColor,
+                                    )
                                   ],
                                 ),
                               ),
-                              const Divider(indent: 10, endIndent: 10),
-                            ],
-                          );
-                        },
+                              children: [
+                                Material(
+                                  elevation: 0.5,
+                                  borderRadius: const BorderRadius.all(kRadius_5),
+                                  child: InkWell(
+                                    borderRadius: const BorderRadius.all(kRadius_5),
+                                    onTap: () {
+                                      /// Delete schedule record and notification
+                                      _notificationHelper
+                                          .cancel(provider.getScheduleRecords[index].id);
+                                      provider.deleteScheduleRecord = index;
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      width: size.width,
+                                      child: Text(
+                                        AppLocalizations.of(context)!.delete,
+                                        style: TextStyle(
+                                          color: Colors.red[600],
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(indent: 10, endIndent: 10),
+                        ],
                       ),
                     ),
                   ),
@@ -262,6 +230,11 @@ Future<dynamic> reminderSchedulePopup({
             ),
           )
         ],
+        cancelButton: CupertinoActionSheetAction(
+          //TODO:needs to be translate
+          child: const Text('Close'),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
     ),
   );
@@ -284,80 +257,77 @@ Future<dynamic> setSoundPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.selectSound,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          actions: List.generate(
-            kSounds.length,
-            (index) => Container(
-              height: size.height * 0.1,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey.shade300,
-                    width: 0.5,
+          title: Text(AppLocalizations.of(context)!.selectSound),
+          actions: [
+            Column(
+              children: List.generate(
+                kSounds.length,
+                (index) => Container(
+                  height: size.height * 0.08,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 0.5,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              child: Material(
-                child: InkWell(
-                  onTap: () async {
-                    setState(() => selectedSoundValue = index);
-                    await _player.setAsset('assets/sounds/$selectedSoundValue.mp3');
-                    _player.play();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          kSounds[index],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      splashColor: Colors.grey,
+                      highlightColor: Colors.grey,
+                      onTap: () async {
+                        setState(() => selectedSoundValue = index);
+                        await _player.setAsset('assets/sounds/$selectedSoundValue.mp3');
+                        _player.play();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              kSounds[index],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Icon(
+                              selectedSoundValue == index ? Icons.check_circle_rounded : null,
+                              color: kPrimaryColor,
+                              size: 30,
+                            )
+                          ],
                         ),
-                        Icon(
-                          selectedSoundValue == index ? Icons.check_circle_rounded : null,
-                          color: kPrimaryColor,
-                          size: 30,
-                        )
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          cancelButton: Column(
-            children: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  _notificationHelper.cancelAll();
-                  provider.setSoundValue = selectedSoundValue;
-                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                    _notificationHelper.scheduledNotification(
-                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
-                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
-                      id: provider.getScheduleRecords[i].id,
-                      sound: 'sound$selectedSoundValue',
-                    );
-                  }
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+            CupertinoActionSheetAction(
+              onPressed: () {
+                _notificationHelper.cancelAll();
+                provider.setSoundValue = selectedSoundValue;
+                for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                  _notificationHelper.scheduledNotification(
+                    hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                    minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                    id: provider.getScheduleRecords[i].id,
+                    sound: 'sound$selectedSoundValue',
+                  );
+                }
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.of(context)!.save),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -381,18 +351,12 @@ Future<dynamic> setUnitPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.selectUnits,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          title: Text(AppLocalizations.of(context)!.selectUnits),
           actions: [
             Material(
               child: Container(
-                height: size.height * 0.25,
-                padding: const EdgeInsets.all(20),
+                height: size.height * 0.185,
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -417,7 +381,7 @@ Future<dynamic> setUnitPopup({
                         ),
                       ],
                     ),
-                    SizedBox(height: size.height * 0.01),
+                    SizedBox(height: size.height * 0.02),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -443,23 +407,18 @@ Future<dynamic> setUnitPopup({
                 ),
               ),
             ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                provider.setWeightUnit = selectedWeightUnitValue;
+                provider.setCapacityUnit = selectedCapacityUnitValue;
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.of(context)!.save),
+            ),
           ],
-          cancelButton: Column(
-            children: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  provider.setWeightUnit = selectedWeightUnitValue;
-                  provider.setCapacityUnit = selectedCapacityUnitValue;
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -482,17 +441,11 @@ Future<dynamic> setIntakeGoalPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.adjustIntakeGoal,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          title: Text(AppLocalizations.of(context)!.adjustIntakeGoal),
           actions: [
             Material(
               child: Container(
-                height: size.height * 0.3,
+                height: size.height * 0.285,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -503,11 +456,13 @@ Future<dynamic> setIntakeGoalPopup({
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          intakeGoalValue.toStringAsFixed(0),
+                          provider.getCapacityUnit == 0
+                              ? intakeGoalValue.toStringAsFixed(0)
+                              : mlToFlOz(intakeGoalValue).toStringAsFixed(0),
                           style: const TextStyle(fontSize: 30, color: kPrimaryColor),
                         ),
                         Text(
-                          kCapacityUnitStrings[provider.getCapacityUnit],
+                          ' ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                           style: const TextStyle(color: kPrimaryColor),
                         ),
                         SizedBox(width: size.width * 0.05),
@@ -540,40 +495,38 @@ Future<dynamic> setIntakeGoalPopup({
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: CupertinoSlider(
-                          value: intakeGoalValue,
-                          onChanged: (value) => setState(() => intakeGoalValue = value),
-                          min: provider.getCapacityUnit == 0 ? 800 : mlToFlOz(800),
-                          max: provider.getCapacityUnit == 0 ? 6000 : mlToFlOz(6000),
-                        ),
+                        child: provider.getCapacityUnit == 0
+                            ? CupertinoSlider(
+                                value: intakeGoalValue,
+                                onChanged: (value) => setState(() => intakeGoalValue = value),
+                                min: 500,
+                                max: 10000,
+                              )
+                            : CupertinoSlider(
+                                value: mlToFlOz(intakeGoalValue),
+                                onChanged: (value) {
+                                  setState(() => intakeGoalValue = flOzToMl(value));
+                                },
+                                min: 16,
+                                max: 338,
+                              ),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                provider.setIntakeGoalAmount = intakeGoalValue.roundToDouble();
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.of(context)!.save),
+            ),
           ],
-          cancelButton: Column(
-            children: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  /// if capacity unit = ml
-                  if (provider.getCapacityUnit == 0) {
-                    provider.setIntakeGoalAmount = intakeGoalValue;
-                  } else {
-                    /// else if capacity unit = fl oz, convert to ml then assign it
-                    provider.setIntakeGoalAmount = flOzToMl(intakeGoalValue);
-                  }
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -597,45 +550,40 @@ Future<dynamic> setLanguagePopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.selectLanguage,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          actions: List.generate(
-            L10n.all.length,
-            (index) => Container(
-              color:
-                  selectedLangCode == L10n.all[index].languageCode ? Colors.white : Colors.white10,
-              child: CupertinoActionSheetAction(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(languages[index]),
-                    Text(L10n.getFlag(L10n.all[index].languageCode)),
-                  ],
+          title: Text(AppLocalizations.of(context)!.selectLanguage),
+          actions: [
+            Column(
+              children: List.generate(
+                L10n.all.length,
+                (index) => Container(
+                  color: selectedLangCode == L10n.all[index].languageCode
+                      ? Colors.white
+                      : Colors.grey.shade200,
+                  child: CupertinoActionSheetAction(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(languages[index]),
+                        Text(L10n.getFlag(L10n.all[index].languageCode)),
+                      ],
+                    ),
+                    onPressed: () =>
+                        setState(() => selectedLangCode = L10n.all[index].languageCode),
+                  ),
                 ),
-                onPressed: () => setState(() => selectedLangCode = L10n.all[index].languageCode),
               ),
             ),
-          ),
-          cancelButton: Column(
-            children: [
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.save),
-                onPressed: () {
-                  provider.setLangCode = selectedLangCode;
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+            CupertinoActionSheetAction(
+              child: Text(AppLocalizations.of(context)!.save),
+              onPressed: () {
+                provider.setLangCode = selectedLangCode;
+                Navigator.pop(context);
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -659,17 +607,11 @@ Future<dynamic> genderSelectionPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.selectGender,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          title: Text(AppLocalizations.of(context)!.selectGender),
           actions: [
             Material(
               child: Container(
-                height: size.height * 0.2,
+                height: size.height * 0.185,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
@@ -705,22 +647,17 @@ Future<dynamic> genderSelectionPopup({
                 ),
               ),
             ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                provider.setGender = genderValue;
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.of(context)!.save),
+            ),
           ],
-          cancelButton: Column(
-            children: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  provider.setGender = genderValue;
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -743,13 +680,7 @@ Future<dynamic> weightSelectionPopup({
       direction: DismissDirection.vertical,
       onDismissed: (_) => Navigator.pop(context),
       child: CupertinoActionSheet(
-        title: Text(
-          AppLocalizations.of(context)!.selectWeight,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        title: Text(AppLocalizations.of(context)!.selectWeight),
         actions: [
           Material(
             child: Row(
@@ -778,26 +709,20 @@ Future<dynamic> weightSelectionPopup({
                 ),
               ],
             ),
-          )
+          ),
+          CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.save),
+            onPressed: () {
+              if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
+              provider.setWeight = weight;
+              provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
+              Navigator.pop(context);
+            },
+          ),
         ],
-        cancelButton: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CupertinoActionSheetAction(
-              child: Text(AppLocalizations.of(context)!.save),
-              onPressed: () {
-                if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
-                provider.setWeight = weight;
-                provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
-                Navigator.pop(context);
-              },
-            ),
-            const Divider(),
-            CupertinoActionSheetAction(
-              child: Text(AppLocalizations.of(context)!.cancel),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text(AppLocalizations.of(context)!.cancel),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
     ),
@@ -833,10 +758,6 @@ Future<dynamic> wakeupAndBedtimePopup({
             isWakeUp
                 ? AppLocalizations.of(context)!.wakeUpTime
                 : AppLocalizations.of(context)!.bedTime,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
           ),
           actions: [
             Material(
@@ -852,7 +773,7 @@ Future<dynamic> wakeupAndBedtimePopup({
                             textTheme: CupertinoTextThemeData(
                               dateTimePickerTextStyle: TextStyle(
                                 fontSize: 25,
-                                color: Colors.blue,
+                                color: kPrimaryColor,
                               ),
                             ),
                           ),
@@ -869,76 +790,70 @@ Future<dynamic> wakeupAndBedtimePopup({
                   ],
                 ),
               ),
-            )
-          ],
-          cancelButton: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.save),
-                onPressed: () {
-                  final NotificationHelper _notificationHelper = NotificationHelper();
-                  _notificationHelper.cancelAll();
-                  provider.deleteAllScheduleRecords();
+            ),
+            CupertinoActionSheetAction(
+              child: Text(AppLocalizations.of(context)!.save),
+              onPressed: () {
+                final NotificationHelper _notificationHelper = NotificationHelper();
+                _notificationHelper.cancelAll();
+                provider.deleteAllScheduleRecords();
 
-                  final Random _random = Random();
-                  int wakeUpHour = provider.getWakeUpTimeHour;
-                  int wakeUpMinute = provider.getWakeUpTimeMinute;
-                  int bedHour = provider.getBedTimeHour;
+                final Random _random = Random();
+                int wakeUpHour = provider.getWakeUpTimeHour;
+                int wakeUpMinute = provider.getWakeUpTimeMinute;
+                int bedHour = provider.getBedTimeHour;
 
-                  if (isWakeUp) {
-                    provider.setWakeUpTime(time.hour, time.minute);
-                    wakeUpHour = time.hour;
-                    wakeUpMinute = time.minute;
-                  } else {
-                    provider.setBedTime(time.hour, time.minute);
-                    bedHour = time.hour;
-                  }
+                if (isWakeUp) {
+                  provider.setWakeUpTime(time.hour, time.minute);
+                  wakeUpHour = time.hour;
+                  wakeUpMinute = time.minute;
+                } else {
+                  provider.setBedTime(time.hour, time.minute);
+                  bedHour = time.hour;
+                }
 
-                  if (wakeUpHour >= bedHour) bedHour += 24;
+                if (wakeUpHour >= bedHour) bedHour += 24;
 
-                  int reminderCount = calculateReminderCount(
-                    bedHour: bedHour,
-                    wakeUpHour: wakeUpHour,
-                  );
+                int reminderCount = calculateReminderCount(
+                  bedHour: bedHour,
+                  wakeUpHour: wakeUpHour,
+                );
 
-                  for (int i = 0; i <= reminderCount; i++) {
-                    if (wakeUpHour < bedHour) {
-                      int tempWakeUpHour = wakeUpHour;
-                      if (wakeUpHour >= 24) tempWakeUpHour -= 24;
+                for (int i = 0; i <= reminderCount; i++) {
+                  if (wakeUpHour < bedHour) {
+                    int tempWakeUpHour = wakeUpHour;
+                    if (wakeUpHour >= 24) tempWakeUpHour -= 24;
 
-                      provider.addScheduleRecord = ScheduleRecord(
-                        id: _random.nextInt(1000000000),
-                        time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
-                        isSet: true,
-                      );
-                    }
-                    wakeUpMinute += 30;
-                    wakeUpHour += 1;
-                    if (wakeUpMinute >= 60) {
-                      wakeUpHour += 1;
-                      wakeUpMinute -= 60;
-                    }
-                  }
-
-                  /// Set notifications for given time
-                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                    _notificationHelper.scheduledNotification(
-                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
-                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
-                      id: provider.getScheduleRecords[i].id,
-                      sound: 'sound${provider.getSoundValue}',
+                    provider.addScheduleRecord = ScheduleRecord(
+                      id: _random.nextInt(1000000000),
+                      time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
+                      isSet: true,
                     );
                   }
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+                  wakeUpMinute += 30;
+                  wakeUpHour += 1;
+                  if (wakeUpMinute >= 60) {
+                    wakeUpHour += 1;
+                    wakeUpMinute -= 60;
+                  }
+                }
+
+                /// Set notifications for given time
+                for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                  _notificationHelper.scheduledNotification(
+                    hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                    minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                    id: provider.getScheduleRecords[i].id,
+                    sound: 'sound${provider.getSoundValue}',
+                  );
+                }
+                Navigator.pop(context);
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -961,13 +876,7 @@ Future<dynamic> setReminderTimePopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(
-            AppLocalizations.of(context)!.setNewReminder,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          title: Text(AppLocalizations.of(context)!.setNewReminder),
           actions: [
             Material(
               child: SizedBox(
@@ -982,7 +891,7 @@ Future<dynamic> setReminderTimePopup({
                             textTheme: CupertinoTextThemeData(
                               dateTimePickerTextStyle: TextStyle(
                                 fontSize: 25,
-                                color: Colors.blue,
+                                color: kPrimaryColor,
                               ),
                             ),
                           ),
@@ -1002,40 +911,34 @@ Future<dynamic> setReminderTimePopup({
                   ],
                 ),
               ),
-            )
+            ),
+            CupertinoActionSheetAction(
+              child: Text(AppLocalizations.of(context)!.save),
+              onPressed: () {
+                final NotificationHelper _notificationHelper = NotificationHelper();
+                final int id = Random().nextInt(1000000000);
+
+                /// Add new schedule record
+                provider.addScheduleRecord = ScheduleRecord(
+                  id: id,
+                  time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
+                  isSet: true,
+                );
+
+                /// Set new notification
+                _notificationHelper.scheduledNotification(
+                  hour: _time.hour,
+                  minutes: _time.minute,
+                  id: id,
+                  sound: 'sound${provider.getSoundValue}',
+                );
+                Navigator.pop(context);
+              },
+            ),
           ],
-          cancelButton: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.save),
-                onPressed: () {
-                  final NotificationHelper _notificationHelper = NotificationHelper();
-                  final int id = Random().nextInt(1000000000);
-
-                  /// Add new schedule record
-                  provider.addScheduleRecord = ScheduleRecord(
-                    id: id,
-                    time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
-                    isSet: true,
-                  );
-
-                  /// Set new notification
-                  _notificationHelper.scheduledNotification(
-                    hour: _time.hour,
-                    minutes: _time.minute,
-                    id: id,
-                    sound: 'sound${provider.getSoundValue}',
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(),
-              CupertinoActionSheetAction(
-                child: Text(AppLocalizations.of(context)!.cancel),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),

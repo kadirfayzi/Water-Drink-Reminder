@@ -1,9 +1,3 @@
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/foundation.dart';
-// import 'dart:math' as math;
-// import 'appearance.dart';
-// import 'utils.dart';
-
 part of circular_slider;
 
 class _CurvePainter extends CustomPainter {

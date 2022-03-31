@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -46,16 +47,22 @@ class _WaveState extends State<Wave> with SingleTickerProviderStateMixin {
         curve: Curves.easeInOut,
       ),
       builder: (context, child) => ClipPath(
-        child: Container(
-          // color: widget.color,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.lightBlueAccent, Colors.blue],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              stops: [0.0, 1.0],
-              tileMode: TileMode.clamp,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Container(
+            // color: widget.color,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.withOpacity(0.1),
+                  Colors.blue.withOpacity(0.5),
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                stops: const [0.0, 1.0],
+              ),
             ),
+            // color: Colors.blue.withOpacity(0.1),
           ),
         ),
         clipper: _WaveClipper(

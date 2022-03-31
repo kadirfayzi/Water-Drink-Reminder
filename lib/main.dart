@@ -1,28 +1,40 @@
-import 'dart:ui' as ui;
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:water_reminder/models/bed_time.dart';
-import 'package:water_reminder/models/chart_data.dart';
-import 'package:water_reminder/models/cup.dart';
-import 'package:water_reminder/models/record.dart';
-import 'package:water_reminder/models/schedule_record.dart';
-import 'package:water_reminder/models/wakeup_time.dart';
-import 'package:water_reminder/provider/data_provider.dart';
-import 'package:water_reminder/screens/statistics/statistics_screen.dart';
-import 'package:water_reminder/screens/home/home_screen.dart';
-import 'package:water_reminder/screens/settings/settings_screen.dart';
+import 'package:water_reminder/widgets/glassmorphism.dart';
+import 'models/bed_time.dart';
+import 'models/chart_data.dart';
+import 'models/cup.dart';
+import 'models/record.dart';
+import 'models/schedule_record.dart';
+import 'models/wakeup_time.dart';
+import 'models/week_data.dart';
+import 'provider/data_provider.dart';
+import 'screens/statistics/statistics_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/settings/settings_screen.dart';
 import 'screens/initial/welcome_screen.dart';
-import 'package:water_reminder/services/notification_service.dart';
-import 'package:water_reminder/widgets/build_appbar.dart';
-import 'package:water_reminder/widgets/custom_tab.dart';
+import 'services/notification_service.dart';
+import 'widgets/build_appbar.dart';
+import 'widgets/custom_tab.dart';
 import 'functions.dart';
 import 'l10n/l10n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  /// Device orientation
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   await Hive.initFlutter();
 
   Hive.registerAdapter(CupAdapter());
@@ -37,15 +49,18 @@ void main() async {
   await Hive.openBox<WakeupTime>('wakeupTime');
   Hive.registerAdapter(BedTimeAdapter());
   await Hive.openBox<BedTime>('bedTime');
+  Hive.registerAdapter(WeekDataAdapter());
+  await Hive.openBox<WeekData>('weekData');
   await Hive.openBox('sound');
   await Hive.openBox('weightUnit');
   await Hive.openBox('capacityUnit');
   await Hive.openBox('intakeGoalAmount');
   await Hive.openBox('gender');
   await Hive.openBox('weight');
-  await Hive.openBox('drunkAmount');
+  await Hive.openBox('drankAmount');
   await Hive.openBox('langCode');
   await Hive.openBox('isInitialPrefsSet');
+  await Hive.openBox('appLastUseDateTime');
 
   runApp(
     MultiProvider(
@@ -67,41 +82,63 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late final NotificationHelper _notificationHelper;
 
+  Timer? timer;
   @override
   void initState() {
     super.initState();
     _notificationHelper = NotificationHelper();
     _notificationHelper.initializeNotification();
-    resetMonthlyChartDataIfMonthChanges(provider: DataProvider());
+    DataProvider().setAppLastUseDateTime = DateTime.now();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<DataProvider>(
-      builder: (context, provider, _) => MaterialApp(
-        title: 'Water Drink Reminder',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-        ),
-        debugShowCheckedModeBanner: false,
-        locale: provider.getIsInitialPrefsSet
-            ? Locale(provider.getLangCode)
-            : Locale(ui.window.locale.languageCode),
-        supportedLocales: L10n.all,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-
-          ///comment off this line if there is a right to left language like arabic or persian
-          // GlobalWidgetsLocalizations.delegate,
-        ],
-        home: provider.getIsInitialPrefsSet ? const Home() : const WelcomeScreen(),
-      ),
-    );
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) => Consumer<DataProvider>(
+        builder: (context, provider, _) {
+          timer?.cancel();
+          timer = Timer.periodic(
+            const Duration(seconds: 1),
+            (_) {
+              provider.setNextDrinkTime = calculateNextDrinkTime(
+                scheduleRecords: provider.getScheduleRecords,
+              );
+              removeAllRecordsIfDayChanges(provider: provider);
+              removeWeekDataIfWeekChanges(provider: provider);
+              resetMonthlyChartDataIfMonthChanges(provider: provider);
+            },
+          );
+
+          return MaterialApp(
+            title: 'Water Drink Reminder',
+            theme: ThemeData(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              // primaryColor: kPrimaryColor,
+            ),
+
+            debugShowCheckedModeBanner: false,
+            locale: provider.getIsInitialPrefsSet
+                ? Locale(provider.getLangCode)
+                : Locale(window.locale.languageCode),
+            supportedLocales: L10n.all,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+
+              ///comment off this line if there is a right to left language like arabic or persian
+              // GlobalWidgetsLocalizations.delegate,
+            ],
+            home: provider.getIsInitialPrefsSet ? const Home() : const WelcomeScreen(),
+            // home: const WelcomeScreen(),
+          );
+        },
+      );
 }
 
 class Home extends StatefulWidget {
@@ -113,11 +150,22 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  late final DataProvider _provider;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _provider = Provider.of<DataProvider>(context, listen: false);
+
+    Future.delayed(Duration.zero, () {
+      _provider.setNextDrinkTime =
+          calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
+      removeAllRecordsIfDayChanges(provider: _provider);
+      removeWeekDataIfWeekChanges(provider: _provider);
+      // resetMonthlyChartDataIfMonthChanges(provider: _provider);
+      _provider.setMainStateInitialized = true;
+    });
   }
 
   @override
@@ -127,34 +175,69 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BuildAppBar(
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              CustomTab(
-                icon: Icons.water,
-                title: AppLocalizations.of(context)!.home,
-              ),
-              CustomTab(
-                icon: Icons.history,
-                title: AppLocalizations.of(context)!.statistics,
-              ),
-              CustomTab(
-                icon: Icons.settings,
-                title: AppLocalizations.of(context)!.settings,
-              ),
-            ],
+  Widget build(BuildContext context) {
+    final appBar = BuildAppBar(
+      bottom: TabBar(
+        indicatorColor: Colors.black,
+        labelColor: Colors.black,
+        unselectedLabelColor: Colors.black54,
+        controller: _tabController,
+        tabs: [
+          CustomTab(
+            icon: Icons.water_drop,
+            title: AppLocalizations.of(context)!.home,
+          ),
+          CustomTab(
+            icon: Icons.bar_chart,
+            title: AppLocalizations.of(context)!.statistics,
+          ),
+          CustomTab(
+            icon: Icons.settings,
+            title: AppLocalizations.of(context)!.settings,
+          ),
+        ],
+      ),
+    );
+
+    final double appBarHeight =
+        Platform.isAndroid ? appBar.preferredSize.height * 1.4 : appBar.preferredSize.height * 1.7;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: appBar,
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
           ),
         ),
-        body: TabBarView(
-          controller: _tabController,
-          children: const [
-            HomeScreen(),
-            StatisticsScreen(),
-            SettingsScreen(),
-          ],
+        child: GlassmorphicContainer(
+          blur: 25,
+          borderRadius: BorderRadius.zero,
+          linearGradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.1),
+              Colors.white.withOpacity(0.05),
+            ],
+            stops: const [0.1, 1],
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(top: appBarHeight),
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                HomeScreen(),
+                StatisticsScreen(),
+                SettingsScreen(),
+              ],
+            ),
+          ),
         ),
-        resizeToAvoidBottomInset: true,
-      );
+      ),
+      resizeToAvoidBottomInset: true,
+    );
+  }
 }

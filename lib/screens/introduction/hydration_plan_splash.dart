@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/schedule_record.dart';
 import 'package:water_reminder/provider/data_provider.dart';
@@ -29,7 +28,6 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
     _provider = DataProvider();
     _notificationHelper = NotificationHelper();
     _random = Random();
-    _provider.setIntakeGoalAmount = calculateIntakeGoalAmount(_provider.getWeight);
 
     /// Set initial schedule records
     int wakeUpHour = _provider.getWakeUpTimeHour;
@@ -143,9 +141,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Image.asset(
-                  Provider.of<DataProvider>(context, listen: false).getGender == 0
-                      ? 'assets/images/boy.png'
-                      : 'assets/images/girl.png',
+                  _provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
                   scale: 4,
                 ),
               ),

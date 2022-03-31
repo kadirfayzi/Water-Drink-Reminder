@@ -12,6 +12,7 @@ class ElevatedContainer extends StatelessWidget {
     this.shape = BoxShape.circle,
     this.padding,
     this.borderRadius,
+    this.elevated = true,
   }) : super(key: key);
 
   final Widget? child;
@@ -23,26 +24,25 @@ class ElevatedContainer extends StatelessWidget {
   final BoxShape shape;
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
+  final bool elevated;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: color,
-        shape: shape,
-        borderRadius: borderRadius,
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            offset: const Offset(0.0, 1.0), //(x,y)
-            blurRadius: blurRadius,
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => Container(
+        width: width,
+        height: height,
+        padding: padding,
+        decoration: BoxDecoration(
+          color: color,
+          shape: shape,
+          borderRadius: borderRadius,
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(0.0, 1.0), //(x,y)
+              blurRadius: blurRadius,
+            ),
+          ],
+        ),
+        child: child,
+      );
 }

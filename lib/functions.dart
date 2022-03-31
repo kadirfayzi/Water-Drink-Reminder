@@ -1,38 +1,24 @@
-import 'dart:math';
 import 'package:intl/intl.dart';
-import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/models/week_data.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'models/chart_data.dart';
-import 'models/record.dart';
 import 'models/schedule_record.dart';
 
 DateTime stringToDate({required String dateString}) => DateFormat("yyyy-MM-dd").parse(dateString);
 DateTime stringToTime({required String timeString}) => DateFormat("hh:mm").parse(timeString);
-
-/// Get and return random tip from tips list
-String getRandomTip() => tips[Random().nextInt(tips.length)];
+DateTime date(DateTime dateTime) => DateTime(dateTime.day);
 
 int kgToLbs(int kg) => (kg * 2.205).toInt().round();
-int lbsToKg(int lbs) => (lbs ~/ 2.205).round();
-double mlToFlOz(double ml) => (ml / 29.574).roundToDouble();
-double flOzToMl(double flOz) => (flOz * 29.574).roundToDouble();
-double calculateIntakeGoalAmount(int weight) => (weight * 40.0).roundToDouble();
-int calculateReminderCount({required int bedHour, required int wakeUpHour}) =>
-    (bedHour - wakeUpHour) ~/ 1.5;
+int lbsToKg(int lbs) => (lbs ~/ 2.205).toInt().round();
+double mlToFlOz(double ml) => (ml / 29.574);
+double flOzToMl(double flOz) => (flOz * 29.574);
+double calculateIntakeGoalAmount(int weight) => (weight * 40).roundToDouble();
 
-/// Convert 24 hour string to datetime object
-DateTime convertStringToDateTime({
-  required int hour,
-  required int minute,
-  required DateTime now,
+int calculateReminderCount({
+  required int bedHour,
+  required int wakeUpHour,
 }) =>
-    DateTime(
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
+    (bedHour - wakeUpHour) ~/ 1.5;
 
 /// Get selected month chart data
 List<ChartData> selectedMonthChartData({
@@ -45,112 +31,162 @@ List<ChartData> selectedMonthChartData({
 
 /// Remove all records if day changes
 removeAllRecordsIfDayChanges({required DataProvider provider}) {
-  final List<Record> _records = provider.getRecords;
-  final List<ScheduleRecord> _scheduleRecords = provider.getScheduleRecords;
   final DateTime now = DateTime.now();
-  DateTime date(DateTime dateTime) => DateTime(dateTime.day);
-
-  if (_scheduleRecords.isNotEmpty && _records.isNotEmpty) {
-    final DateTime lastScheduleRecordTime = stringToTime(
-      timeString: _scheduleRecords.last.time,
-    );
-
+  if (provider.getRecords.isNotEmpty) {
     if (date(now)
-                .difference(date(stringToDate(dateString: _records.first.time.split(' ')[0])))
-                .inDays >
-            0 &&
-        now.isAfter(lastScheduleRecordTime)) {
+            .difference(
+                date(stringToDate(dateString: provider.getRecords.first.time.split(' ')[0])))
+            .inDays >
+        0) {
       provider.deleteAllRecords();
       provider.removeAllDrunkAmount();
     }
   }
 }
 
-//TODO:not completed
+//TODO: what if user not uses app in the weekend ?
+/// Remove week data if week changes
+removeWeekDataIfWeekChanges({required DataProvider provider}) {
+  final DateTime now = DateTime.now();
+
+  if (provider.getWeekDataList.isNotEmpty) {
+    if (now.difference(provider.getAppLastUseDateTime).inDays >= 7) {
+      provider.removeWeekData();
+    } else {
+      //TODO: what if records empty
+      if (provider.getRecords.isNotEmpty) {
+        if (now.weekday == 7 &&
+            date(now)
+                    .difference(date(
+                        stringToDate(dateString: provider.getRecords.first.time.split(' ')[0])))
+                    .inDays >
+                0) {
+          provider.removeWeekData();
+        }
+      }
+    }
+  }
+}
+
+//TODO:test it
 /// Reset monthly chart data if month changes
 resetMonthlyChartDataIfMonthChanges({required DataProvider provider}) {
-  if (provider.getChartDataList.isNotEmpty) {
-    final DateTime now = DateTime.now();
-    final ChartData last = provider.getChartDataList.last;
-    final DateTime lastDate = DateTime.utc(last.year, last.month, last.day);
+  final DateTime now = DateTime.now();
+  final ChartData last = provider.getChartDataList.last;
 
-    if (now.compareTo(lastDate) > 0) {
-      int currentMonthDaysCount = getCurrentMonthDaysCount(now: now);
-      for (int i = 1; i <= currentMonthDaysCount; i++) {
-        provider.addToChartData(
-          day: i,
-          month: now.month,
-          year: now.year,
-          drunkAmount: 0,
-          intakeGoalAmount: 2800,
-          recordCount: 0,
-        );
-      }
+  if (now.month != last.month) {
+    int currentMonthDaysCount = getCurrentMonthDaysCount(now: now);
+    for (int i = 1; i <= currentMonthDaysCount; i++) {
+      provider.addToChartData(
+        day: i,
+        month: now.month,
+        year: now.year,
+        drankAmount: 0,
+        intakeGoalAmount: provider.getIntakeGoalAmount,
+        recordCount: 0,
+      );
     }
   }
 }
 
 /// Schedule records to date time list
-List<DateTime> dtScheduleRecords({required List<ScheduleRecord> scheduleRecords}) {
-  final DateTime now = DateTime.now();
-  if (scheduleRecords.isNotEmpty) {
-    return List.generate(
-        scheduleRecords.length,
-        (index) => convertStringToDateTime(
-              hour: int.parse(scheduleRecords[index].time.split(':')[0]),
-              minute: int.parse(scheduleRecords[index].time.split(':')[1]),
-              now: now,
-            )).toList();
-  }
-  return List<DateTime>.empty();
+List<DateTime> dtScheduleRecords({
+  required List<ScheduleRecord> scheduleRecords,
+  required DateTime now,
+}) {
+  return List.generate(
+    scheduleRecords.length,
+    (index) => DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(scheduleRecords[index].time.split(':')[0]),
+      int.parse(scheduleRecords[index].time.split(':')[1]),
+    ),
+  ).toList();
 }
 
 /// Calculate next drink time
 String calculateNextDrinkTime({required List<ScheduleRecord> scheduleRecords}) {
-  final _dtScheduleRecords = dtScheduleRecords(scheduleRecords: scheduleRecords);
-  final now = DateTime.now();
+  if (scheduleRecords.isNotEmpty) {
+    final DateTime now = DateTime.now();
 
-  for (int i = 0; i < _dtScheduleRecords.length; i++) {
-    if (_dtScheduleRecords.isNotEmpty && i + 1 != _dtScheduleRecords.length) {
-      if (now.compareTo(_dtScheduleRecords[i]) > 0 &&
-          now.compareTo(_dtScheduleRecords[i + 1]) < 0) {
-        return scheduleRecords[i + 1].time;
-      } else if (now.compareTo(_dtScheduleRecords.last) > 0) {
-        return scheduleRecords.firstWhere((scheduleRecord) => scheduleRecord.isSet).time;
+    final List<DateTime> _dtScheduleRecords = dtScheduleRecords(
+      scheduleRecords: scheduleRecords,
+      now: now,
+    );
+
+    for (int i = 0; i < _dtScheduleRecords.length; i++) {
+      if (i + 1 != _dtScheduleRecords.length) {
+        if (now.compareTo(_dtScheduleRecords[i]) > 0 &&
+            now.compareTo(_dtScheduleRecords[i + 1]) < 0) {
+          return scheduleRecords[i + 1].time;
+        }
+      } else if (i == _dtScheduleRecords.length - 1) {
+        return scheduleRecords.first.time;
       }
     }
   }
-
-  return '';
+  return '--:--';
 }
 
 /// Monthly drink average
-int monthlyDrinkAverage({
+double monthlyDrinkAverage({
   required List<ChartData> chartDataList,
   required int month,
   required int year,
 }) {
-  List<double> drunkAmountList = [];
+  List<double> drankAmountList = [];
   double monthlyAverage = 0.0;
   final List<ChartData> selectedMonthChartData =
       chartDataList.where((element) => element.year == year && element.month == month).toList();
 
   for (var data in selectedMonthChartData) {
-    drunkAmountList.add(data.drunkAmount);
+    drankAmountList.add(data.drankAmount);
   }
 
-  if (drunkAmountList.any((element) => element > 0)) {
-    monthlyAverage = drunkAmountList.fold(
+  if (drankAmountList.any((element) => element > 0)) {
+    monthlyAverage = drankAmountList.fold(
         0,
         (avg, element) =>
-            avg + element / drunkAmountList.where((drunkAmount) => drunkAmount != 0).length);
+            avg + element / drankAmountList.where((drankAmount) => drankAmount != 0).length);
   }
 
-  return monthlyAverage.toInt();
+  return monthlyAverage;
 }
 
+/// Weekly drink average
+double weeklyDrinkAverage({required List<WeekData> weekDataList}) {
+  List<double> drankAmountList = [];
+  double weeklyAverage = 0.0;
+
+  for (var data in weekDataList) {
+    drankAmountList.add(data.drankAmount);
+  }
+
+  if (drankAmountList.any((element) => element > 0)) {
+    weeklyAverage = drankAmountList.fold(
+        0,
+        (avg, element) =>
+            avg + element / drankAmountList.where((drankAmount) => drankAmount != 0).length);
+  }
+
+  return weeklyAverage;
+}
+
+/// Weekly drink percent
+double weeklyPercent({required List<WeekData> weekDataList}) {
+  double weeklyPercent = 0;
+
+  for (var data in weekDataList) {
+    weeklyPercent = weeklyPercent + data.percent;
+  }
+  return weeklyPercent > 100 ? 100 : weeklyPercent;
+}
+
+//TODO: test it
 /// Monthly drink percent
-double monthOfYearChartData({
+double monthlyDrinkPercent({
   required List<ChartData> chartDataList,
   required int month,
   required int year,
@@ -158,19 +194,19 @@ double monthOfYearChartData({
 }) {
   final List<ChartData> selectedMonthChartData =
       chartDataList.where((element) => element.year == year && element.month == month).toList();
-  double monthlyDrunkAmount = 0.0;
+  double monthlyDrankAmount = 0.0;
   double monthlyPercent = 0.0;
 
   for (var data in selectedMonthChartData) {
-    monthlyDrunkAmount += data.drunkAmount;
+    if (data.drankAmount > intakeGoalAmount) {
+      monthlyDrankAmount += intakeGoalAmount;
+    } else {
+      monthlyDrankAmount += data.drankAmount;
+    }
   }
 
-  if (monthlyDrunkAmount != 0) {
-    int monthDaysCount = getMonthDaysCount(year: year, month: month);
-    if (monthlyDrunkAmount > intakeGoalAmount) monthlyDrunkAmount = intakeGoalAmount;
-    monthlyPercent = (monthlyDrunkAmount / (monthDaysCount * intakeGoalAmount)) * 100;
-  }
-
+  int monthDaysCount = getMonthDaysCount(year: year, month: month);
+  monthlyPercent = (monthlyDrankAmount / (monthDaysCount * intakeGoalAmount)) * 100;
   return monthlyPercent;
 }
 

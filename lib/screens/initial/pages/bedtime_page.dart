@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:water_reminder/provider/data_provider.dart';
@@ -30,42 +31,49 @@ class _BedTimePageState extends State<BedTimePage> {
           SizedBox(height: size.height * 0.2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
-                scale: 5,
+            children: AnimationConfiguration.toStaggeredList(
+              duration: const Duration(milliseconds: 800),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                horizontalOffset: 50.0,
+                child: FadeInAnimation(child: widget),
               ),
-              SizedBox(width: size.width * 0.1),
-              SizedBox(
-                width: size.width * 0.35,
-                height: size.height * 0.25,
-                child: CupertinoTheme(
-                  data: const CupertinoThemeData(
-                    textTheme: CupertinoTextThemeData(
-                      dateTimePickerTextStyle: TextStyle(
-                        fontSize: 28,
-                        color: Colors.blue,
+              children: [
+                Image.asset(
+                  provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
+                  scale: 5,
+                ),
+                SizedBox(width: size.width * 0.1),
+                SizedBox(
+                  width: size.width * 0.35,
+                  height: size.height * 0.25,
+                  child: CupertinoTheme(
+                    data: const CupertinoThemeData(
+                      textTheme: CupertinoTextThemeData(
+                        dateTimePickerTextStyle: TextStyle(
+                          fontSize: 28,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    child: CupertinoDatePicker(
+                      initialDateTime: DateTime.utc(
+                        _now.year,
+                        _now.month,
+                        _now.day,
+                        provider.getBedTimeHour,
+                        provider.getBedTimeMinute,
+                      ),
+                      mode: CupertinoDatePickerMode.time,
+                      use24hFormat: true,
+                      onDateTimeChanged: (selectedTime) => provider.setBedTime(
+                        selectedTime.hour,
+                        selectedTime.minute,
                       ),
                     ),
                   ),
-                  child: CupertinoDatePicker(
-                    initialDateTime: DateTime.utc(
-                      _now.year,
-                      _now.month,
-                      _now.day,
-                      provider.getBedTimeHour,
-                      provider.getBedTimeMinute,
-                    ),
-                    mode: CupertinoDatePickerMode.time,
-                    use24hFormat: true,
-                    onDateTimeChanged: (selectedTime) => provider.setBedTime(
-                      selectedTime.hour,
-                      selectedTime.minute,
-                    ),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

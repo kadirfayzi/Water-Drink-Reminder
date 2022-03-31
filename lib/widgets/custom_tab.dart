@@ -18,7 +18,7 @@ class CustomTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: iconSize),
-            const SizedBox(width: 10),
+            const SizedBox(width: 5),
             Text(title),
           ],
         ),

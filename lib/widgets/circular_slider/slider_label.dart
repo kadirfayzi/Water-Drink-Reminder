@@ -4,15 +4,17 @@ import 'appearance.dart';
 class SliderLabel extends StatelessWidget {
   final double value;
   final CircularSliderAppearance appearance;
-  const SliderLabel({Key? key, required this.value, required this.appearance}) : super(key: key);
+  const SliderLabel({
+    Key? key,
+    required this.value,
+    required this.appearance,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: builtInfo(appearance),
-    );
-  }
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: builtInfo(appearance),
+      );
 
   List<Widget> builtInfo(CircularSliderAppearance appearance) {
     var widgets = <Widget>[];
@@ -23,9 +25,7 @@ class SliderLabel extends StatelessWidget {
       ));
     }
     final modifier = appearance.infoModifier(value);
-    widgets.add(
-      Text(modifier, style: appearance.infoMainLabelStyle),
-    );
+    widgets.add(Text(modifier, style: appearance.infoMainLabelStyle));
     if (appearance.infoBottomLabelText != null) {
       widgets.add(Text(
         appearance.infoBottomLabelText!,

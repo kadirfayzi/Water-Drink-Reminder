@@ -29,17 +29,17 @@ class SleekCircularSlider extends StatefulWidget {
 
   double get angle => valueToAngle(initialValue, min, max, appearance.angleRange);
 
-  const SleekCircularSlider(
-      {Key? key,
-      this.initialValue = 0,
-      this.min = 0,
-      this.max = 100,
-      this.appearance = defaultAppearance,
-      this.onChange,
-      this.onChangeStart,
-      this.onChangeEnd,
-      this.innerWidget})
-      : assert(min <= max),
+  const SleekCircularSlider({
+    Key? key,
+    this.initialValue = 0,
+    this.min = 0,
+    this.max = 100,
+    this.appearance = defaultAppearance,
+    this.onChange,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.innerWidget,
+  })  : assert(min <= max),
         // assert(initialValue >= min && initialValue <= max),
         assert(initialValue >= min),
         super(key: key);

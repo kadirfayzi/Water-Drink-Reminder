@@ -18,46 +18,44 @@ class StepContainer extends StatelessWidget {
   final bool activeContainer;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(kRadius_5),
-              color: Colors.grey,
-              gradient: activeContainer
-                  ? const LinearGradient(
-                      colors: [Colors.lightBlueAccent, Colors.blue],
-                      begin: FractionalOffset(0.0, 0.0),
-                      end: FractionalOffset(0.5, 0.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp,
-                    )
-                  : null,
-            ),
-            child: Image.asset(
-              image,
-              color: Colors.white,
-              scale: 8,
-            ),
-          ),
-          SizedBox(height: size.height * 0.01),
-          SizedBox(
-            width: size.width * 0.125,
-            child: Center(
-              child: Text(
-                text,
-                style: TextStyle(color: textColor),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(kRadius_5),
+                color: Colors.grey,
+                gradient: activeContainer
+                    ? const LinearGradient(
+                        colors: [kPrimaryColor, Colors.blue],
+                        begin: FractionalOffset(0.0, 0.0),
+                        end: FractionalOffset(0.5, 0.0),
+                        stops: [0.0, 1.0],
+                        tileMode: TileMode.clamp,
+                      )
+                    : null,
+              ),
+              child: Image.asset(
+                image,
+                color: Colors.white,
+                scale: 8,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            SizedBox(height: size.height * 0.01),
+            SizedBox(
+              width: size.width * 0.125,
+              child: Center(
+                child: Text(
+                  text,
+                  style: TextStyle(color: textColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class DashedLine extends CustomPainter {
@@ -72,9 +70,7 @@ class DashedLine extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 
   void _drawDashedLine(Canvas canvas, Size size, Paint paint) {
     // Change to your preferred size

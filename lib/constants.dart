@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'models/cup.dart';
 
-const Color kPrimaryColor = Color(0xff2196f3);
-const Color kSecondaryColor = Color(0xffD6EAF8);
+const String kEmail = 'kadir.fayzi@gmail.com';
+const Color kPrimaryColor = Color(0xFF42A5F5);
 
 const List<String> tips = [
   'Drink your glass of water slowly with some small sips',
@@ -12,14 +12,6 @@ const List<String> tips = [
   'Do not drink water immediately after eating',
   'Do not drink cold water immediately after hot drinks like tea or coffee',
   'Always drink water before urinating and do not drink water immediately after urinating'
-];
-
-const List<IconData> kReminderModeIcons = [
-  Icons.mobile_friendly,
-  Icons.notifications_active,
-  Icons.vibration,
-  Icons.messenger,
-  Icons.notifications_off,
 ];
 
 const List<String> kWeightUnitStrings = ['kg', 'lbs'];
@@ -44,3 +36,5 @@ const kRadius_20 = Radius.circular(20);
 const kRadius_25 = Radius.circular(25);
 const kRadius_30 = Radius.circular(30);
 const kRadius_50 = Radius.circular(50);
+
+const List<double> kDrankLimits = [10000, 338];
