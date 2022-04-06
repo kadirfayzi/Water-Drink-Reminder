@@ -40,6 +40,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     provider.addDrankAmount = 0;
     if (provider.getChartDataList.isEmpty) {
       int currentMonthDaysCount = getCurrentMonthDaysCount(now: now);
+      // int previousMonthDaysCount = getMonthDaysCount(year: now.year, month: now.month - 1);
+      // for (int i = 1; i <= previousMonthDaysCount; i++) {
+      //   provider.addToChartData(
+      //     day: i,
+      //     month: now.month - 1,
+      //     year: now.year,
+      //     drankAmount: 0,
+      //     intakeGoalAmount: 2800,
+      //     recordCount: 0,
+      //     addMonth: true,
+      //   );
+      // }
       for (int i = 1; i <= currentMonthDaysCount; i++) {
         provider.addToChartData(
           day: i,
@@ -48,6 +60,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           drankAmount: 0,
           intakeGoalAmount: 2800,
           recordCount: 0,
+          addMonth: true,
         );
       }
     }
@@ -71,6 +84,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final localize = AppLocalizations.of(context)!;
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -91,30 +105,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: FadeInAnimation(child: widget),
               ),
               children: [
-                Text(
-                  AppLocalizations.of(context)!.appGreeting1,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
+                SizedBox(
+                  width: size.width * 0.95,
+                  child: Text(
+                    localize.appGreeting1,
+                    style: TextStyle(
+                      fontSize: size.width * 0.065,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.start,
                   ),
                 ),
                 SizedBox(height: size.height * 0.03),
-                Text(
-                  AppLocalizations.of(context)!.appGreeting2,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                SizedBox(
+                  width: size.width * 0.95,
+                  child: Text(
+                    localize.appGreeting2,
+                    style: TextStyle(
+                      fontSize: size.width * 0.04,
+                      color: Colors.grey.shade700,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
                 ),
                 SizedBox(height: size.height * 0.1),
                 Container(
                   width: size.width * 0.8,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(kRadius_30),
-                    gradient: LinearGradient(
-                      colors: [kPrimaryColor, Colors.blue],
-                      begin: FractionalOffset(0.0, 0.0),
-                      end: FractionalOffset(0.5, 0.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp,
-                    ),
+                    color: kPrimaryColor,
                   ),
                   child: InkWell(
                     borderRadius: const BorderRadius.all(kRadius_30),
@@ -128,8 +147,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Text(
-                          AppLocalizations.of(context)!.letsGo,
-                          style: const TextStyle(color: Colors.white, fontSize: 22),
+                          localize.letsGo,
+                          style: TextStyle(color: Colors.white, fontSize: size.width * 0.05),
                         ),
                       ),
                     ),

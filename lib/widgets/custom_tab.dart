@@ -5,21 +5,22 @@ class CustomTab extends StatelessWidget {
     Key? key,
     required this.title,
     required this.icon,
-    this.iconSize = 20,
   }) : super(key: key);
 
   final String title;
   final IconData icon;
-  final double iconSize;
 
   @override
   Widget build(BuildContext context) => Tab(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: iconSize),
-            const SizedBox(width: 5),
-            Text(title),
+            Icon(icon, size: MediaQuery.of(context).size.width * 0.0465),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.004),
+            Text(
+              title,
+              style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03),
+            )
           ],
         ),
       );

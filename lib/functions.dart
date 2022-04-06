@@ -12,7 +12,16 @@ int kgToLbs(int kg) => (kg * 2.205).toInt().round();
 int lbsToKg(int lbs) => (lbs ~/ 2.205).toInt().round();
 double mlToFlOz(double ml) => (ml / 29.574);
 double flOzToMl(double flOz) => (flOz * 29.574);
-double calculateIntakeGoalAmount(int weight) => (weight * 40).roundToDouble();
+double calculateIntakeGoalAmount({
+  required int weight,
+  required int gender,
+}) {
+  if (gender == 0) {
+    return (weight * 40).roundToDouble();
+  } else {
+    return (weight * 35).roundToDouble();
+  }
+}
 
 int calculateReminderCount({
   required int bedHour,
@@ -20,22 +29,13 @@ int calculateReminderCount({
 }) =>
     (bedHour - wakeUpHour) ~/ 1.5;
 
-/// Get selected month chart data
-List<ChartData> selectedMonthChartData({
-  required List<ChartData> chartDataList,
-  required List<int> selectedDate,
-}) =>
-    chartDataList
-        .where((element) => element.year == selectedDate[0] && element.month == selectedDate[1])
-        .toList();
-
 /// Remove all records if day changes
 removeAllRecordsIfDayChanges({required DataProvider provider}) {
   final DateTime now = DateTime.now();
+
   if (provider.getRecords.isNotEmpty) {
-    if (date(now)
-            .difference(
-                date(stringToDate(dateString: provider.getRecords.first.time.split(' ')[0])))
+    if (now
+            .difference(stringToDate(dateString: provider.getRecords.first.time.split(' ')[0]))
             .inDays >
         0) {
       provider.deleteAllRecords();
@@ -44,31 +44,17 @@ removeAllRecordsIfDayChanges({required DataProvider provider}) {
   }
 }
 
-//TODO: what if user not uses app in the weekend ?
 /// Remove week data if week changes
 removeWeekDataIfWeekChanges({required DataProvider provider}) {
   final DateTime now = DateTime.now();
 
   if (provider.getWeekDataList.isNotEmpty) {
-    if (now.difference(provider.getAppLastUseDateTime).inDays >= 7) {
+    if (provider.getWeekDataList.first.weekNumber != weekNumber(now)) {
       provider.removeWeekData();
-    } else {
-      //TODO: what if records empty
-      if (provider.getRecords.isNotEmpty) {
-        if (now.weekday == 7 &&
-            date(now)
-                    .difference(date(
-                        stringToDate(dateString: provider.getRecords.first.time.split(' ')[0])))
-                    .inDays >
-                0) {
-          provider.removeWeekData();
-        }
-      }
     }
   }
 }
 
-//TODO:test it
 /// Reset monthly chart data if month changes
 resetMonthlyChartDataIfMonthChanges({required DataProvider provider}) {
   final DateTime now = DateTime.now();
@@ -84,6 +70,7 @@ resetMonthlyChartDataIfMonthChanges({required DataProvider provider}) {
         drankAmount: 0,
         intakeGoalAmount: provider.getIntakeGoalAmount,
         recordCount: 0,
+        addMonth: true,
       );
     }
   }
@@ -184,7 +171,6 @@ double weeklyPercent({required List<WeekData> weekDataList}) {
   return weeklyPercent > 100 ? 100 : weeklyPercent;
 }
 
-//TODO: test it
 /// Monthly drink percent
 double monthlyDrinkPercent({
   required List<ChartData> chartDataList,
@@ -259,13 +245,32 @@ int averageCompletion({required List<ChartData> chartDataList}) {
   return averageCompletion.toInt();
 }
 
-/// Convert hour and minutes to two digits if they are one digits
+/// Converts hour and minutes to two digits if they are one digits
 String twoDigits(int n) => n.toString().padLeft(2, '0');
 
-/// Get current month days count
+/// Gets current month days count
 int getCurrentMonthDaysCount({required DateTime now}) =>
     DateTime(now.year, now.month + 1, 0).difference(DateTime(now.year, now.month, 0)).inDays;
 
-/// Get specific month days count
+/// Gets specific month days count
 int getMonthDaysCount({required int year, required int month}) =>
     DateTime(year, month + 1, 0).difference(DateTime(year, month, 0)).inDays;
+
+/// Calculates number of weeks for a given year
+int numOfWeeks(int year) {
+  DateTime dec28 = DateTime(year, 12, 28);
+  int dayOfDec28 = int.parse(DateFormat("D").format(dec28));
+  return ((dayOfDec28 - dec28.weekday + 10) / 7).floor();
+}
+
+/// Calculates week number from a date
+int weekNumber(DateTime date) {
+  int dayOfYear = int.parse(DateFormat("D").format(date));
+  int woy = ((dayOfYear - date.weekday + 10) / 7).floor();
+  if (woy < 1) {
+    woy = numOfWeeks(date.year - 1);
+  } else if (woy > numOfWeeks(date.year)) {
+    woy = 1;
+  }
+  return woy;
+}

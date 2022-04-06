@@ -32,234 +32,269 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final localize = AppLocalizations.of(context)!;
     return Consumer<DataProvider>(
-      builder: (context, provider, _) => Scrollbar(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTitle(size: size, title: AppLocalizations.of(context)!.reminderSettings),
+      builder: (context, provider, _) => SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildTitle(
+              size: size,
+              title: localize.reminderSettings,
+            ),
 
-              /// Reminder schedule section
-              buildTappableRow(
+            /// Reminder schedule section
+            buildTappableRow(
+              size: size,
+              title: localize.reminderSchedule,
+              icon: Icons.schedule,
+              onTap: () => reminderSchedulePopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.reminderSchedule,
-                onTap: () =>
-                    reminderSchedulePopup(context: context, provider: provider, size: size),
+                localize: localize,
               ),
+            ),
 
-              /// Reminder sound section
-              buildTappableRow(
+            /// Reminder sound section
+            buildTappableRow(
+              size: size,
+              title: localize.reminderSound,
+              icon: Icons.music_note_outlined,
+              onTap: () => setSoundPopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.reminderSound,
-                onTap: () => setSoundPopup(context: context, provider: provider, size: size),
+                localize: localize,
               ),
-              const SizedBox(height: 10),
-              buildTitle(size: size, title: AppLocalizations.of(context)!.general),
+            ),
+            const SizedBox(height: 10),
+            buildTitle(size: size, title: localize.general),
 
-              /// Unit section
-              buildTappableRow(
-                size: size,
-                title: AppLocalizations.of(context)!.unit,
-                content: Text(
-                  '${kWeightUnitStrings[provider.getWeightUnit]}, ${kCapacityUnitStrings[provider.getCapacityUnit]}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
-                  ),
-                ),
-                contentVisible: true,
-                onTap: () => setUnitPopup(
-                  context: context,
-                  provider: provider,
-                  size: size,
-                ),
-              ),
-
-              /// Intake goal section
-              buildTappableRow(
-                size: size,
-                title: AppLocalizations.of(context)!.intakeGoal,
-                content: Text(
-                  '${provider.getCapacityUnit == 0 ? (provider.getIntakeGoalAmount).toStringAsFixed(0) : mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)}'
-                  ' ${kCapacityUnitStrings[provider.getCapacityUnit]}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
-                  ),
-                ),
-                contentVisible: true,
-                onTap: () => setIntakeGoalPopup(
-                  context: context,
-                  provider: provider,
-                  size: size,
+            /// Unit section
+            buildTappableRow(
+              size: size,
+              title: localize.unit,
+              icon: Icons.ad_units_outlined,
+              content: Text(
+                '${kWeightUnitStrings[provider.getWeightUnit]}, ${kCapacityUnitStrings[provider.getCapacityUnit]}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
                 ),
               ),
-
-              /// Language section
-              buildTappableRow(
+              contentVisible: true,
+              onTap: () => setUnitPopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.langWordTranslate,
-                content: Row(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.language,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        color: kPrimaryColor,
-                      ),
+                localize: localize,
+              ),
+            ),
+
+            /// Intake goal section
+            buildTappableRow(
+              size: size,
+              title: localize.intakeGoal,
+              icon: Icons.water,
+              content: Text(
+                '${provider.getCapacityUnit == 0 ? (provider.getIntakeGoalAmount).toStringAsFixed(0) : mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)}'
+                ' ${kCapacityUnitStrings[provider.getCapacityUnit]}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
+                ),
+              ),
+              contentVisible: true,
+              onTap: () => setIntakeGoalPopup(
+                context: context,
+                provider: provider,
+                size: size,
+                localize: localize,
+              ),
+            ),
+
+            /// Language section
+            buildTappableRow(
+              size: size,
+              title: localize.langWordTranslate,
+              icon: Icons.language,
+              content: Row(
+                children: [
+                  Text(
+                    localize.language,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: kPrimaryColor,
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      L10n.getFlag(AppLocalizations.of(context)!.localeName),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18,
-                        color: kPrimaryColor,
-                      ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    L10n.getFlag(localize.localeName),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                      color: kPrimaryColor,
                     ),
-                  ],
-                ),
-                contentVisible: true,
-                onTap: () => setLanguagePopup(context: context, provider: provider, size: size),
-              ),
-              SizedBox(height: size.height * 0.01),
-
-              /// Personal information section
-              buildTitle(size: size, title: AppLocalizations.of(context)!.personalInformation),
-
-              /// Gender section
-              buildTappableRow(
-                size: size,
-                title: AppLocalizations.of(context)!.gender,
-                content: Text(
-                  provider.getGender == 0
-                      ? AppLocalizations.of(context)!.male
-                      : AppLocalizations.of(context)!.female,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
                   ),
-                ),
-                contentVisible: true,
-                onTap: () => genderSelectionPopup(
-                  context: context,
-                  provider: provider,
-                  size: size,
-                ),
+                ],
               ),
-
-              /// Weight section
-              buildTappableRow(
+              contentVisible: true,
+              onTap: () => setLanguagePopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.weight,
-                content: Text(
-                  '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
-                  ),
-                ),
-                contentVisible: true,
-                onTap: () => weightSelectionPopup(
-                  context: context,
-                  provider: provider,
-                  size: size,
+                localize: localize,
+              ),
+            ),
+            SizedBox(height: size.height * 0.01),
+
+            /// Personal information section
+            buildTitle(size: size, title: localize.personalInformation),
+
+            /// Gender section
+            buildTappableRow(
+              size: size,
+              title: localize.gender,
+              icon: provider.getGender == 0 ? Icons.male : Icons.female,
+              content: Text(
+                provider.getGender == 0 ? localize.male : localize.female,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
                 ),
               ),
-
-              /// Wake-up time section
-              buildTappableRow(
+              contentVisible: true,
+              onTap: () => genderSelectionPopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.wakeUpTime,
-                content: Text(
-                  '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
-                  ),
-                ),
-                contentVisible: true,
-                onTap: () => wakeupAndBedtimePopup(
-                  context: context,
-                  size: size,
-                  provider: provider,
-                  isWakeUp: true,
-                  hour: provider.getWakeUpTimeHour,
-                  minute: provider.getWakeUpTimeMinute,
+                localize: localize,
+              ),
+            ),
+
+            /// Weight section
+            buildTappableRow(
+              size: size,
+              title: localize.weight,
+              icon: Icons.line_weight,
+              content: Text(
+                '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
                 ),
               ),
-
-              /// Bed time section
-              buildTappableRow(
+              contentVisible: true,
+              onTap: () => weightSelectionPopup(
+                context: context,
+                provider: provider,
                 size: size,
-                title: AppLocalizations.of(context)!.bedTime,
-                content: Text(
-                  '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: kPrimaryColor,
-                  ),
-                ),
-                contentVisible: true,
-                onTap: () => wakeupAndBedtimePopup(
-                  context: context,
-                  size: size,
-                  provider: provider,
-                  isWakeUp: false,
-                  hour: provider.getBedTimeHour,
-                  minute: provider.getBedTimeMinute,
+                localize: localize,
+              ),
+            ),
+
+            /// Wake-up time section
+            buildTappableRow(
+              size: size,
+              title: localize.wakeUpTime,
+              icon: Icons.timer_outlined,
+              content: Text(
+                '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
                 ),
               ),
-              const SizedBox(height: 10),
-              buildTitle(size: size, title: AppLocalizations.of(context)!.other),
-
-              /// Feedback section
-              buildTappableRow(
+              contentVisible: true,
+              onTap: () => wakeupAndBedtimePopup(
+                context: context,
                 size: size,
-                title: AppLocalizations.of(context)!.feedback,
-                onTap: () async {
-                  final Uri params = Uri(
-                    scheme: 'mailto',
-                    path: kEmail,
-                    query:
-                        'subject=${_packageInfo?.appName}&body=${AppLocalizations.of(context)!.appVersion} ${_packageInfo?.version}',
-                  );
-
-                  var url = params.toString();
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                },
+                provider: provider,
+                isWakeUp: true,
+                hour: provider.getWakeUpTimeHour,
+                minute: provider.getWakeUpTimeMinute,
+                localize: localize,
               ),
+            ),
 
-              /// Rate app section
-              buildTappableRow(size: size, title: AppLocalizations.of(context)!.rateApp),
-
-              /// Share section
-              buildTappableRow(
+            /// Bed time section
+            buildTappableRow(
+              size: size,
+              title: localize.bedTime,
+              icon: Icons.bedtime_outlined,
+              content: Text(
+                '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: kPrimaryColor,
+                ),
+              ),
+              contentVisible: true,
+              onTap: () => wakeupAndBedtimePopup(
+                context: context,
                 size: size,
-                title: AppLocalizations.of(context)!.shareApp,
-                onTap: () => Share.share('check out my website https://example.com',
-                    subject: 'Look what I made!'),
+                provider: provider,
+                isWakeUp: false,
+                hour: provider.getBedTimeHour,
+                minute: provider.getBedTimeMinute,
+                localize: localize,
               ),
+            ),
+            const SizedBox(height: 10),
+            buildTitle(size: size, title: localize.other),
 
-              SizedBox(height: size.height * 0.05),
-              Center(
-                child: Text('${AppLocalizations.of(context)!.version} ${_packageInfo?.version}'),
-              ),
-              SizedBox(height: size.height * 0.08),
-            ],
-          ),
+            /// Feedback section
+            buildTappableRow(
+              size: size,
+              title: localize.feedback,
+              icon: Icons.feedback_outlined,
+              onTap: () async {
+                final Uri params = Uri(
+                  scheme: 'mailto',
+                  path: kEmail,
+                  query:
+                      'subject=${_packageInfo?.appName}&body=${localize.appVersion} ${_packageInfo?.version}',
+                );
+
+                var url = params.toString();
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+            ),
+
+            /// Rate app section
+            buildTappableRow(
+              size: size,
+              title: localize.rateApp,
+              icon: Icons.star_border,
+            ),
+
+            /// Share section
+            buildTappableRow(
+              size: size,
+              title: localize.shareApp,
+              icon: Icons.share,
+              onTap: () => Share.share('check out my website https://example.com',
+                  subject: 'Look what I made!'),
+            ),
+
+            SizedBox(height: size.height * 0.05),
+            Center(
+              child: Text('${localize.version} ${_packageInfo?.version}'),
+            ),
+            SizedBox(height: size.height * 0.08),
+          ],
         ),
       ),
     );

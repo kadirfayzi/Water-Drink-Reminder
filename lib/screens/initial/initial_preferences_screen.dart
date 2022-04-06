@@ -34,7 +34,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
+    final localize = AppLocalizations.of(context)!;
     return Consumer<DataProvider>(
       builder: (context, provider, _) {
         return Scaffold(
@@ -62,10 +62,8 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                         StepContainer(
                           size: size,
                           image: 'assets/images/gender.png',
-                          text: provider.getGender == 0
-                              ? AppLocalizations.of(context)!.male
-                              : AppLocalizations.of(context)!.female,
-                          textColor: currentPage == 0 ? Colors.blue : Colors.grey,
+                          text: provider.getGender == 0 ? localize.male : localize.female,
+                          textColor: currentPage == 0 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 0,
                         ),
                         SizedBox(
@@ -79,7 +77,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           image: 'assets/images/weight.png',
                           text:
                               '${provider.getTempWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
-                          textColor: currentPage == 1 ? Colors.blue : Colors.grey,
+                          textColor: currentPage == 1 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 1,
                         ),
                         SizedBox(
@@ -92,7 +90,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           image: 'assets/images/alarm.png',
                           text:
                               '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
-                          textColor: currentPage == 2 ? Colors.blue : Colors.grey,
+                          textColor: currentPage == 2 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 2,
                         ),
                         SizedBox(
@@ -105,7 +103,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           image: 'assets/images/sleep.png',
                           text:
                               '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
-                          textColor: currentPage == 3 ? Colors.blue : Colors.grey,
+                          textColor: currentPage == 3 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 3,
                         ),
                       ],
@@ -117,11 +115,11 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                     child: PageView(
                       controller: _pageController,
                       physics: const NeverScrollableScrollPhysics(),
-                      children: const [
-                        GenderPage(),
-                        WeightPage(),
-                        WakeupTimePage(),
-                        BedTimePage(),
+                      children: [
+                        GenderPage(provider: provider, size: size, localize: localize),
+                        WeightPage(provider: provider, size: size, localize: localize),
+                        WakeupTimePage(provider: provider, size: size, localize: localize),
+                        BedTimePage(provider: provider, size: size, localize: localize),
                       ],
                       onPageChanged: (page) => setState(() => currentPage = page),
                     ),
@@ -145,15 +143,8 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           },
                           child: Container(
                             decoration: const BoxDecoration(
-                              color: Colors.blue,
+                              color: kPrimaryColor,
                               borderRadius: BorderRadius.all(kRadius_50),
-                              gradient: LinearGradient(
-                                colors: [kPrimaryColor, Colors.blue],
-                                begin: FractionalOffset(0.0, 0.0),
-                                end: FractionalOffset(0.5, 0.0),
-                                stops: [0.0, 1.0],
-                                tileMode: TileMode.clamp,
-                              ),
                             ),
                             child: const Padding(
                               padding: EdgeInsets.all(15.0),
@@ -161,6 +152,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                                 child: Icon(
                                   Icons.arrow_back_ios_new,
                                   color: Colors.white,
+                                  size: 20,
                                 ),
                               ),
                             ),
@@ -185,26 +177,20 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           },
                           child: Container(
                             decoration: const BoxDecoration(
-                              color: Colors.blue,
+                              color: kPrimaryColor,
                               borderRadius: BorderRadius.all(kRadius_30),
-                              gradient: LinearGradient(
-                                colors: [kPrimaryColor, Colors.blue],
-                                begin: FractionalOffset(0.0, 0.0),
-                                end: FractionalOffset(0.5, 0.0),
-                                stops: [0.0, 1.0],
-                                tileMode: TileMode.clamp,
-                              ),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: Center(
                                 child: Text(
-                                  AppLocalizations.of(context)!.next,
-                                  style: const TextStyle(
+                                  localize.next,
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: size.width * 0.04,
                                     fontWeight: FontWeight.w600,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),

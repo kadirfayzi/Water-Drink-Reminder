@@ -88,7 +88,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _notificationHelper = NotificationHelper();
     _notificationHelper.initializeNotification();
-    DataProvider().setAppLastUseDateTime = DateTime.now();
   }
 
   @override
@@ -102,7 +101,7 @@ class _MyAppState extends State<MyApp> {
         builder: (context, provider, _) {
           timer?.cancel();
           timer = Timer.periodic(
-            const Duration(seconds: 1),
+            const Duration(seconds: 10),
             (_) {
               provider.setNextDrinkTime = calculateNextDrinkTime(
                 scheduleRecords: provider.getScheduleRecords,
@@ -148,13 +147,14 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final TabController _tabController;
   late final DataProvider _provider;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
     _provider = Provider.of<DataProvider>(context, listen: false);
 
@@ -163,19 +163,39 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
       removeAllRecordsIfDayChanges(provider: _provider);
       removeWeekDataIfWeekChanges(provider: _provider);
-      // resetMonthlyChartDataIfMonthChanges(provider: _provider);
+      resetMonthlyChartDataIfMonthChanges(provider: _provider);
       _provider.setMainStateInitialized = true;
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
     _tabController.dispose();
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Navigator.popUntil(context, (route) => route.isFirst);
+        break;
+      case AppLifecycleState.inactive:
+        Navigator.popUntil(context, (route) => route.isFirst);
+        break;
+      case AppLifecycleState.paused:
+        Navigator.popUntil(context, (route) => route.isFirst);
+        break;
+      case AppLifecycleState.detached:
+        Navigator.popUntil(context, (route) => route.isFirst);
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final AppLocalizations localize = AppLocalizations.of(context)!;
     final appBar = BuildAppBar(
       bottom: TabBar(
         indicatorColor: Colors.black,
@@ -183,18 +203,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         unselectedLabelColor: Colors.black54,
         controller: _tabController,
         tabs: [
-          CustomTab(
-            icon: Icons.water_drop,
-            title: AppLocalizations.of(context)!.home,
-          ),
-          CustomTab(
-            icon: Icons.bar_chart,
-            title: AppLocalizations.of(context)!.statistics,
-          ),
-          CustomTab(
-            icon: Icons.settings,
-            title: AppLocalizations.of(context)!.settings,
-          ),
+          CustomTab(icon: Icons.water_drop, title: localize.home),
+          CustomTab(icon: Icons.bar_chart, title: localize.statistics),
+          CustomTab(icon: Icons.settings, title: localize.settings),
         ],
       ),
     );

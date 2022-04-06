@@ -203,22 +203,37 @@ class DataProvider extends ChangeNotifier {
   /// /// /// /// ///
   /// Intake records
   /// /// /// /// ///
-  addRecord(Record record, {bool forgottenRecord = false}) {
+  addRecord({required Record record, bool forgottenRecord = false}) {
     final records = Boxes.getRecords();
-    // forgottenRecord && records.isNotEmpty ? records.putAt(0, record) : records.add(record);
-    records.add(record);
+    if (forgottenRecord) {
+      records.add(record);
+      final List<Record> tempRecords = records.values.toList()
+        ..sort((a, b) => a.time.compareTo(b.time));
+
+      records.deleteAll(records.keys);
+      records.addAll(tempRecords);
+    } else {
+      records.add(record);
+    }
+
     notifyListeners();
   }
 
-  editRecord(int index, Record record) {
-    final records = Boxes.getRecords();
-    records.putAt(index, record);
+  editRecord({
+    required dynamic recordKey,
+    required double amount,
+    required String time,
+  }) {
+    final Record? record = Boxes.getRecords().get(recordKey);
+    record?.amount = amount;
+    record?.time = time;
+    record?.save();
+
     notifyListeners();
   }
 
-  set deleteRecord(int index) {
-    final records = Boxes.getRecords();
-    records.deleteAt(index);
+  set deleteRecord(dynamic key) {
+    Boxes.getRecords().delete(key);
     notifyListeners();
   }
 
@@ -240,22 +255,33 @@ class DataProvider extends ChangeNotifier {
     required double drankAmount,
     required double intakeGoalAmount,
     required int recordCount,
+    bool addMonth = false,
   }) {
     final box = Boxes.getChartData();
     final double amountPercent = ((drankAmount * 100) / intakeGoalAmount);
 
-    box.put(
-      year + month + day,
-      ChartData(
-        day: day - 1,
-        month: month,
-        year: year,
-        name: day.toString(),
-        percent: amountPercent >= 100 ? 100 : amountPercent,
-        drankAmount: drankAmount,
-        recordCount: recordCount,
-      ),
-    );
+    if (addMonth) {
+      box.add(
+        ChartData(
+          day: day,
+          month: month,
+          year: year,
+          name: day.toString(),
+          percent: amountPercent >= 100 ? 100 : amountPercent,
+          drankAmount: drankAmount,
+          recordCount: recordCount,
+        ),
+      );
+    } else {
+      final data = box.values
+          .where((chartData) =>
+              chartData.year == year && chartData.month == month && chartData.day == day)
+          .first;
+      data.drankAmount = drankAmount;
+      data.percent = amountPercent >= 100 ? 100 : amountPercent;
+      data.recordCount = recordCount;
+      data.save();
+    }
 
     notifyListeners();
   }
@@ -282,6 +308,7 @@ class DataProvider extends ChangeNotifier {
         drankAmount: drankAmount,
         day: day,
         percent: amountPercent,
+        weekNumber: weekNumber(DateTime.now()),
       ),
     );
 
@@ -348,16 +375,5 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  get getMainStateInitialized => mainStateInitialized;
-
-  /// /// /// /// /// /// /// /// /////
-  /// Set/Get app's last use date time
-  /// /// /// /// /// /// /// /// /////
-  set setAppLastUseDateTime(DateTime dateTime) {
-    final box = Boxes.getAppLastUseDateTime();
-    box.put('appLastUseDateTime', dateTime.toString());
-    notifyListeners();
-  }
-
-  DateTime get getAppLastUseDateTime => DateTime.parse(Boxes.getAppLastUseDateTime().values.first);
+  bool get getMainStateInitialized => mainStateInitialized;
 }

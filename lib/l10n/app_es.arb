@@ -73,5 +73,9 @@
   "selectWeight": "Seleccionar Peso",
   "feedback": "Realimentación",
   "rateApp": "Calificar Aplicacion",
-  "shareApp": "Cuota Aplicacion"
+  "shareApp": "Cuota Aplicacion",
+  "howToDrinkWaterCorrectly": "¿Cómo beber agua correctamente ?",
+  "close": "Cerrar",
+  "areYouSureYouWantToClearAllRecords": "¿Estás seguro de que quieres borrar todos los registros ?",
+  "tips": "Beba su vaso de agua lentamente con pequeños sorbos.Mantenga el agua en la boca durante un tiempo antes de tragar.Beber agua en una postura sentada es mejor que beber de pie o corriendo.No beba agua muy fría o helada.No beba agua inmediatamente después de comer.No beba agua fría inmediatamente después de bebidas calientes como té o café.No beba agua inmediatamente después de orinar"
 }

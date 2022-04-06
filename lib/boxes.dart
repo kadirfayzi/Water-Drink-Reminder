@@ -25,5 +25,4 @@ class Boxes {
   static Box getDrankAmount() => Hive.box('drankAmount');
   static Box getLangCode() => Hive.box('langCode');
   static Box getIsInitialPrefsSet() => Hive.box('isInitialPrefsSet');
-  static Box getAppLastUseDateTime() => Hive.box('appLastUseDateTime');
 }

@@ -7,65 +7,75 @@ import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
 class DailyWaterIntake extends StatefulWidget {
-  const DailyWaterIntake({Key? key, required this.provider}) : super(key: key);
+  const DailyWaterIntake({
+    Key? key,
+    required this.provider,
+    required this.localize,
+    required this.size,
+  }) : super(key: key);
   final DataProvider provider;
+  final AppLocalizations localize;
+  final Size size;
   @override
   _DailyWaterIntakeState createState() => _DailyWaterIntakeState();
 }
 
 class _DailyWaterIntakeState extends State<DailyWaterIntake> {
   @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.dailyWaterIntake,
-          style: TextStyle(
-            fontSize: size.width * 0.06,
-            color: Colors.grey[700],
-          ),
-        ),
-        SizedBox(height: size.height * 0.05),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            AnimatedTextKit(
-              totalRepeatCount: 1,
-              animatedTexts: [
-                WavyAnimatedText(
-                  widget.provider.getCapacityUnit == 0
-                      ? widget.provider.getIntakeGoalAmount.toStringAsFixed(0)
-                      : mlToFlOz(widget.provider.getIntakeGoalAmount).toStringAsFixed(0),
-                  textStyle: TextStyle(
-                    fontSize: size.width * 0.15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: widget.size.width * 0.95,
+            child: Center(
+              child: Text(
+                widget.localize.dailyWaterIntake,
+                style: TextStyle(
+                  fontSize: widget.size.width * 0.05,
+                  color: Colors.grey[700],
                 ),
-              ],
-            ),
-            Text(
-              ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}',
-              style: TextStyle(
-                fontSize: size.width * 0.08,
-                color: Colors.grey,
+                textAlign: TextAlign.center,
               ),
             ),
-          ],
-        ),
-        SizedBox(height: size.height * 0.03),
-        SizedBox(
-          width: size.width * 0.5,
-          child: Lottie.asset(
-            'assets/lotties/water-bottles.json',
-            repeat: false,
           ),
-        ),
-      ],
-    );
-  }
+          SizedBox(height: widget.size.height * 0.05),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              AnimatedTextKit(
+                totalRepeatCount: 1,
+                animatedTexts: [
+                  WavyAnimatedText(
+                    widget.provider.getCapacityUnit == 0
+                        ? widget.provider.getIntakeGoalAmount.toStringAsFixed(0)
+                        : mlToFlOz(widget.provider.getIntakeGoalAmount).toStringAsFixed(0),
+                    textStyle: TextStyle(
+                      fontSize: widget.size.width * 0.15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}',
+                style: TextStyle(
+                  fontSize: widget.size.width * 0.08,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: widget.size.height * 0.03),
+          SizedBox(
+            width: widget.size.width * 0.5,
+            child: Lottie.asset(
+              'assets/lotties/water-bottles.json',
+              repeat: false,
+            ),
+          ),
+        ],
+      );
 }

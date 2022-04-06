@@ -67,11 +67,15 @@
   "selectSound": "Ses'i Seç",
   "selectUnits": "Birimleri Seç",
   "capacity": "Hacim",
-  "adjustIntakeGoal": "Alım Hedefini Ayarla",
+  "adjustIntakeGoal": "Su Alım Hedefini Ayarla",
   "selectLanguage": "Dil Seç",
   "selectGender": "Cinsiyet Seç",
   "selectWeight": "Ağırlık Seç",
   "feedback": "Geri Bildirim",
   "rateApp": "Uygulamayı Değerlendir",
-  "shareApp": "Uygulamayı Paylaş"
+  "shareApp": "Uygulamayı Paylaş",
+  "howToDrinkWaterCorrectly": "Su nasıl doğru içilir ?",
+  "close": "Kapat",
+  "areYouSureYouWantToClearAllRecords": "Tüm kayıtları silmek istediğinizden emin misiniz ?",
+  "tips": "Bir bardak suyunuzu birkaç küçük yudumla yavaşça için.Yutmadan önce suyu bir süre ağzınızda tutun.Oturarak su içmek, ayakta veya koşarak içmekten daha iyidir.Çok soğuk veya buzlu su içmeyin.Yemekten hemen sonra su içmeyin.Çay, kahve gibi sıcak içeceklerden hemen sonra soğuk su içmeyin.İdrar yaptıktan hemen sonra su içmeyin"
 }

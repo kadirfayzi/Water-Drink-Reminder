@@ -125,11 +125,15 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
         center: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              AppLocalizations.of(context)!.genHydraPlan,
-              style: TextStyle(
-                fontSize: 20,
-                color: _animationController.value < 0.7 ? Colors.blue : Colors.white,
+            SizedBox(
+              width: size.width * 0.95,
+              child: Text(
+                AppLocalizations.of(context)!.genHydraPlan,
+                style: TextStyle(
+                  fontSize: size.width * 0.05,
+                  color: _animationController.value < 0.75 ? Colors.blue : Colors.black,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: size.height * 0.05),
@@ -157,16 +161,18 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
                   child: Text(
                     percentage.toStringAsFixed(0),
                     style: TextStyle(
-                      fontSize: size.width * 0.2,
-                      color: _animationController.value < 0.35 ? Colors.blue : Colors.white,
+                      fontSize: size.width * 0.185,
+                      color: _animationController.value < 0.35 ? Colors.blue : Colors.black,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 Text(
                   '%',
                   style: TextStyle(
-                    fontSize: size.width * 0.2,
-                    color: _animationController.value < 0.3 ? Colors.blue : Colors.white,
+                    fontSize: size.width * 0.185,
+                    color: _animationController.value < 0.3 ? Colors.blue : Colors.black,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],

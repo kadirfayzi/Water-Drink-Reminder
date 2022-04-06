@@ -44,6 +44,7 @@ Widget buildTitle({
 Widget buildTappableRow({
   required Size size,
   required String title,
+  required IconData icon,
   Widget? content,
   bool contentVisible = false,
   Function()? onTap,
@@ -62,13 +63,19 @@ Widget buildTappableRow({
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
+                Row(
+                  children: [
+                    Icon(icon, color: Colors.grey, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
                 contentVisible
                     ? content!
@@ -89,6 +96,7 @@ Future<dynamic> reminderSchedulePopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   final NotificationHelper _notificationHelper = NotificationHelper();
   return showCupertinoModalPopup(
@@ -98,7 +106,7 @@ Future<dynamic> reminderSchedulePopup({
       direction: DismissDirection.vertical,
       onDismissed: (_) => Navigator.pop(context),
       child: CupertinoActionSheet(
-        title: Text(AppLocalizations.of(context)!.reminderSchedule),
+        title: Text(localize.reminderSchedule),
         actions: [
           SizedBox(
             height: size.height * 0.725,
@@ -187,7 +195,7 @@ Future<dynamic> reminderSchedulePopup({
                                       padding: const EdgeInsets.all(8),
                                       width: size.width,
                                       child: Text(
-                                        AppLocalizations.of(context)!.delete,
+                                        localize.delete,
                                         style: TextStyle(
                                           color: Colors.red[600],
                                           fontWeight: FontWeight.w500,
@@ -218,6 +226,7 @@ Future<dynamic> reminderSchedulePopup({
                     context: context,
                     provider: provider,
                     size: size,
+                    localize: localize,
                   ),
                   child: const Icon(
                     Icons.add,
@@ -231,8 +240,7 @@ Future<dynamic> reminderSchedulePopup({
           )
         ],
         cancelButton: CupertinoActionSheetAction(
-          //TODO:needs to be translate
-          child: const Text('Close'),
+          child: Text(localize.close),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -245,6 +253,7 @@ Future<dynamic> setSoundPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   final AudioPlayer _player = AudioPlayer();
   final NotificationHelper _notificationHelper = NotificationHelper();
@@ -257,7 +266,7 @@ Future<dynamic> setSoundPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.selectSound),
+          title: Text(localize.selectSound),
           actions: [
             Column(
               children: List.generate(
@@ -322,11 +331,11 @@ Future<dynamic> setSoundPopup({
                 }
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -340,6 +349,7 @@ Future<dynamic> setUnitPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   dynamic selectedWeightUnitValue = provider.getWeightUnit;
   dynamic selectedCapacityUnitValue = provider.getCapacityUnit;
@@ -351,7 +361,7 @@ Future<dynamic> setUnitPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.selectUnits),
+          title: Text(localize.selectUnits),
           actions: [
             Material(
               child: Container(
@@ -364,7 +374,7 @@ Future<dynamic> setUnitPopup({
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.weight,
+                          localize.weight,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -386,7 +396,7 @@ Future<dynamic> setUnitPopup({
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.capacity,
+                          localize.capacity,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -413,11 +423,11 @@ Future<dynamic> setUnitPopup({
                 provider.setCapacityUnit = selectedCapacityUnitValue;
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -431,6 +441,7 @@ Future<dynamic> setIntakeGoalPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   double intakeGoalValue = provider.getIntakeGoalAmount;
   return showCupertinoModalPopup(
@@ -441,7 +452,7 @@ Future<dynamic> setIntakeGoalPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.adjustIntakeGoal),
+          title: Text(localize.adjustIntakeGoal),
           actions: [
             Material(
               child: Container(
@@ -467,8 +478,12 @@ Future<dynamic> setIntakeGoalPopup({
                         ),
                         SizedBox(width: size.width * 0.05),
                         InkWell(
-                          onTap: () => setState(() =>
-                              intakeGoalValue = calculateIntakeGoalAmount(provider.getWeight)),
+                          onTap: () => setState(
+                            () => intakeGoalValue = calculateIntakeGoalAmount(
+                              weight: provider.getWeight,
+                              gender: provider.getGender,
+                            ),
+                          ),
                           child: const Padding(
                             padding: EdgeInsets.all(10),
                             child: Icon(
@@ -521,11 +536,11 @@ Future<dynamic> setIntakeGoalPopup({
                 provider.setIntakeGoalAmount = intakeGoalValue.roundToDouble();
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -539,6 +554,7 @@ Future<dynamic> setLanguagePopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   List<String> languages = ['English', 'Türkçe', 'Español', 'Deutsch'];
   String selectedLangCode = provider.getLangCode;
@@ -550,7 +566,7 @@ Future<dynamic> setLanguagePopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.selectLanguage),
+          title: Text(localize.selectLanguage),
           actions: [
             Column(
               children: List.generate(
@@ -574,7 +590,7 @@ Future<dynamic> setLanguagePopup({
               ),
             ),
             CupertinoActionSheetAction(
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
               onPressed: () {
                 provider.setLangCode = selectedLangCode;
                 Navigator.pop(context);
@@ -582,7 +598,7 @@ Future<dynamic> setLanguagePopup({
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -592,11 +608,11 @@ Future<dynamic> setLanguagePopup({
 }
 
 /// Gender selection popup dialog
-//TODO:ui needs to be updated
 Future<dynamic> genderSelectionPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   dynamic genderValue = provider.getGender;
   return showCupertinoModalPopup(
@@ -607,41 +623,72 @@ Future<dynamic> genderSelectionPopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.selectGender),
+          title: Text(localize.selectGender),
           actions: [
             Material(
-              child: Container(
-                height: size.height * 0.185,
-                padding: const EdgeInsets.all(20),
-                child: Column(
+              child: Padding(
+                padding: EdgeInsets.all(size.width * 0.05),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        Transform.scale(
-                          scale: 1.5,
-                          child: Radio(
-                            value: 0,
-                            groupValue: genderValue,
-                            onChanged: (value) => setState(() => genderValue = value),
-                            activeColor: kPrimaryColor,
+                    GestureDetector(
+                      onTap: () => setState(() => genderValue = 0),
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: genderValue == 0 ? Colors.grey : Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Image.asset(
+                                'assets/images/boy.png',
+                                scale: 10,
+                              ),
+                            ),
                           ),
-                        ),
-                        Text(AppLocalizations.of(context)!.male),
-                      ],
+                          SizedBox(height: size.height * 0.02),
+                          Text(
+                            localize.male,
+                            style: TextStyle(
+                              color: genderValue == 0 ? kPrimaryColor : Colors.grey[400],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: [
-                        Transform.scale(
-                          scale: 1.5,
-                          child: Radio(
-                            value: 1,
-                            groupValue: genderValue,
-                            onChanged: (value) => setState(() => genderValue = value),
-                            activeColor: kPrimaryColor,
+                    SizedBox(width: size.width * 0.1),
+                    GestureDetector(
+                      onTap: () => setState(() => genderValue = 1),
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: genderValue == 1 ? Colors.grey : Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Image.asset(
+                                'assets/images/girl.png',
+                                scale: 10,
+                              ),
+                            ),
                           ),
-                        ),
-                        Text(AppLocalizations.of(context)!.female),
-                      ],
+                          SizedBox(height: size.height * 0.02),
+                          Text(
+                            localize.female,
+                            style: TextStyle(
+                              color: genderValue == 1 ? kPrimaryColor : Colors.grey[400],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -650,13 +697,17 @@ Future<dynamic> genderSelectionPopup({
             CupertinoActionSheetAction(
               onPressed: () {
                 provider.setGender = genderValue;
+                provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+                  weight: provider.getWeight,
+                  gender: genderValue,
+                );
                 Navigator.pop(context);
               },
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -666,11 +717,11 @@ Future<dynamic> genderSelectionPopup({
 }
 
 /// Edit weight popup dialog
-//TODO:Update weight popup ui nicely
 Future<dynamic> weightSelectionPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   int weight = provider.getWeight;
   return showCupertinoModalPopup(
@@ -680,7 +731,7 @@ Future<dynamic> weightSelectionPopup({
       direction: DismissDirection.vertical,
       onDismissed: (_) => Navigator.pop(context),
       child: CupertinoActionSheet(
-        title: Text(AppLocalizations.of(context)!.selectWeight),
+        title: Text(localize.selectWeight),
         actions: [
           Material(
             child: Row(
@@ -711,17 +762,20 @@ Future<dynamic> weightSelectionPopup({
             ),
           ),
           CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.save),
+            child: Text(localize.save),
             onPressed: () {
               if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
               provider.setWeight = weight;
-              provider.setIntakeGoalAmount = calculateIntakeGoalAmount(weight);
+              provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+                weight: weight,
+                gender: provider.getGender,
+              );
               Navigator.pop(context);
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text(AppLocalizations.of(context)!.cancel),
+          child: Text(localize.cancel),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -737,6 +791,7 @@ Future<dynamic> wakeupAndBedtimePopup({
   required bool isWakeUp,
   required int hour,
   required int minute,
+  required AppLocalizations localize,
 }) {
   final DateTime now = DateTime.now();
   DateTime time = DateTime.utc(
@@ -755,9 +810,7 @@ Future<dynamic> wakeupAndBedtimePopup({
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
           title: Text(
-            isWakeUp
-                ? AppLocalizations.of(context)!.wakeUpTime
-                : AppLocalizations.of(context)!.bedTime,
+            isWakeUp ? localize.wakeUpTime : localize.bedTime,
           ),
           actions: [
             Material(
@@ -792,7 +845,7 @@ Future<dynamic> wakeupAndBedtimePopup({
               ),
             ),
             CupertinoActionSheetAction(
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
               onPressed: () {
                 final NotificationHelper _notificationHelper = NotificationHelper();
                 _notificationHelper.cancelAll();
@@ -852,7 +905,7 @@ Future<dynamic> wakeupAndBedtimePopup({
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -866,6 +919,7 @@ Future<dynamic> setReminderTimePopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
+  required AppLocalizations localize,
 }) {
   DateTime _time = DateTime.now();
   return showCupertinoModalPopup(
@@ -876,7 +930,7 @@ Future<dynamic> setReminderTimePopup({
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
         child: CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context)!.setNewReminder),
+          title: Text(localize.setNewReminder),
           actions: [
             Material(
               child: SizedBox(
@@ -913,7 +967,7 @@ Future<dynamic> setReminderTimePopup({
               ),
             ),
             CupertinoActionSheetAction(
-              child: Text(AppLocalizations.of(context)!.save),
+              child: Text(localize.save),
               onPressed: () {
                 final NotificationHelper _notificationHelper = NotificationHelper();
                 final int id = Random().nextInt(1000000000);
@@ -937,7 +991,7 @@ Future<dynamic> setReminderTimePopup({
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localize.cancel),
             onPressed: () => Navigator.pop(context),
           ),
         ),

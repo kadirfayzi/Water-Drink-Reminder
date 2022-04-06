@@ -30,7 +30,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
+    final localize = AppLocalizations.of(context)!;
     return Consumer<DataProvider>(
       builder: (context, provider, _) {
         return Scaffold(
@@ -66,7 +66,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        AppLocalizations.of(context)!.personalHydraPlan,
+                        localize.personalHydraPlan,
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.grey[700],
@@ -80,10 +80,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                       controller: pageController,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        DailyWaterIntake(provider: provider),
-                        HowMuchShouldDrink(provider: provider),
-                        const WhatIsTheRightTime(),
-                        const HowToEffectivelyMonitor(),
+                        DailyWaterIntake(provider: provider, size: size, localize: localize),
+                        HowMuchShouldDrink(provider: provider, localize: localize, size: size),
+                        WhatIsTheRightTime(size: size, localize: localize),
+                        HowToEffectivelyMonitor(size: size, localize: localize),
                       ],
                       onPageChanged: (page) => setState(() => currentPage = page),
                     ),
@@ -111,13 +111,13 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             ),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: Center(
                               child: Text(
-                                AppLocalizations.of(context)!.start,
-                                style: const TextStyle(
+                                localize.start,
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
+                                  fontSize: size.width * 0.05,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -152,10 +152,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                 padding: const EdgeInsets.all(15.0),
                                 child: Center(
                                   child: Text(
-                                    AppLocalizations.of(context)!.skip,
-                                    style: const TextStyle(
+                                    localize.skip,
+                                    style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 18,
+                                      fontSize: size.width * 0.04,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -185,10 +185,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                 padding: const EdgeInsets.all(15.0),
                                 child: Center(
                                   child: Text(
-                                    AppLocalizations.of(context)!.next,
-                                    style: const TextStyle(
+                                    localize.next,
+                                    style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 18,
+                                      fontSize: size.width * 0.04,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

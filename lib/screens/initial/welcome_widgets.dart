@@ -26,16 +26,7 @@ class StepContainer extends StatelessWidget {
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(kRadius_5),
-                color: Colors.grey,
-                gradient: activeContainer
-                    ? const LinearGradient(
-                        colors: [kPrimaryColor, Colors.blue],
-                        begin: FractionalOffset(0.0, 0.0),
-                        end: FractionalOffset(0.5, 0.0),
-                        stops: [0.0, 1.0],
-                        tileMode: TileMode.clamp,
-                      )
-                    : null,
+                color: activeContainer ? kPrimaryColor : Colors.grey,
               ),
               child: Image.asset(
                 image,
@@ -45,11 +36,14 @@ class StepContainer extends StatelessWidget {
             ),
             SizedBox(height: size.height * 0.01),
             SizedBox(
-              width: size.width * 0.125,
+              width: size.width * 0.15,
               child: Center(
                 child: Text(
                   text,
-                  style: TextStyle(color: textColor),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                  ),
                 ),
               ),
             ),

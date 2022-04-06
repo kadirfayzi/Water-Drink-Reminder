@@ -4,16 +4,6 @@ import 'models/cup.dart';
 const String kEmail = 'kadir.fayzi@gmail.com';
 const Color kPrimaryColor = Color(0xFF42A5F5);
 
-const List<String> tips = [
-  'Drink your glass of water slowly with some small sips',
-  'Hold the water in your mouth for a while before swallowing',
-  'Drinking water in a sitting posture is better than in a standing or running position',
-  'Do not drink cold water or water with ice',
-  'Do not drink water immediately after eating',
-  'Do not drink cold water immediately after hot drinks like tea or coffee',
-  'Always drink water before urinating and do not drink water immediately after urinating'
-];
-
 const List<String> kWeightUnitStrings = ['kg', 'lbs'];
 const List<int> kWeightChildCount = [400, 882];
 const List<String> kCapacityUnitStrings = ['ml', 'fl oz'];
