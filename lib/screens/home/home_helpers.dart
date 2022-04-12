@@ -265,7 +265,7 @@ Future<dynamic> editRecordPopup({
                 final double drankLimit = kDrankLimits[provider.getCapacityUnit];
                 final double drankAmount = provider.getCapacityUnit == 0
                     ? provider.getDrankAmount
-                    : mlToFlOz(provider.getDrankAmount);
+                    : Functions.mlToFlOz(provider.getDrankAmount);
                 if (drankAmount < drankLimit) {
                   if (provider.getCapacityUnit == 0) {
                     provider.addDrankAmount =
@@ -276,7 +276,7 @@ Future<dynamic> editRecordPopup({
                       time: DateFormat("yyyy-MM-dd HH:mm").format(time),
                     );
                   } else {
-                    final double convertedWaterAmount = flOzToMl(waterAmountOZ);
+                    final double convertedWaterAmount = Functions.flOzToMl(waterAmountOZ);
                     provider.addDrankAmount =
                         provider.getDrankAmount + convertedWaterAmount - record.amount;
                     provider.editRecord(
@@ -320,7 +320,7 @@ Future<dynamic> editRecordPopup({
 }
 
 /// Switch cup popup dialog
-Future<dynamic> switchCup({
+Future<dynamic> switchCupPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
@@ -356,7 +356,7 @@ Future<dynamic> switchCup({
                             child: ScaleAnimation(
                               child: FadeInAnimation(
                                 child: GestureDetector(
-                                  onTap: () => addCustomCup(
+                                  onTap: () => addCustomCupPopup(
                                     context: context,
                                     provider: provider,
                                     size: size,
@@ -400,7 +400,7 @@ Future<dynamic> switchCup({
                                         color: selectedIndex == index ? kPrimaryColor : Colors.grey,
                                       ),
                                       Text(
-                                        '${provider.getCapacityUnit == 0 ? provider.getCups[index].capacity.toStringAsFixed(0) : mlToFlOz(provider.getCups[index].capacity).toStringAsFixed(1)} '
+                                        '${provider.getCapacityUnit == 0 ? provider.getCups[index].capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getCups[index].capacity).toStringAsFixed(1)} '
                                         '${kCapacityUnitStrings[provider.getCapacityUnit]}',
                                         style: TextStyle(
                                           color:
@@ -437,7 +437,7 @@ Future<dynamic> switchCup({
 }
 
 /// Add custom cup
-Future<dynamic> addCustomCup({
+Future<dynamic> addCustomCupPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,
@@ -451,58 +451,63 @@ Future<dynamic> addCustomCup({
         key: const Key('key'),
         direction: DismissDirection.vertical,
         onDismissed: (_) => Navigator.pop(context),
-        child: CupertinoActionSheet(
-          title: Text(localize.customizeYourDrinkingCup),
-          actions: [
-            Material(
-              child: SizedBox(
-                height: size.height * 0.25,
-                child: Container(
-                  width: size.width,
-                  height: size.height * 0.15,
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/images/cups/custom-128.png', scale: 3.5),
-                      SizedBox(width: size.width * 0.05),
-                      SizedBox(
-                        width: size.width * 0.35,
-                        child: TextField(
-                          controller: controller,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          maxLength: 3,
-                          decoration: const InputDecoration(counterText: ''),
-                          cursorHeight: 25,
-                          style: const TextStyle(fontSize: 20),
+        child: Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: CupertinoActionSheet(
+            title: Text(localize.customizeYourDrinkingCup),
+            actions: [
+              Material(
+                child: SizedBox(
+                  height: size.height * 0.25,
+                  child: Container(
+                    width: size.width,
+                    height: size.height * 0.15,
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('assets/images/cups/custom-128.png', scale: 3.5),
+                        SizedBox(width: size.width * 0.05),
+                        SizedBox(
+                          width: size.width * 0.35,
+                          child: TextField(
+                            controller: controller,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            maxLength: 3,
+                            decoration: const InputDecoration(counterText: ''),
+                            cursorHeight: 25,
+                            style: const TextStyle(fontSize: 20),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: size.width * 0.05),
-                      Text(kCapacityUnitStrings[provider.getCapacityUnit]),
-                    ],
+                        SizedBox(width: size.width * 0.05),
+                        Text(kCapacityUnitStrings[provider.getCapacityUnit]),
+                      ],
+                    ),
                   ),
                 ),
               ),
+              CupertinoActionSheetAction(
+                child: Text(localize.save),
+                onPressed: () {
+                  if (controller.value.text.isNotEmpty) {
+                    provider.addCup = Cup(
+                      capacity: double.parse(controller.value.text),
+                      image: 'assets/images/cups/custom-128.png',
+                      selected: false,
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: Text(localize.cancel),
+              onPressed: () => Navigator.pop(context),
             ),
-            CupertinoActionSheetAction(
-              child: Text(localize.save),
-              onPressed: () {
-                provider.addCup = Cup(
-                  capacity: double.parse(controller.value.text),
-                  image: 'assets/images/cups/custom-128.png',
-                  selected: false,
-                );
-                Navigator.pop(context);
-              },
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            child: Text(localize.cancel),
-            onPressed: () => Navigator.pop(context),
           ),
         ),
       ),
@@ -620,7 +625,7 @@ Future<dynamic> addForgottenRecordPopup({
                 final double drankLimit = kDrankLimits[provider.getCapacityUnit];
                 final double drankAmount = provider.getCapacityUnit == 0
                     ? provider.getDrankAmount
-                    : mlToFlOz(provider.getDrankAmount);
+                    : Functions.mlToFlOz(provider.getDrankAmount);
 
                 if (drankAmount < drankLimit) {
                   if (provider.getCapacityUnit == 0) {
@@ -635,7 +640,7 @@ Future<dynamic> addForgottenRecordPopup({
                       forgottenRecord: true,
                     );
                   } else {
-                    final double convertedWaterAmount = flOzToMl(waterAmountOZ);
+                    final double convertedWaterAmount = Functions.flOzToMl(waterAmountOZ);
                     provider.addDrankAmount = provider.getDrankAmount + convertedWaterAmount;
 
                     provider.addRecord(
@@ -679,7 +684,7 @@ Future<dynamic> addForgottenRecordPopup({
 }
 
 /// Clear all records
-Future<dynamic> clearAllRecords({
+Future<dynamic> clearAllRecordsPopup({
   required BuildContext context,
   required DataProvider provider,
   required Size size,

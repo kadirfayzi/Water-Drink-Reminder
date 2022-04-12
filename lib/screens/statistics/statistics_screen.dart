@@ -10,7 +10,6 @@ import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/widgets/elevated_container.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:water_reminder/widgets/glassmorphism.dart';
 import 'statistics_helpers.dart';
 import 'dart:math' as math;
 
@@ -46,15 +45,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _provider = Provider.of<DataProvider>(context, listen: false);
     _chartDataList = _provider.getChartDataList;
 
-    _monthlyDrinkAverage = monthlyDrinkAverage(
+    _monthlyDrinkAverage = Functions.monthlyDrinkAverage(
       chartDataList: _provider.getChartDataList,
       year: DateTime.now().year,
       month: DateTime.now().month,
     );
-    _weeklyCompletionPercent = weeklyPercent(weekDataList: _provider.getWeekDataList);
-    _weeklyDrinkAverage = weeklyDrinkAverage(weekDataList: _provider.getWeekDataList);
-    _drinkFrequency = drinkFrequency(chartDataList: _provider.getChartDataList);
-    _averageCompletion = averageCompletion(chartDataList: _provider.getChartDataList);
+    _weeklyCompletionPercent = Functions.weeklyPercent(weekDataList: _provider.getWeekDataList);
+    _weeklyDrinkAverage = Functions.weeklyDrinkAverage(weekDataList: _provider.getWeekDataList);
+    _drinkFrequency = Functions.drinkFrequency(chartDataList: _provider.getChartDataList);
+    _averageCompletion = Functions.averageCompletion(chartDataList: _provider.getChartDataList);
   }
 
   @override
@@ -65,20 +64,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       return SingleChildScrollView(
         child: Column(
           children: [
-            GlassmorphicContainer(
-              height: size.height * 0.385,
+            SizedBox(
               width: size.width * 0.95,
-              borderRadius: BorderRadius.circular(10),
-              blur: 10,
-              linearGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.blue.shade200.withOpacity(0.1),
-                  Colors.blue.shade200.withOpacity(0.05),
-                ],
-                stops: const [0.1, 1],
-              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
@@ -250,22 +237,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             SizedBox(height: size.height * 0.03),
 
             /// Weekly completion
-            GlassmorphicContainer(
+            Container(
               width: size.width * 0.95,
               height: size.height * 0.2,
-              blur: 10,
-              borderRadius: const BorderRadius.only(
-                topRight: kRadius_50,
-                bottomLeft: kRadius_50,
-              ),
-              linearGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.blue.shade200.withOpacity(0.1),
-                  Colors.blue.shade200.withOpacity(0.05),
-                ],
-                stops: const [0.1, 1],
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topRight: kRadius_50,
+                  bottomLeft: kRadius_50,
+                ),
+                color: kPrimaryColor.withOpacity(0.1),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -298,10 +278,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 child: AnimationLimiter(
                                   child: Column(
                                     children: AnimationConfiguration.toStaggeredList(
-                                      duration: const Duration(milliseconds: 800),
-                                      childAnimationBuilder: (widget) => SlideAnimation(
-                                        horizontalOffset: 50.0,
-                                        child: FadeInAnimation(child: widget),
+                                      duration: const Duration(milliseconds: 600),
+                                      childAnimationBuilder: (widget) => ScaleAnimation(
+                                        child: ScaleAnimation(child: widget),
                                       ),
                                       children: [
                                         ElevatedContainer(
@@ -309,17 +288,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                           width: size.width * 0.12,
                                           height: size.width * 0.12,
                                           child: Center(
-                                            child: weekData.drankAmount > 0
-                                                ? Icon(
-                                                    Icons.water_drop,
-                                                    size: size.width * 0.085,
-                                                    color: kPrimaryColor,
-                                                  )
-                                                : Icon(
-                                                    Icons.water_drop,
-                                                    size: size.width * 0.085,
-                                                    color: Colors.black26,
-                                                  ),
+                                            child: Icon(
+                                              Icons.water_drop,
+                                              size: size.width * 0.085,
+                                              color: weekData.drankAmount > 0
+                                                  ? kPrimaryColor
+                                                  : Colors.black26,
+                                            ),
                                           ),
                                         ),
                                         SizedBox(height: size.height * 0.01),
@@ -358,80 +333,59 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             SizedBox(height: size.height * 0.02),
-            GlassmorphicContainer(
+            Container(
               width: size.width * 0.95,
-              height: size.height * 0.385,
-              borderRadius: BorderRadius.circular(10),
-              blur: 10,
-              linearGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.blue.shade200.withOpacity(0.1),
-                  Colors.blue.shade200.withOpacity(0.05),
-                ],
-                stops: const [0.1, 1],
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: kPrimaryColor.withOpacity(0.1),
               ),
-              child: AnimationLimiter(
-                child: Column(
-                  children: AnimationConfiguration.toStaggeredList(
-                    duration: const Duration(milliseconds: 800),
-                    childAnimationBuilder: (widget) => SlideAnimation(
-                      horizontalOffset: 50.0,
-                      child: FadeInAnimation(child: widget),
-                    ),
-                    children: [
-                      buildReportRow(
-                        size: size,
-                        iconColor: Colors.green,
-                        title: localize.weeklyAverage,
-                        content:
-                            '${provider.getCapacityUnit == 0 ? _weeklyDrinkAverage.toStringAsFixed(0) : mlToFlOz(_weeklyDrinkAverage).toStringAsFixed(1)} '
-                            '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: size.width * 0.05,
-                        endIndent: size.width * 0.05,
-                      ),
-                      buildReportRow(
-                        size: size,
-                        iconColor: kPrimaryColor,
-                        title: localize.monthlyAverage,
-                        content:
-                            '${provider.getCapacityUnit == 0 ? _monthlyDrinkAverage.toStringAsFixed(0) : mlToFlOz(_monthlyDrinkAverage).toStringAsFixed(1)} '
-                            '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: size.width * 0.05,
-                        endIndent: size.width * 0.05,
-                      ),
-                      buildReportRow(
-                        size: size,
-                        iconColor: Colors.orange,
-                        title: localize.averageCompletion,
-                        content: '$_averageCompletion%',
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: size.width * 0.05,
-                        endIndent: size.width * 0.05,
-                      ),
-                      buildReportRow(
-                        size: size,
-                        iconColor: Colors.red,
-                        title: localize.drinkFrequency,
-                        content: '$_drinkFrequency ${localize.times} / ${localize.day}',
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: size.width * 0.05,
-                        endIndent: size.width * 0.05,
-                      ),
-                    ],
+              child: Column(
+                children: [
+                  ReportRow(
+                    size: size,
+                    iconColor: Colors.green,
+                    title: localize.weeklyAverage,
+                    content:
+                        '${provider.getCapacityUnit == 0 ? _weeklyDrinkAverage.toStringAsFixed(0) : Functions.mlToFlOz(_weeklyDrinkAverage).toStringAsFixed(1)} '
+                        '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
                   ),
-                ),
+                  Divider(
+                    thickness: 1,
+                    indent: size.width * 0.05,
+                    endIndent: size.width * 0.05,
+                  ),
+                  ReportRow(
+                    size: size,
+                    iconColor: kPrimaryColor,
+                    title: localize.monthlyAverage,
+                    content:
+                        '${provider.getCapacityUnit == 0 ? _monthlyDrinkAverage.toStringAsFixed(0) : Functions.mlToFlOz(_monthlyDrinkAverage).toStringAsFixed(1)} '
+                        '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
+                  ),
+                  Divider(
+                    thickness: 1,
+                    indent: size.width * 0.05,
+                    endIndent: size.width * 0.05,
+                  ),
+                  ReportRow(
+                    size: size,
+                    iconColor: Colors.orange,
+                    title: localize.averageCompletion,
+                    content: '$_averageCompletion%',
+                  ),
+                  Divider(
+                    thickness: 1,
+                    indent: size.width * 0.05,
+                    endIndent: size.width * 0.05,
+                  ),
+                  ReportRow(
+                    size: size,
+                    iconColor: Colors.red,
+                    title: localize.drinkFrequency,
+                    content: '$_drinkFrequency ${localize.times} / ${localize.day}',
+                  ),
+                  SizedBox(height: size.height * 0.01),
+                ],
               ),
             ),
 
@@ -535,7 +489,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<BarChartGroupData> getYearGroupDataList() {
     final List<double> barRodValues = List.generate(
         12,
-        (index) => monthlyDrinkPercent(
+        (index) => Functions.monthlyDrinkPercent(
               chartDataList: _chartDataList,
               month: index + 1,
               year: _selectedDate.year,

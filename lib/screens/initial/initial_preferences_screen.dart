@@ -89,7 +89,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           size: size,
                           image: 'assets/images/alarm.png',
                           text:
-                              '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
+                              '${Functions.twoDigits(provider.getWakeUpTimeHour)}:${Functions.twoDigits(provider.getWakeUpTimeMinute)}',
                           textColor: currentPage == 2 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 2,
                         ),
@@ -102,7 +102,7 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                           size: size,
                           image: 'assets/images/sleep.png',
                           text:
-                              '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
+                              '${Functions.twoDigits(provider.getBedTimeHour)}:${Functions.twoDigits(provider.getBedTimeMinute)}',
                           textColor: currentPage == 3 ? kPrimaryColor : Colors.grey,
                           activeContainer: currentPage == 3,
                         ),
@@ -169,10 +169,16 @@ class _InitialPreferencesState extends State<InitialPreferences> {
                             } else {
                               /// go to introduction screen
                               Navigator.pushAndRemoveUntil(
-                                  context,
-                                  CupertinoPageRoute(
-                                      builder: (context) => const HydrationPlanSplash()),
-                                  (route) => false);
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) => HydrationPlanSplash(
+                                    provider: provider,
+                                    localize: localize,
+                                    size: size,
+                                  ),
+                                ),
+                                (route) => false,
+                              );
                             }
                           },
                           child: Container(

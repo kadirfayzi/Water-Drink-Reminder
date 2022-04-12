@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:animated_text_kit/animated_text_kit.dart'
+    show AnimatedTextKit, TypewriterAnimatedText;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +14,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/circular_slider/appearance.dart';
 import '../../widgets/circular_slider/circular_slider.dart';
-import '../../widgets/glassmorphism.dart';
-import '../../widgets/liquid_progress_indicator/liquid_circular_progress_indicator.dart';
+import '../../widgets/liquid_progress_indicator/liquid_circular_progress_indicator.dart'
+    show LiquidCircularProgressIndicator;
 import '../../widgets/odometer/odometer_number.dart';
 import '../../widgets/odometer/slide_odometer.dart';
 
@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final size = MediaQuery.of(context).size;
     final localize = AppLocalizations.of(context)!;
     final localizedTips = localize.tips.split('.');
+    localizedTips.shuffle();
     return Consumer<DataProvider>(
       builder: (context, provider, _) {
         return SingleChildScrollView(
@@ -52,22 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(width: size.width * 0.02),
                   Expanded(
                     flex: 3,
-                    child: GlassmorphicContainer(
-                      height: size.height * 0.085,
-                      borderRadius: const BorderRadius.only(
-                        topRight: kRadius_25,
-                        bottomRight: kRadius_25,
-                        bottomLeft: kRadius_25,
-                      ),
-                      blur: 10,
-                      linearGradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue.withOpacity(0.1),
-                          Colors.blue.withOpacity(0.05),
-                        ],
-                        stops: const [0.1, 1],
+                    child: Container(
+                      height: size.height * 0.0865,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topRight: kRadius_25,
+                          bottomRight: kRadius_25,
+                          bottomLeft: kRadius_25,
+                        ),
+                        color: kPrimaryColor.withOpacity(0.1),
                       ),
                       child: Center(
                         child: Padding(
@@ -81,8 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       textStyle: TextStyle(fontSize: size.width * 0.03),
                                       textAlign: TextAlign.center,
                                     ))
-                                .toList()
-                              ..shuffle(),
+                                .toList(),
                           ),
                         ),
                       ),
@@ -177,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   AnimatedSlideOdometerNumber(
                                     odometerNumber: OdometerNumber(provider.getCapacityUnit == 0
                                         ? provider.getDrankAmount.toInt()
-                                        : mlToFlOz(provider.getDrankAmount).toInt()),
+                                        : Functions.mlToFlOz(provider.getDrankAmount).toInt()),
                                     duration: const Duration(milliseconds: 500),
                                     letterWidth: 12,
                                     numberTextStyle: const TextStyle(
@@ -200,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: AnimatedSlideOdometerNumber(
                                       odometerNumber: OdometerNumber(provider.getCapacityUnit == 0
                                           ? 0
-                                          : int.parse(mlToFlOz(provider.getDrankAmount)
+                                          : int.parse(Functions.mlToFlOz(provider.getDrankAmount)
                                               .toStringAsFixed(1)
                                               .split('.')[1])),
                                       duration: const Duration(milliseconds: 500),
@@ -221,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: <TextSpan>[
                                         TextSpan(
                                           text:
-                                              '/${provider.getCapacityUnit == 0 ? provider.getIntakeGoalAmount.toStringAsFixed(0) : mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)} ',
+                                              '/${provider.getCapacityUnit == 0 ? provider.getIntakeGoalAmount.toStringAsFixed(0) : Functions.mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)} ',
                                         ),
                                         TextSpan(
                                           text: kCapacityUnitStrings[provider.getCapacityUnit],
@@ -255,10 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                   gradient: const LinearGradient(
-                                    colors: [
-                                      Colors.white24,
-                                      Colors.white,
-                                    ],
+                                    colors: [Colors.white24, Colors.white],
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
                                     stops: [0.0, 1.0],
@@ -273,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               kDrankLimits[provider.getCapacityUnit];
                                           final double drankAmount = provider.getCapacityUnit == 0
                                               ? provider.getDrankAmount
-                                              : mlToFlOz(provider.getDrankAmount);
+                                              : Functions.mlToFlOz(provider.getDrankAmount);
                                           if (drankAmount < drankLimit) {
                                             /// Add drunk amount
                                             provider.addDrankAmount = provider.getDrankAmount +
@@ -318,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} '
+                                          '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} '
                                           '${kCapacityUnitStrings[provider.getCapacityUnit]}',
                                           style: const TextStyle(
                                             color: Colors.black,
@@ -334,11 +324,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                               scale: 4.5,
                                               color: Colors.black,
                                             ),
-                                            const Positioned.fill(
-                                                child: Icon(
-                                              Icons.add,
-                                              size: 15,
-                                            )),
+                                            Container(
+                                              transform:
+                                                  getTransformValue(provider.getSelectedCup.image),
+                                              child: const Icon(Icons.add, size: 15),
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -404,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     flex: 1,
                     child: GestureDetector(
-                      onTap: () => switchCup(
+                      onTap: () => switchCupPopup(
                         context: context,
                         provider: provider,
                         size: size,
@@ -476,35 +466,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: size.height * 0.01),
 
-              ClipRRect(
-                borderRadius: const BorderRadius.all(kRadius_10),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 20),
-                  child: Container(
-                    width: size.width,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue.shade200.withOpacity(0.1),
-                          Colors.blue.shade200.withOpacity(0.05),
-                        ],
-                        stops: const [0.1, 1],
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        /// Next time row
-                        nextTimeRow(size, context, provider, localize),
-                        SizedBox(height: size.height * 0.01),
+              Container(
+                width: size.width,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(kRadius_10),
+                  color: kPrimaryColor.withOpacity(0.1),
+                ),
+                child: Column(
+                  children: [
+                    /// Next time row
+                    nextTimeRow(size, context, provider, localize),
+                    SizedBox(height: size.height * 0.01),
 
-                        /// Records
-                        recordsColumn(provider, size, context, localize),
-                      ],
+                    /// Records
+                    recordsColumn(provider, size, context, localize),
+                    Visibility(
+                      visible: provider.getRecords.isNotEmpty ? true : false,
+                      child: SizedBox(height: size.height * 0.02),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
@@ -514,9 +495,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Matrix4? getTransformValue(String cupImageString) {
+    switch (cupImageString) {
+      case 'assets/images/cups/100-128.png':
+        return Matrix4.translationValues(3.5, 6.0, 0.0);
+      case 'assets/images/cups/125-128.png':
+        return Matrix4.translationValues(3.5, 6.0, 0.0);
+      case 'assets/images/cups/150-128.png':
+        return Matrix4.translationValues(3.0, 6.0, 0.0);
+      case 'assets/images/cups/175-128.png':
+        return Matrix4.translationValues(7.0, 6.0, 0.0);
+      case 'assets/images/cups/200-128.png':
+        return Matrix4.translationValues(7.0, 7.0, 0.0);
+      case 'assets/images/cups/300-128.png':
+        return Matrix4.translationValues(5.0, 7.0, 0.0);
+      default:
+        return Matrix4.translationValues(6.0, 7.0, 0.0);
+    }
+  }
+
   /// /// /// /// //
   /// Next time row
   /// /// /// /// //
+
   Widget nextTimeRow(
     Size size,
     BuildContext context,
@@ -575,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <TextSpan>[
                           TextSpan(
                             text:
-                                '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} ',
+                                '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} ',
                           ),
                           TextSpan(
                             text: kCapacityUnitStrings[provider.getCapacityUnit],
@@ -590,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             icon: const Icon(Icons.delete),
-                            onPressed: () => clearAllRecords(
+                            onPressed: () => clearAllRecordsPopup(
                               context: context,
                               provider: provider,
                               size: size,
@@ -612,11 +613,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 22),
                 child: Column(
                   children: const [
-                    Icon(Icons.water_drop, size: 5, color: Colors.black54),
-                    SizedBox(height: 5),
-                    Icon(Icons.water_drop, size: 5, color: Colors.black54),
-                    SizedBox(height: 5),
-                    Icon(Icons.water_drop, size: 5, color: Colors.black54),
+                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                    SizedBox(height: 3),
+                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                    SizedBox(height: 3),
+                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                    SizedBox(height: 3),
+                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
                   ],
                 ),
               ),
@@ -637,98 +640,102 @@ class _HomeScreenState extends State<HomeScreen> {
   ) =>
       Column(
         children: provider.getRecords
-            .map((record) => Column(
-                  children: [
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        highlightColor: Colors.grey.shade300,
-                        splashColor: Colors.grey.shade300,
-                        borderRadius: const BorderRadius.all(kRadius_5),
-                        onTap: () => editOrDeleteSelectedRecordPopup(
-                          context: context,
-                          provider: provider,
-                          size: size,
-                          record: record,
-                          localize: localize,
+            .map(
+              (record) => Column(
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      highlightColor: Colors.grey.shade300,
+                      splashColor: Colors.grey.shade300,
+                      borderRadius: const BorderRadius.all(kRadius_5),
+                      onTap: () => editOrDeleteSelectedRecordPopup(
+                        context: context,
+                        provider: provider,
+                        size: size,
+                        record: record,
+                        localize: localize,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                          left: 15,
+                          right: 20,
+                          top: 10,
+                          bottom: 10,
                         ),
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            left: 15,
-                            right: 20,
-                            top: 10,
-                            bottom: 10,
-                          ),
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(kRadius_5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    record.image,
-                                    scale: 7,
-                                  ),
-                                  SizedBox(width: size.width * 0.05),
-                                  Text(record.time.split(' ')[1]),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          text:
-                                              '${provider.getCapacityUnit == 0 ? record.amount.toStringAsFixed(0) : mlToFlOz(record.amount).toStringAsFixed(1)} ',
-                                        ),
-                                        TextSpan(
-                                          text: kCapacityUnitStrings[provider.getCapacityUnit],
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
-                                      ],
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(kRadius_5),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Image.asset(
+                                  record.image,
+                                  scale: 7,
+                                ),
+                                SizedBox(width: size.width * 0.05),
+                                Text(record.time.split(' ')[1]),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
                                     ),
-                                  ),
-                                  SizedBox(width: size.width * 0.08),
-                                  Column(
-                                    children: const [
-                                      Icon(Icons.water_drop, size: 5),
-                                      Icon(Icons.water_drop, size: 5),
-                                      Icon(Icons.water_drop, size: 5),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text:
+                                            '${provider.getCapacityUnit == 0 ? record.amount.toStringAsFixed(0) : Functions.mlToFlOz(record.amount).toStringAsFixed(1)} ',
+                                      ),
+                                      TextSpan(
+                                        text: kCapacityUnitStrings[provider.getCapacityUnit],
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                                SizedBox(width: size.width * 0.08),
+                                Column(
+                                  children: const [
+                                    Icon(Icons.water_drop, size: 4),
+                                    Icon(Icons.water_drop, size: 4),
+                                    Icon(Icons.water_drop, size: 4),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    record != provider.getRecords.first
-                        ? Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 5),
-                              child: Column(
-                                children: const [
-                                  Icon(Icons.water_drop, size: 5, color: Colors.black54),
-                                  SizedBox(height: 5),
-                                  Icon(Icons.water_drop, size: 5, color: Colors.black54),
-                                  SizedBox(height: 5),
-                                  Icon(Icons.water_drop, size: 5, color: Colors.black54),
-                                ],
-                              ),
+                  ),
+                  record != provider.getRecords.first
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 2),
+                            child: Column(
+                              children: const [
+                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                                SizedBox(height: 3),
+                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                                SizedBox(height: 3),
+                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                                SizedBox(height: 3),
+                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
+                              ],
                             ),
-                          )
-                        : const SizedBox(),
-                  ],
-                ))
+                          ),
+                        )
+                      : const SizedBox(),
+                ],
+              ),
+            )
             .toList()
             .reversed
             .toList(),

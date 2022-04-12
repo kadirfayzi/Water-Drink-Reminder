@@ -50,7 +50,8 @@ class _DailyWaterIntakeState extends State<DailyWaterIntake> {
                   WavyAnimatedText(
                     widget.provider.getCapacityUnit == 0
                         ? widget.provider.getIntakeGoalAmount.toStringAsFixed(0)
-                        : mlToFlOz(widget.provider.getIntakeGoalAmount).toStringAsFixed(0),
+                        : Functions.mlToFlOz(widget.provider.getIntakeGoalAmount)
+                            .toStringAsFixed(0),
                     textStyle: TextStyle(
                       fontSize: widget.size.width * 0.15,
                       fontWeight: FontWeight.w500,

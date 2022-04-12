@@ -39,19 +39,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     provider.setBedTime(23, 0);
     provider.addDrankAmount = 0;
     if (provider.getChartDataList.isEmpty) {
-      int currentMonthDaysCount = getCurrentMonthDaysCount(now: now);
-      // int previousMonthDaysCount = getMonthDaysCount(year: now.year, month: now.month - 1);
-      // for (int i = 1; i <= previousMonthDaysCount; i++) {
-      //   provider.addToChartData(
-      //     day: i,
-      //     month: now.month - 1,
-      //     year: now.year,
-      //     drankAmount: 0,
-      //     intakeGoalAmount: 2800,
-      //     recordCount: 0,
-      //     addMonth: true,
-      //   );
-      // }
+      int currentMonthDaysCount = Functions.getCurrentMonthDaysCount(now: now);
       for (int i = 1; i <= currentMonthDaysCount; i++) {
         provider.addToChartData(
           day: i,

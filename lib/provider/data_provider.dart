@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:water_reminder/boxes.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
@@ -57,7 +58,7 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get getSoundValue => Boxes.getSoundValue().values.first;
+  int get getSelectedSoundValue => Boxes.getSoundValue().values.first;
 
   /// /// /// /// /// /// /// ///
   /// Weight unit 0 = kg, 1 = lbs
@@ -130,8 +131,9 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get getWeight =>
-      getWeightUnit == 0 ? Boxes.getWeight().values.first : kgToLbs(Boxes.getWeight().values.first);
+  int get getWeight => getWeightUnit == 0
+      ? Boxes.getWeight().values.first
+      : Functions.kgToLbs(Boxes.getWeight().values.first);
 
   /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ////
   /// Temporary weight for initial preferences step containers section
@@ -308,7 +310,7 @@ class DataProvider extends ChangeNotifier {
         drankAmount: drankAmount,
         day: day,
         percent: amountPercent,
-        weekNumber: weekNumber(DateTime.now()),
+        weekNumber: Functions.weekNumber(DateTime.now()),
       ),
     );
 
@@ -376,4 +378,12 @@ class DataProvider extends ChangeNotifier {
   }
 
   bool get getMainStateInitialized => mainStateInitialized;
+
+  PackageInfo? _packageInfo;
+  set setPackageInfo(PackageInfo packageInfo) {
+    _packageInfo = packageInfo;
+    notifyListeners();
+  }
+
+  PackageInfo? get getPackageInfo => _packageInfo;
 }

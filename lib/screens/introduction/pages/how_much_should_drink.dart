@@ -67,7 +67,7 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
                       ),
                       SizedBox(height: widget.size.height * 0.01),
                       Text(
-                        '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
+                        '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : Functions.mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
                         ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}',
                         style: TextStyle(
                           color: Colors.white,
@@ -104,7 +104,7 @@ class _HowMuchShouldDrinkState extends State<HowMuchShouldDrink> {
           ),
           Text(
             widget.localize.eachTime(
-                '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
+                '~ ${widget.provider.getCapacityUnit == 0 ? howMuchEachTime : Functions.mlToFlOz(howMuchEachTime.toDouble()).toStringAsFixed(0)}'
                 ' ${kCapacityUnitStrings[widget.provider.getCapacityUnit]}'),
             style: TextStyle(
               fontSize: widget.size.width * 0.05,

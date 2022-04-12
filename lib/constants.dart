@@ -18,7 +18,12 @@ List<Cup> kCups = [
   Cup(capacity: 300, image: 'assets/images/cups/300-128.png', selected: false),
 ];
 
-const List<String> kSounds = ['Water pouring', 'Water drop 1', 'Water drop 2'];
+const List<String> kSounds = [
+  'Text message - Water Drop',
+  'Water drop 1',
+  'Water drop 2',
+  'Water drop 3'
+];
 
 const kRadius_5 = Radius.circular(5);
 const kRadius_10 = Radius.circular(10);

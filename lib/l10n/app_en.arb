@@ -93,5 +93,7 @@
   "howToDrinkWaterCorrectly": "How to drink water correctly ?",
   "close": "Close",
   "areYouSureYouWantToClearAllRecords": "Are you sure you want to clear all records ?",
-  "tips": "Drink your glass of water slowly with some small sips.Hold the water in your mouth for a while before swallowing.Drinking water in a sitting posture is better than drinking in a standing or running.Do not drink very cold or icy water.Do not drink water immediately after eating.Do not drink cold water immediately after hot drinks like tea or coffee.Do not drink water immediately after urinating"
+  "tips": "Drink your glass of water slowly with some small sips.Hold the water in your mouth for a while before swallowing.Drinking water in a sitting posture is better than drinking in a standing or running.Do not drink very cold or icy water.Do not drink water immediately after eating.Do not drink cold water immediately after hot drinks like tea or coffee.Do not drink water immediately after urinating",
+  "notificationTitle": "It's time to drink water!",
+  "notificationBody": "After drinking, touch the cup to confirm"
 }

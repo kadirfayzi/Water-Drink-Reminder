@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:water_reminder/widgets/glassmorphism.dart';
+import 'constants.dart' show kPrimaryColor;
 import 'models/bed_time.dart';
 import 'models/chart_data.dart';
 import 'models/cup.dart';
@@ -21,8 +21,6 @@ import 'screens/home/home_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/initial/welcome_screen.dart';
 import 'services/notification_service.dart';
-import 'widgets/build_appbar.dart';
-import 'widgets/custom_tab.dart';
 import 'functions.dart';
 import 'l10n/l10n.dart';
 
@@ -101,23 +99,23 @@ class _MyAppState extends State<MyApp> {
         builder: (context, provider, _) {
           timer?.cancel();
           timer = Timer.periodic(
-            const Duration(seconds: 10),
+            const Duration(seconds: 15),
             (_) {
-              provider.setNextDrinkTime = calculateNextDrinkTime(
+              provider.setNextDrinkTime = Functions.calculateNextDrinkTime(
                 scheduleRecords: provider.getScheduleRecords,
               );
-              removeAllRecordsIfDayChanges(provider: provider);
-              removeWeekDataIfWeekChanges(provider: provider);
-              resetMonthlyChartDataIfMonthChanges(provider: provider);
+              Functions.removeAllRecordsIfDayChanges(provider: provider);
+              Functions.removeWeekDataIfWeekChanges(provider: provider);
+              Functions.resetMonthlyChartDataIfMonthChanges(provider: provider);
             },
           );
 
           return MaterialApp(
-            title: 'Water Drink Reminder',
+            title: 'Drink Water Reminder',
             theme: ThemeData(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              // primaryColor: kPrimaryColor,
+              fontFamily: 'Ubuntu',
             ),
 
             debugShowCheckedModeBanner: false,
@@ -133,11 +131,22 @@ class _MyAppState extends State<MyApp> {
               ///comment off this line if there is a right to left language like arabic or persian
               // GlobalWidgetsLocalizations.delegate,
             ],
-            home: provider.getIsInitialPrefsSet ? const Home() : const WelcomeScreen(),
+            home: getHome(provider.getIsInitialPrefsSet),
             // home: const WelcomeScreen(),
           );
         },
       );
+
+  Widget getHome(bool isInitialPrefsSet) {
+    switch (isInitialPrefsSet) {
+      case true:
+        return const Home();
+      case false:
+        return const WelcomeScreen();
+      default:
+        return const Home();
+    }
+  }
 }
 
 class Home extends StatefulWidget {
@@ -147,23 +156,26 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  late final TabController _tabController;
+class _HomeState extends State<Home> with TickerProviderStateMixin, WidgetsBindingObserver {
+  late final PageController _pageController;
   late final DataProvider _provider;
+
+  int _selectedPage = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
-    _tabController = TabController(length: 3, vsync: this);
+    _pageController = PageController(initialPage: _selectedPage);
     _provider = Provider.of<DataProvider>(context, listen: false);
+    PackageInfo.fromPlatform().then((value) => _provider.setPackageInfo = value);
 
     Future.delayed(Duration.zero, () {
       _provider.setNextDrinkTime =
-          calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
-      removeAllRecordsIfDayChanges(provider: _provider);
-      removeWeekDataIfWeekChanges(provider: _provider);
-      resetMonthlyChartDataIfMonthChanges(provider: _provider);
+          Functions.calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
+      Functions.removeAllRecordsIfDayChanges(provider: _provider);
+      Functions.removeWeekDataIfWeekChanges(provider: _provider);
+      Functions.resetMonthlyChartDataIfMonthChanges(provider: _provider);
       _provider.setMainStateInitialized = true;
     });
   }
@@ -171,7 +183,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
   @override
   void dispose() {
     WidgetsBinding.instance?.removeObserver(this);
-    _tabController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -196,59 +208,100 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localize = AppLocalizations.of(context)!;
-    final appBar = BuildAppBar(
-      bottom: TabBar(
-        indicatorColor: Colors.black,
-        labelColor: Colors.black,
-        unselectedLabelColor: Colors.black54,
-        controller: _tabController,
-        tabs: [
-          CustomTab(icon: Icons.water_drop, title: localize.home),
-          CustomTab(icon: Icons.bar_chart, title: localize.statistics),
-          CustomTab(icon: Icons.settings, title: localize.settings),
-        ],
-      ),
-    );
-
-    final double appBarHeight =
-        Platform.isAndroid ? appBar.preferredSize.height * 1.4 : appBar.preferredSize.height * 1.7;
+    final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: appBar,
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: GlassmorphicContainer(
-          blur: 25,
-          borderRadius: BorderRadius.zero,
-          linearGradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.1),
-              Colors.white.withOpacity(0.05),
-            ],
-            stops: const [0.1, 1],
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(top: appBarHeight),
-            child: TabBarView(
-              controller: _tabController,
-              children: const [
-                HomeScreen(),
-                StatisticsScreen(),
-                SettingsScreen(),
-              ],
+      // extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: Size(double.infinity, size.height * 0.05),
+        child: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          elevation: 0.5,
+          backgroundColor: Colors.grey.shade50,
+          title: Center(
+            child: Text(
+              getAppBarTitle(_selectedPage, localize),
+              style: TextStyle(
+                fontSize: size.width * 0.05,
+                color: kPrimaryColor,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
       ),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background4.png'),
+            fit: BoxFit.cover,
+            opacity: 0.3,
+          ),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (page) => setState(() => _selectedPage = page),
+            children: const [
+              HomeScreen(),
+              StatisticsScreen(),
+              SettingsScreen(),
+            ],
+          ),
+        ),
+      ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        elevation: 5,
+        currentIndex: _selectedPage,
+        onTap: (page) => _pageController.animateToPage(
+          page,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+        ),
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.water_drop),
+            label: localize.home,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.bar_chart),
+            label: localize.statistics,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.settings),
+            label: localize.settings,
+          ),
+        ],
+      ),
       resizeToAvoidBottomInset: true,
     );
+  }
+
+  Widget getSelectedPage(int page) {
+    switch (page) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const StatisticsScreen();
+      case 2:
+        return const SettingsScreen();
+      default:
+        return const HomeScreen();
+    }
+  }
+
+  String getAppBarTitle(int page, AppLocalizations localize) {
+    switch (page) {
+      case 0:
+        return 'Drink Water Reminder';
+      case 1:
+        return localize.statistics;
+      case 2:
+        return localize.settings;
+      default:
+        return '';
+    }
   }
 }

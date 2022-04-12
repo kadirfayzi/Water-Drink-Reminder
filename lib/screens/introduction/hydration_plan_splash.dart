@@ -11,31 +11,35 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../widgets/liquid_progress_indicator/liquid_linear_progress_indicator.dart';
 
 class HydrationPlanSplash extends StatefulWidget {
-  const HydrationPlanSplash({Key? key}) : super(key: key);
-
+  const HydrationPlanSplash({
+    Key? key,
+    required this.provider,
+    required this.localize,
+    required this.size,
+  }) : super(key: key);
+  final DataProvider provider;
+  final AppLocalizations localize;
+  final Size size;
   @override
   State<HydrationPlanSplash> createState() => _HydrationPlanSplashState();
 }
 
 class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerProviderStateMixin {
   late AnimationController _animationController;
-
-  late final DataProvider _provider;
   late final NotificationHelper _notificationHelper;
   late final Random _random;
 
   setHydrationPlan() {
-    _provider = DataProvider();
     _notificationHelper = NotificationHelper();
     _random = Random();
 
     /// Set initial schedule records
-    int wakeUpHour = _provider.getWakeUpTimeHour;
-    int minute = _provider.getWakeUpTimeMinute;
-    int bedHour = _provider.getBedTimeHour;
+    int wakeUpHour = widget.provider.getWakeUpTimeHour;
+    int minute = widget.provider.getWakeUpTimeMinute;
+    int bedHour = widget.provider.getBedTimeHour;
     if (wakeUpHour >= bedHour) bedHour += 24;
 
-    int reminderCount = calculateReminderCount(
+    int reminderCount = Functions.calculateReminderCount(
       bedHour: bedHour,
       wakeUpHour: wakeUpHour,
     );
@@ -45,9 +49,9 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
         int tempWakeUpHour = wakeUpHour;
         if (wakeUpHour >= 24) tempWakeUpHour -= 24;
 
-        _provider.addScheduleRecord = ScheduleRecord(
+        widget.provider.addScheduleRecord = ScheduleRecord(
           id: _random.nextInt(1000000000),
-          time: '${twoDigits(tempWakeUpHour)}:${twoDigits(minute)}',
+          time: '${Functions.twoDigits(tempWakeUpHour)}:${Functions.twoDigits(minute)}',
           isSet: true,
         );
       }
@@ -60,23 +64,24 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
     }
 
     /// Set initial notifications
-    for (int i = 0; i < _provider.getScheduleRecords.length; i++) {
+    for (int i = 0; i < widget.provider.getScheduleRecords.length; i++) {
       _notificationHelper.scheduledNotification(
-        hour: int.parse(_provider.getScheduleRecords[i].time.split(":")[0]),
-        minutes: int.parse(_provider.getScheduleRecords[i].time.split(":")[1]),
-        id: _provider.getScheduleRecords[i].id,
+        hour: int.parse(widget.provider.getScheduleRecords[i].time.split(":")[0]),
+        minutes: int.parse(widget.provider.getScheduleRecords[i].time.split(":")[1]),
+        id: widget.provider.getScheduleRecords[i].id,
+        title: widget.localize.notificationTitle,
+        body: widget.localize.notificationBody,
         sound: 'sound2',
       );
     }
 
-    _provider.setIsInitialPrefsSet = true;
+    widget.provider.setIsInitialPrefsSet = true;
   }
 
   @override
   void initState() {
     super.initState();
-    setHydrationPlan();
-
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) => setHydrationPlan());
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4000),
@@ -95,7 +100,6 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
   @override
   Widget build(BuildContext context) {
     final percentage = _animationController.value * 100;
-    final size = MediaQuery.of(context).size;
 
     if (percentage.toStringAsFixed(0) == '100') {
       _animationController.stop();
@@ -105,7 +109,11 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
           (_) => Navigator.pushAndRemoveUntil(
               context,
               CupertinoPageRoute(
-                builder: (context) => const IntroductionScreen(),
+                builder: (context) => IntroductionScreen(
+                  size: widget.size,
+                  provider: widget.provider,
+                  localize: widget.localize,
+                ),
               ),
               (route) => false),
         ),
@@ -126,17 +134,17 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: size.width * 0.95,
+              width: widget.size.width * 0.95,
               child: Text(
-                AppLocalizations.of(context)!.genHydraPlan,
+                widget.localize.genHydraPlan,
                 style: TextStyle(
-                  fontSize: size.width * 0.05,
+                  fontSize: widget.size.width * 0.05,
                   color: _animationController.value < 0.75 ? Colors.blue : Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: size.height * 0.05),
+            SizedBox(height: widget.size.height * 0.05),
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[100],
@@ -145,23 +153,25 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Image.asset(
-                  _provider.getGender == 0 ? 'assets/images/boy.png' : 'assets/images/girl.png',
+                  widget.provider.getGender == 0
+                      ? 'assets/images/boy.png'
+                      : 'assets/images/girl.png',
                   scale: 4,
                 ),
               ),
             ),
-            SizedBox(height: size.height * 0.05),
+            SizedBox(height: widget.size.height * 0.05),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
                   width: percentage.toStringAsFixed(0) != '100'
-                      ? size.width * 0.275
-                      : size.width * 0.35,
+                      ? widget.size.width * 0.275
+                      : widget.size.width * 0.35,
                   child: Text(
                     percentage.toStringAsFixed(0),
                     style: TextStyle(
-                      fontSize: size.width * 0.185,
+                      fontSize: widget.size.width * 0.185,
                       color: _animationController.value < 0.35 ? Colors.blue : Colors.black,
                       fontWeight: FontWeight.w600,
                     ),
@@ -170,7 +180,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
                 Text(
                   '%',
                   style: TextStyle(
-                    fontSize: size.width * 0.185,
+                    fontSize: widget.size.width * 0.185,
                     color: _animationController.value < 0.3 ? Colors.blue : Colors.black,
                     fontWeight: FontWeight.w600,
                   ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart' show AppLocalizations;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:water_reminder/l10n/l10n.dart';
@@ -19,16 +18,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  PackageInfo? _packageInfo;
-
-  setPackageInfo() =>
-      PackageInfo.fromPlatform().then((value) => setState(() => _packageInfo = value));
-  @override
-  void initState() {
-    super.initState();
-    setPackageInfo();
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -38,16 +27,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildTitle(
+            BuildTitle(
               size: size,
               title: localize.reminderSettings,
             ),
 
             /// Reminder schedule section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.reminderSchedule,
-              icon: Icons.schedule,
+              icon: const Icon(Icons.schedule, color: Colors.grey, size: 20),
               onTap: () => reminderSchedulePopup(
                 context: context,
                 provider: provider,
@@ -57,10 +46,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Reminder sound section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.reminderSound,
-              icon: Icons.music_note_outlined,
+              icon: const Icon(Icons.notifications_active_outlined, color: Colors.grey, size: 20),
               onTap: () => setSoundPopup(
                 context: context,
                 provider: provider,
@@ -69,13 +58,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            buildTitle(size: size, title: localize.general),
+            BuildTitle(size: size, title: localize.general),
 
             /// Unit section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.unit,
-              icon: Icons.ad_units_outlined,
+              icon: const Icon(Icons.ad_units_outlined, color: Colors.grey, size: 20),
               content: Text(
                 '${kWeightUnitStrings[provider.getWeightUnit]}, ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                 style: const TextStyle(
@@ -94,12 +83,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Intake goal section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.intakeGoal,
-              icon: Icons.water,
+              icon: const Icon(Icons.flag_outlined, color: Colors.grey, size: 20),
               content: Text(
-                '${provider.getCapacityUnit == 0 ? (provider.getIntakeGoalAmount).toStringAsFixed(0) : mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)}'
+                '${provider.getCapacityUnit == 0 ? (provider.getIntakeGoalAmount).toStringAsFixed(0) : Functions.mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)}'
                 ' ${kCapacityUnitStrings[provider.getCapacityUnit]}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
@@ -117,10 +106,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Language section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.langWordTranslate,
-              icon: Icons.language,
+              icon: const Icon(Icons.language, color: Colors.grey, size: 20),
               content: Row(
                 children: [
                   Text(
@@ -153,13 +142,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: size.height * 0.01),
 
             /// Personal information section
-            buildTitle(size: size, title: localize.personalInformation),
+            BuildTitle(size: size, title: localize.personalInformation),
 
             /// Gender section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.gender,
-              icon: provider.getGender == 0 ? Icons.male : Icons.female,
+              icon: Stack(
+                children: const [
+                  Positioned(
+                    top: -4,
+                    left: 2,
+                    child: Icon(
+                      Icons.male,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    child: Icon(
+                      Icons.female,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
               content: Text(
                 provider.getGender == 0 ? localize.male : localize.female,
                 style: const TextStyle(
@@ -178,10 +186,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Weight section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.weight,
-              icon: Icons.line_weight,
+              icon: const Icon(Icons.scale_outlined, color: Colors.grey, size: 20),
               content: Text(
                 '${provider.getWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
                 style: const TextStyle(
@@ -200,12 +208,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Wake-up time section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.wakeUpTime,
-              icon: Icons.timer_outlined,
+              icon: const Icon(Icons.timer_outlined, color: Colors.grey, size: 20),
               content: Text(
-                '${twoDigits(provider.getWakeUpTimeHour)}:${twoDigits(provider.getWakeUpTimeMinute)}',
+                '${Functions.twoDigits(provider.getWakeUpTimeHour)}:${Functions.twoDigits(provider.getWakeUpTimeMinute)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -225,12 +233,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Bed time section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.bedTime,
-              icon: Icons.bedtime_outlined,
+              icon: const Icon(Icons.bedtime_outlined, color: Colors.grey, size: 20),
               content: Text(
-                '${twoDigits(provider.getBedTimeHour)}:${twoDigits(provider.getBedTimeMinute)}',
+                '${Functions.twoDigits(provider.getBedTimeHour)}:${Functions.twoDigits(provider.getBedTimeMinute)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -249,19 +257,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            buildTitle(size: size, title: localize.other),
+            BuildTitle(size: size, title: localize.other),
 
             /// Feedback section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.feedback,
-              icon: Icons.feedback_outlined,
+              icon: const Icon(Icons.feedback_outlined, color: Colors.grey, size: 20),
               onTap: () async {
                 final Uri params = Uri(
                   scheme: 'mailto',
                   path: kEmail,
                   query:
-                      'subject=${_packageInfo?.appName}&body=${localize.appVersion} ${_packageInfo?.version}',
+                      'subject=${provider.getPackageInfo?.appName}&body=${localize.appVersion} ${provider.getPackageInfo?.version}',
                 );
 
                 var url = params.toString();
@@ -274,24 +282,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             /// Rate app section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.rateApp,
-              icon: Icons.star_border,
+              icon: const Icon(Icons.star_border, color: Colors.grey, size: 20),
             ),
 
             /// Share section
-            buildTappableRow(
+            BuildTappableRow(
               size: size,
               title: localize.shareApp,
-              icon: Icons.share,
+              icon: const Icon(Icons.share, color: Colors.grey, size: 20),
               onTap: () => Share.share('check out my website https://example.com',
                   subject: 'Look what I made!'),
             ),
 
             SizedBox(height: size.height * 0.05),
             Center(
-              child: Text('${localize.version} ${_packageInfo?.version}'),
+              child: Text('${localize.version} ${provider.getPackageInfo?.version}'),
             ),
             SizedBox(height: size.height * 0.08),
           ],

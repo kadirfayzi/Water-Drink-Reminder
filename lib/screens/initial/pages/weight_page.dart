@@ -69,14 +69,16 @@ class _WeightPageState extends State<WeightPage> {
                           widget.provider.setTempWeight = weight;
                           if (widget.provider.getWeightUnit == 0) {
                             widget.provider.setWeight = weight;
-                            widget.provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+                            widget.provider.setIntakeGoalAmount =
+                                Functions.calculateIntakeGoalAmount(
                               weight: weight,
                               gender: widget.provider.getGender,
                             );
                           } else {
-                            int convertedWeight = lbsToKg(weight);
+                            int convertedWeight = Functions.lbsToKg(weight);
                             widget.provider.setWeight = convertedWeight;
-                            widget.provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+                            widget.provider.setIntakeGoalAmount =
+                                Functions.calculateIntakeGoalAmount(
                               weight: convertedWeight,
                               gender: widget.provider.getGender,
                             );

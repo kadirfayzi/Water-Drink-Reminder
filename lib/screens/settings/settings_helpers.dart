@@ -13,83 +13,103 @@ import 'package:water_reminder/l10n/l10n.dart';
 import '../../widgets/elevated_container.dart';
 
 /// Build Custom Title For Settings
-Widget buildTitle({
-  required Size size,
-  required String title,
-}) =>
-    Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[500],
-              fontSize: 15,
+class BuildTitle extends StatelessWidget {
+  const BuildTitle({
+    Key? key,
+    required this.size,
+    required this.title,
+  }) : super(key: key);
+
+  final Size size;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[500],
+                fontSize: 15,
+              ),
             ),
-          ),
-          SizedBox(height: size.height * 0.0125),
-          Container(
-            width: size.width * 0.4,
-            height: 0.625,
-            color: Colors.grey[400],
-          ),
-        ],
-      ),
-    );
+            SizedBox(height: size.height * 0.0125),
+            Container(
+              width: size.width * 0.4,
+              height: 0.625,
+              color: Colors.grey[400],
+            ),
+          ],
+        ),
+      );
+}
 
 /// Build custom inkwell for setting's item
-Widget buildTappableRow({
-  required Size size,
-  required String title,
-  required IconData icon,
-  Widget? content,
-  bool contentVisible = false,
-  Function()? onTap,
-}) =>
-    Material(
-      color: Colors.transparent,
-      child: InkWell(
-        highlightColor: Colors.grey.shade300,
-        splashColor: Colors.grey.shade300,
-        onTap: onTap,
-        child: Container(
-          height: size.height * 0.06,
-          width: size.width,
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, color: Colors.grey, size: 20),
-                    const SizedBox(width: 10),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+class BuildTappableRow extends StatelessWidget {
+  const BuildTappableRow({
+    Key? key,
+    required this.size,
+    required this.title,
+    required this.icon,
+    this.content,
+    this.contentVisible = false,
+    this.onTap,
+  }) : super(key: key);
+
+  final Size size;
+  final String title;
+  final Widget icon;
+  final Widget? content;
+  final bool contentVisible;
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          highlightColor: Colors.grey.shade300,
+          splashColor: Colors.grey.shade300,
+          onTap: onTap,
+          child: Container(
+            height: size.height * 0.06,
+            width: size.width,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      icon,
+                      const SizedBox(width: 10),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                contentVisible
-                    ? content!
-                    : const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 15,
-                        color: Colors.grey,
-                      ),
-              ],
+                    ],
+                  ),
+                  contentVisible
+                      ? content!
+                      : const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 15,
+                          color: Colors.grey,
+                        ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+}
 
 /// Reminder schedule popup dialog
 Future<dynamic> reminderSchedulePopup({
@@ -160,7 +180,9 @@ Future<dynamic> reminderSchedulePopup({
                                                 .getScheduleRecords[index].time
                                                 .split(":")[1]),
                                             id: provider.getScheduleRecords[index].id,
-                                            sound: 'sound${provider.getSoundValue}',
+                                            title: localize.notificationTitle,
+                                            body: localize.notificationBody,
+                                            sound: 'sound${provider.getSelectedSoundValue}',
                                           );
                                         }
 
@@ -248,7 +270,7 @@ Future<dynamic> reminderSchedulePopup({
   );
 }
 
-/// Set sound popup dialog
+/// Set reminder sound popup dialog
 Future<dynamic> setSoundPopup({
   required BuildContext context,
   required DataProvider provider,
@@ -257,7 +279,7 @@ Future<dynamic> setSoundPopup({
 }) {
   final AudioPlayer _player = AudioPlayer();
   final NotificationHelper _notificationHelper = NotificationHelper();
-  int selectedSoundValue = provider.getSoundValue;
+  int selectedSoundValue = provider.getSelectedSoundValue;
   return showCupertinoModalPopup(
     context: context,
     builder: (BuildContext context) => StatefulBuilder(
@@ -321,14 +343,19 @@ Future<dynamic> setSoundPopup({
               onPressed: () {
                 _notificationHelper.cancelAll();
                 provider.setSoundValue = selectedSoundValue;
-                for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                  _notificationHelper.scheduledNotification(
-                    hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
-                    minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
-                    id: provider.getScheduleRecords[i].id,
-                    sound: 'sound$selectedSoundValue',
-                  );
+                if (provider.getScheduleRecords.isNotEmpty) {
+                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                    _notificationHelper.scheduledNotification(
+                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                      id: provider.getScheduleRecords[i].id,
+                      title: localize.notificationTitle,
+                      body: localize.notificationBody,
+                      sound: 'sound$selectedSoundValue',
+                    );
+                  }
                 }
+
                 Navigator.pop(context);
               },
               child: Text(localize.save),
@@ -469,7 +496,7 @@ Future<dynamic> setIntakeGoalPopup({
                         Text(
                           provider.getCapacityUnit == 0
                               ? intakeGoalValue.toStringAsFixed(0)
-                              : mlToFlOz(intakeGoalValue).toStringAsFixed(0),
+                              : Functions.mlToFlOz(intakeGoalValue).toStringAsFixed(0),
                           style: const TextStyle(fontSize: 30, color: kPrimaryColor),
                         ),
                         Text(
@@ -479,7 +506,7 @@ Future<dynamic> setIntakeGoalPopup({
                         SizedBox(width: size.width * 0.05),
                         InkWell(
                           onTap: () => setState(
-                            () => intakeGoalValue = calculateIntakeGoalAmount(
+                            () => intakeGoalValue = Functions.calculateIntakeGoalAmount(
                               weight: provider.getWeight,
                               gender: provider.getGender,
                             ),
@@ -518,9 +545,9 @@ Future<dynamic> setIntakeGoalPopup({
                                 max: 10000,
                               )
                             : CupertinoSlider(
-                                value: mlToFlOz(intakeGoalValue),
+                                value: Functions.mlToFlOz(intakeGoalValue),
                                 onChanged: (value) {
-                                  setState(() => intakeGoalValue = flOzToMl(value));
+                                  setState(() => intakeGoalValue = Functions.flOzToMl(value));
                                 },
                                 min: 16,
                                 max: 338,
@@ -556,11 +583,12 @@ Future<dynamic> setLanguagePopup({
   required Size size,
   required AppLocalizations localize,
 }) {
-  List<String> languages = ['English', 'Türkçe', 'Español', 'Deutsch'];
+  final NotificationHelper _notificationHelper = NotificationHelper();
   String selectedLangCode = provider.getLangCode;
+
   return showCupertinoModalPopup(
     context: context,
-    builder: (BuildContext context) => StatefulBuilder(
+    builder: (context) => StatefulBuilder(
       builder: (context, setState) => Dismissible(
         key: const Key('key'),
         direction: DismissDirection.vertical,
@@ -569,30 +597,46 @@ Future<dynamic> setLanguagePopup({
           title: Text(localize.selectLanguage),
           actions: [
             Column(
-              children: List.generate(
-                L10n.all.length,
-                (index) => Container(
-                  color: selectedLangCode == L10n.all[index].languageCode
-                      ? Colors.white
-                      : Colors.grey.shade200,
-                  child: CupertinoActionSheetAction(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(languages[index]),
-                        Text(L10n.getFlag(L10n.all[index].languageCode)),
-                      ],
-                    ),
-                    onPressed: () =>
-                        setState(() => selectedLangCode = L10n.all[index].languageCode),
-                  ),
-                ),
-              ),
+              children: L10n.all
+                  .map((e) => Container(
+                        color: selectedLangCode == e.languageCode
+                            ? Colors.white
+                            : Colors.grey.shade200,
+                        child: CupertinoActionSheetAction(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(L10n.getName(e.languageCode)),
+                                Text(L10n.getFlag(e.languageCode)),
+                              ],
+                            ),
+                          ),
+                          onPressed: () => setState(() => selectedLangCode = e.languageCode),
+                        ),
+                      ))
+                  .toList(),
             ),
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
+                _notificationHelper.cancelAll();
                 provider.setLangCode = selectedLangCode;
+
+                if (provider.getScheduleRecords.isNotEmpty) {
+                  for (int i = 0; i < provider.getScheduleRecords.length; i++) {
+                    _notificationHelper.scheduledNotification(
+                      hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
+                      minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
+                      id: provider.getScheduleRecords[i].id,
+                      title: L10n.getNotificationTitle(selectedLangCode),
+                      body: L10n.getNotificationBody(selectedLangCode),
+                      sound: 'sound${provider.getSelectedSoundValue}',
+                    );
+                  }
+                }
+
                 Navigator.pop(context);
               },
             ),
@@ -697,7 +741,7 @@ Future<dynamic> genderSelectionPopup({
             CupertinoActionSheetAction(
               onPressed: () {
                 provider.setGender = genderValue;
-                provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+                provider.setIntakeGoalAmount = Functions.calculateIntakeGoalAmount(
                   weight: provider.getWeight,
                   gender: genderValue,
                 );
@@ -764,9 +808,9 @@ Future<dynamic> weightSelectionPopup({
           CupertinoActionSheetAction(
             child: Text(localize.save),
             onPressed: () {
-              if (provider.getWeightUnit == 1) weight = kgToLbs(weight);
+              if (provider.getWeightUnit == 1) weight = Functions.kgToLbs(weight);
               provider.setWeight = weight;
-              provider.setIntakeGoalAmount = calculateIntakeGoalAmount(
+              provider.setIntakeGoalAmount = Functions.calculateIntakeGoalAmount(
                 weight: weight,
                 gender: provider.getGender,
               );
@@ -867,7 +911,7 @@ Future<dynamic> wakeupAndBedtimePopup({
 
                 if (wakeUpHour >= bedHour) bedHour += 24;
 
-                int reminderCount = calculateReminderCount(
+                int reminderCount = Functions.calculateReminderCount(
                   bedHour: bedHour,
                   wakeUpHour: wakeUpHour,
                 );
@@ -879,7 +923,8 @@ Future<dynamic> wakeupAndBedtimePopup({
 
                     provider.addScheduleRecord = ScheduleRecord(
                       id: _random.nextInt(1000000000),
-                      time: '${twoDigits(tempWakeUpHour)}:${twoDigits(wakeUpMinute)}',
+                      time:
+                          '${Functions.twoDigits(tempWakeUpHour)}:${Functions.twoDigits(wakeUpMinute)}',
                       isSet: true,
                     );
                   }
@@ -897,7 +942,9 @@ Future<dynamic> wakeupAndBedtimePopup({
                     hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
                     minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
                     id: provider.getScheduleRecords[i].id,
-                    sound: 'sound${provider.getSoundValue}',
+                    title: localize.notificationTitle,
+                    body: localize.notificationBody,
+                    sound: 'sound${provider.getSelectedSoundValue}',
                   );
                 }
                 Navigator.pop(context);
@@ -975,7 +1022,7 @@ Future<dynamic> setReminderTimePopup({
                 /// Add new schedule record
                 provider.addScheduleRecord = ScheduleRecord(
                   id: id,
-                  time: '${twoDigits(_time.hour)}:${twoDigits(_time.minute)}',
+                  time: '${Functions.twoDigits(_time.hour)}:${Functions.twoDigits(_time.minute)}',
                   isSet: true,
                 );
 
@@ -984,7 +1031,9 @@ Future<dynamic> setReminderTimePopup({
                   hour: _time.hour,
                   minutes: _time.minute,
                   id: id,
-                  sound: 'sound${provider.getSoundValue}',
+                  title: localize.notificationTitle,
+                  body: localize.notificationBody,
+                  sound: 'sound${provider.getSelectedSoundValue}',
                 );
                 Navigator.pop(context);
               },

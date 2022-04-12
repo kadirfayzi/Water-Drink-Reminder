@@ -51,28 +51,26 @@ class LiquidCircularProgressIndicator extends ProgressIndicator {
 
 class _LiquidCircularProgressIndicatorState extends State<LiquidCircularProgressIndicator> {
   @override
-  Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: _CircleClipper(),
-      child: CustomPaint(
-        painter: _CirclePainter(color: widget._getBackgroundColor(context)),
-        foregroundPainter: _CircleBorderPainter(
-          color: widget.borderColor,
-          width: widget.borderWidth,
+  Widget build(BuildContext context) => ClipPath(
+        clipper: _CircleClipper(),
+        child: CustomPaint(
+          painter: _CirclePainter(color: widget._getBackgroundColor(context)),
+          foregroundPainter: _CircleBorderPainter(
+            color: widget.borderColor,
+            width: widget.borderWidth,
+          ),
+          child: Stack(
+            children: [
+              Wave(
+                value: widget.value,
+                color: widget._getValueColor(context),
+                direction: widget.direction,
+              ),
+              if (widget.center != null) Center(child: widget.center),
+            ],
+          ),
         ),
-        child: Stack(
-          children: [
-            Wave(
-              value: widget.value,
-              color: widget._getValueColor(context),
-              direction: widget.direction,
-            ),
-            if (widget.center != null) Center(child: widget.center),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 }
 
 class _CirclePainter extends CustomPainter {
@@ -98,9 +96,7 @@ class _CircleBorderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (color == null || width == null) {
-      return;
-    }
+    if (color == null || width == null) return;
 
     final borderPaint = Paint()
       ..color = color!
