@@ -5,19 +5,19 @@ part 'chart_data.g.dart';
 @HiveType(typeId: 2)
 class ChartData extends HiveObject {
   @HiveField(0)
-  late int day;
+  int day;
   @HiveField(1)
-  late int month;
+  int month;
   @HiveField(2)
-  late int year;
+  int year;
   @HiveField(3)
-  late String name;
+  String name;
   @HiveField(4)
-  late double percent;
+  double percent;
   @HiveField(5)
-  late double drankAmount;
+  double drankAmount;
   @HiveField(6)
-  late int recordCount;
+  int recordCount;
 
   ChartData({
     required this.day,

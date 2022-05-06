@@ -5,13 +5,13 @@ part 'week_data.g.dart';
 @HiveType(typeId: 6)
 class WeekData extends HiveObject {
   @HiveField(0)
-  late double drankAmount;
+  double drankAmount;
   @HiveField(1)
-  late int day;
+  int day;
   @HiveField(2)
-  late double percent;
+  double percent;
   @HiveField(3)
-  late int weekNumber;
+  int weekNumber;
 
   WeekData({
     required this.drankAmount,

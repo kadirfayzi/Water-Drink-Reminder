@@ -5,11 +5,18 @@ part 'cup.g.dart';
 @HiveType(typeId: 0)
 class Cup extends HiveObject {
   @HiveField(0)
-  late double capacity;
+  double capacity;
   @HiveField(1)
-  late String image;
+  String image;
   @HiveField(2)
-  late bool selected;
+  bool selected;
+  @HiveField(3)
+  bool removable;
 
-  Cup({required this.capacity, required this.image, required this.selected});
+  Cup({
+    required this.capacity,
+    required this.image,
+    this.selected = false,
+    this.removable = false,
+  });
 }

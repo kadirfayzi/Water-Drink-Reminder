@@ -5,11 +5,11 @@ part 'schedule_record.g.dart';
 @HiveType(typeId: 3)
 class ScheduleRecord extends HiveObject {
   @HiveField(0)
-  late int id;
+  int id;
   @HiveField(1)
-  late String time;
+  String time;
   @HiveField(2)
-  late bool isSet;
+  bool isSet;
 
   ScheduleRecord({required this.id, required this.time, required this.isSet});
 }

@@ -1,6 +1,4 @@
-import 'dart:async';
-import 'package:animated_text_kit/animated_text_kit.dart'
-    show AnimatedTextKit, TypewriterAnimatedText;
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -14,435 +12,416 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/circular_slider/appearance.dart';
 import '../../widgets/circular_slider/circular_slider.dart';
-import '../../widgets/liquid_progress_indicator/liquid_circular_progress_indicator.dart'
-    show LiquidCircularProgressIndicator;
+import '../../widgets/liquid_progress_indicator/liquid_circular_progress_indicator.dart';
 import '../../widgets/odometer/odometer_number.dart';
 import '../../widgets/odometer/slide_odometer.dart';
+import 'widgets/next_time_row.dart';
+import 'widgets/records_column.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool _drinkWaterButtonPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final localize = AppLocalizations.of(context)!;
-    final localizedTips = localize.tips.split('.');
+    final List<String> localizedTips = localize.tips.split('.');
     localizedTips.shuffle();
     return Consumer<DataProvider>(
-      builder: (context, provider, _) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          child: Column(
-            children: [
-              /// Tips
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Image.asset(
-                      'assets/images/water-glass-with-light-bulb.png',
-                      scale: 1,
-                    ),
+      builder: (context, provider, _) => SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 20,
+        ),
+        child: Column(
+          children: [
+            /// Tips
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Image.asset(
+                    'assets/images/water-glass-with-light-bulb.png',
+                    scale: 1,
                   ),
-                  SizedBox(width: size.width * 0.02),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      height: size.height * 0.0865,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                          topRight: kRadius_25,
-                          bottomRight: kRadius_25,
-                          bottomLeft: kRadius_25,
-                        ),
-                        color: kPrimaryColor.withOpacity(0.1),
+                ),
+                SizedBox(width: size.width * 0.02),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    // height: size.height * 0.1,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        topRight: kRadius_25,
+                        bottomRight: kRadius_25,
+                        bottomLeft: kRadius_25,
                       ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AnimatedTextKit(
-                            repeatForever: true,
-                            pause: const Duration(seconds: 5),
-                            animatedTexts: localizedTips
-                                .map((tip) => TypewriterAnimatedText(
-                                      tip,
-                                      textStyle: TextStyle(fontSize: size.width * 0.03),
-                                      textAlign: TextAlign.center,
-                                    ))
-                                .toList(),
-                          ),
-                        ),
-                      ),
+                      color: kPrimaryColor.withOpacity(0.1),
                     ),
-                  ),
-                  SizedBox(width: size.width * 0.02),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => tipsPopup(
-                        context: context,
-                        provider: provider,
-                        size: size,
-                        localize: localize,
-                        localizedTips: localizedTips,
-                      ),
-                      child: Column(
-                        children: [
-                          Image.asset('assets/images/light.png', scale: 5),
-                          Text(
-                            localize.moreTips,
-                            style: const TextStyle(
-                              color: kPrimaryColor,
-                              fontSize: 13,
-                            ),
-                            textAlign: TextAlign.center,
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.03),
-
-              /// Daily Drink Target Circle
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  SleekCircularSlider(
-                    key: ValueKey(provider.getMainStateInitialized),
-                    appearance: CircularSliderAppearance(
-                      size: size.width * 0.785,
-                      customWidths: CustomSliderWidths(
-                        progressBarWidth: 8,
-                        trackWidth: 8,
-                        shadowWidth: 8,
-                      ),
-                      customColors: CustomSliderColors(
-                        hideShadow: true,
-                        dynamicGradient: true,
-                        progressBarColors: [
-                          Colors.blue.withOpacity(0.1),
-                          Colors.blue.withOpacity(0.5),
-                        ],
-                        trackColors: [
-                          Colors.grey.withOpacity(0.3),
-                          Colors.grey.withOpacity(0.2),
-                        ],
-                      ),
-                    ),
-                    min: 0,
-                    max: provider.getIntakeGoalAmount,
-                    initialValue: provider.getDrankAmount,
-                  ),
-                  Positioned.fill(
                     child: Center(
-                      child: ElevatedContainer(
-                        width: size.width * 0.625,
-                        height: size.width * 0.625,
-                        blurRadius: 25,
-                        shadowColor: Colors.black54,
-                        child: LiquidCircularProgressIndicator(
-                          value: provider.getDrankAmount / provider.getIntakeGoalAmount,
-                          backgroundColor: Colors.white,
-                          valueColor: provider.getDrankAmount == 0
-                              ? const AlwaysStoppedAnimation(Colors.transparent)
-                              : const AlwaysStoppedAnimation(kPrimaryColor),
-                          center: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                localize.dailyDrinkTarget,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.black,
-                                ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+                        child: AnimatedTextKit(
+                          repeatForever: true,
+                          totalRepeatCount: 1,
+                          pause: const Duration(seconds: 10),
+                          animatedTexts: localizedTips
+                              .map((tip) => TypewriterAnimatedText(
+                                    tip,
+                                    textStyle: TextStyle(fontSize: size.width * 0.035),
+                                    textAlign: TextAlign.center,
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: size.width * 0.02),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => tipsPopup(
+                      context: context,
+                      size: size,
+                      localize: localize,
+                      localizedTips: localizedTips,
+                    ),
+                    child: Column(
+                      children: [
+                        Image.asset('assets/images/light.png', scale: 5),
+                        Text(
+                          localize.moreTips,
+                          style: const TextStyle(
+                            color: kPrimaryColor,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size.height * 0.03),
+
+            /// Daily Drink Target Circle
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SleekCircularSlider(
+                  key: ValueKey(provider.getMainStateInitialized),
+                  appearance: CircularSliderAppearance(
+                    size: size.width * 0.785,
+                    customWidths: CustomSliderWidths(
+                      progressBarWidth: 8,
+                      trackWidth: 8,
+                      shadowWidth: 8,
+                    ),
+                    customColors: CustomSliderColors(
+                      hideShadow: true,
+                      dynamicGradient: true,
+                      progressBarColors: [
+                        Colors.blue.withOpacity(0.1),
+                        Colors.blue.withOpacity(0.5),
+                      ],
+                      trackColors: [
+                        Colors.grey.withOpacity(0.3),
+                        Colors.grey.withOpacity(0.2),
+                      ],
+                    ),
+                  ),
+                  min: 0,
+                  max: provider.getIntakeGoalAmount,
+                  initialValue: provider.getDrankAmount,
+                ),
+                Positioned.fill(
+                  child: Center(
+                    child: ElevatedContainer(
+                      width: size.width * 0.625,
+                      height: size.width * 0.625,
+                      blurRadius: 25,
+                      shadowColor: Colors.black54,
+                      child: LiquidCircularProgressIndicator(
+                        value: provider.getDrankAmount / provider.getIntakeGoalAmount,
+                        backgroundColor: Colors.white,
+                        valueColor: provider.getDrankAmount == 0
+                            ? const AlwaysStoppedAnimation(Colors.transparent)
+                            : const AlwaysStoppedAnimation(kPrimaryColor),
+                        center: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              localize.dailyDrinkTarget,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
                               ),
-                              SizedBox(height: size.height * 0.01),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  AnimatedSlideOdometerNumber(
+                            ),
+                            SizedBox(height: size.height * 0.01),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AnimatedSlideOdometerNumber(
+                                  odometerNumber: OdometerNumber(provider.getCapacityUnit == 0
+                                      ? provider.getDrankAmount.toInt()
+                                      : Functions.mlToFlOz(provider.getDrankAmount).toInt()),
+                                  duration: const Duration(milliseconds: 500),
+                                  letterWidth: 12,
+                                  numberTextStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: provider.getCapacityUnit == 0 ? false : true,
+                                  child: const Text(
+                                    '.',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: provider.getCapacityUnit == 0 ? false : true,
+                                  child: AnimatedSlideOdometerNumber(
                                     odometerNumber: OdometerNumber(provider.getCapacityUnit == 0
-                                        ? provider.getDrankAmount.toInt()
-                                        : Functions.mlToFlOz(provider.getDrankAmount).toInt()),
+                                        ? 0
+                                        : int.parse(Functions.mlToFlOz(provider.getDrankAmount)
+                                            .toStringAsFixed(1)
+                                            .split('.')[1])),
                                     duration: const Duration(milliseconds: 500),
-                                    letterWidth: 12,
+                                    letterWidth: 14,
                                     numberTextStyle: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 20,
                                     ),
                                   ),
-                                  Visibility(
-                                    visible: provider.getCapacityUnit == 0 ? false : true,
-                                    child: const Text(
-                                      '.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                      ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
                                     ),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text:
+                                            '/${provider.getCapacityUnit == 0 ? provider.getIntakeGoalAmount.toStringAsFixed(0) : Functions.mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)} ',
+                                      ),
+                                      TextSpan(
+                                        text: kCapacityUnitStrings[provider.getCapacityUnit],
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
                                   ),
-                                  Visibility(
-                                    visible: provider.getCapacityUnit == 0 ? false : true,
-                                    child: AnimatedSlideOdometerNumber(
-                                      odometerNumber: OdometerNumber(provider.getCapacityUnit == 0
-                                          ? 0
-                                          : int.parse(Functions.mlToFlOz(provider.getDrankAmount)
-                                              .toStringAsFixed(1)
-                                              .split('.')[1])),
-                                      duration: const Duration(milliseconds: 500),
-                                      letterWidth: 14,
-                                      numberTextStyle: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  RichText(
-                                    text: TextSpan(
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.black,
-                                      ),
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          text:
-                                              '/${provider.getCapacityUnit == 0 ? provider.getIntakeGoalAmount.toStringAsFixed(0) : Functions.mlToFlOz(provider.getIntakeGoalAmount).toStringAsFixed(0)} ',
-                                        ),
-                                        TextSpan(
-                                          text: kCapacityUnitStrings[provider.getCapacityUnit],
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                      ],
-                                    ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: size.height * 0.03),
+
+                            /// Add water button
+                            Container(
+                              width: size.width * 0.2,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 0.5,
+                                ),
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: kRadius_50,
+                                  topRight: kRadius_50,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    spreadRadius: 5,
+                                    color: Colors.black26,
+                                    offset: Offset(0.0, 1.0), //(x,y)
+                                    blurRadius: 5,
                                   ),
                                 ],
-                              ),
-                              SizedBox(height: size.height * 0.03),
-
-                              /// Add water button
-                              Container(
-                                width: size.width * 0.2,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 0.5,
-                                  ),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: kRadius_50,
-                                    topRight: kRadius_50,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      spreadRadius: _drinkWaterButtonPressed ? 0 : 5,
-                                      color: Colors.black26,
-                                      offset: const Offset(0.0, 1.0), //(x,y)
-                                      blurRadius: _drinkWaterButtonPressed ? 0 : 5,
-                                    ),
-                                  ],
-                                  gradient: const LinearGradient(
-                                    colors: [Colors.white24, Colors.white],
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    stops: [0.0, 1.0],
-                                  ),
+                                gradient: const LinearGradient(
+                                  colors: [Colors.white24, Colors.white],
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  stops: [0.0, 1.0],
                                 ),
-                                child: InkWell(
-                                  onTap: !_drinkWaterButtonPressed
-                                      ? () {
-                                          setState(() => _drinkWaterButtonPressed = true);
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  final double drankLimit = kDrankLimits[provider.getCapacityUnit];
+                                  final double drankAmount = provider.getCapacityUnit == 0
+                                      ? provider.getDrankAmount
+                                      : Functions.mlToFlOz(provider.getDrankAmount);
+                                  if (drankAmount < drankLimit) {
+                                    /// Add drunk amount
+                                    provider.addDrankAmount =
+                                        provider.getDrankAmount + provider.getSelectedCup.capacity;
 
-                                          final double drankLimit =
-                                              kDrankLimits[provider.getCapacityUnit];
-                                          final double drankAmount = provider.getCapacityUnit == 0
-                                              ? provider.getDrankAmount
-                                              : Functions.mlToFlOz(provider.getDrankAmount);
-                                          if (drankAmount < drankLimit) {
-                                            /// Add drunk amount
-                                            provider.addDrankAmount = provider.getDrankAmount +
-                                                provider.getSelectedCup.capacity;
+                                    provider.addRecord(
+                                      record: Record(
+                                        image: provider.getSelectedCup.image,
+                                        time: DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now()),
+                                        amount: provider.getSelectedCup.capacity,
+                                      ),
+                                    );
 
-                                            provider.addRecord(
-                                              record: Record(
-                                                image: provider.getSelectedCup.image,
-                                                time: DateFormat("yyyy-MM-dd HH:mm")
-                                                    .format(DateTime.now()),
-                                                amount: provider.getSelectedCup.capacity,
-                                              ),
-                                            );
+                                    provider.addToChartData(
+                                      day: DateTime.now().day,
+                                      month: DateTime.now().month,
+                                      year: DateTime.now().year,
+                                      drankAmount: provider.getDrankAmount,
+                                      intakeGoalAmount: provider.getIntakeGoalAmount,
+                                      recordCount: provider.getRecords.length,
+                                    );
 
-                                            provider.addToChartData(
-                                              day: DateTime.now().day,
-                                              month: DateTime.now().month,
-                                              year: DateTime.now().year,
-                                              drankAmount: provider.getDrankAmount,
-                                              intakeGoalAmount: provider.getIntakeGoalAmount,
-                                              recordCount: provider.getRecords.length,
-                                            );
-
-                                            provider.addToWeekData(
-                                              drankAmount: provider.getDrankAmount,
-                                              day: DateTime.now().weekday,
-                                              intakeGoalAmount: provider.getIntakeGoalAmount,
-                                            );
-                                          }
-                                          Future.delayed(
-                                            const Duration(milliseconds: 150),
-                                            () => setState(() => _drinkWaterButtonPressed = false),
-                                          );
-                                        }
-                                      : () {},
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 20,
-                                      bottom: 5,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} '
-                                          '${kCapacityUnitStrings[provider.getCapacityUnit]}',
-                                          style: const TextStyle(
+                                    provider.addToWeekData(
+                                      drankAmount: provider.getDrankAmount,
+                                      day: DateTime.now().weekday,
+                                      intakeGoalAmount: provider.getIntakeGoalAmount,
+                                    );
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 20,
+                                    bottom: 5,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} '
+                                        '${kCapacityUnitStrings[provider.getCapacityUnit]}',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      SizedBox(height: size.height * 0.01),
+                                      Stack(
+                                        children: [
+                                          Image.asset(
+                                            provider.getSelectedCup.image,
+                                            scale: 4.5,
                                             color: Colors.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
                                           ),
-                                        ),
-                                        SizedBox(height: size.height * 0.01),
-                                        Stack(
-                                          children: [
-                                            Image.asset(
-                                              provider.getSelectedCup.image,
-                                              scale: 4.5,
-                                              color: Colors.black,
-                                            ),
-                                            Container(
-                                              transform:
-                                                  getTransformValue(provider.getSelectedCup.image),
-                                              child: const Icon(Icons.add, size: 15),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                          Container(
+                                            transform:
+                                                getTransformValue(provider.getSelectedCup.image),
+                                            child: const Icon(Icons.add, size: 15),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  Positioned.fill(
-                    top: size.height * 0.1,
-                    left: size.width * -0.03,
-                    right: size.width * -0.03,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                Positioned.fill(
+                  top: size.height * 0.1,
+                  left: size.width * -0.03,
+                  right: size.width * -0.03,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        'assets/images/drop.png',
+                        color: Colors.black54,
+                        scale: 2,
+                      ),
+                      Image.asset(
+                        'assets/images/drop.png',
+                        color: kPrimaryColor,
+                        scale: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            Row(
+              children: [
+                const Expanded(flex: 1, child: SizedBox()),
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    transform: Matrix4.translationValues(0.0, -10.0, 0.0),
+                    child: Column(
                       children: [
-                        Image.asset(
-                          'assets/images/drop.png',
-                          color: Colors.black54,
-                          scale: 2,
-                        ),
-                        Image.asset(
-                          'assets/images/drop.png',
+                        const Icon(
+                          Icons.keyboard_double_arrow_up,
                           color: kPrimaryColor,
-                          scale: 2,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          localize.confirmDrankWater,
+                          style: const TextStyle(
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
 
-              Row(
-                children: [
-                  const Expanded(flex: 1, child: SizedBox()),
-                  Expanded(
-                    flex: 6,
-                    child: Container(
-                      transform: Matrix4.translationValues(0.0, -10.0, 0.0),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.keyboard_double_arrow_up,
-                            color: kPrimaryColor,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            localize.confirmDrankWater,
-                            style: const TextStyle(
-                              fontSize: 13,
+                /// Switch cup
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () => switchCupPopup(context: context, localize: localize, size: size),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ElevatedContainer(
+                          padding: const EdgeInsets.all(8.0),
+                          blurRadius: 10,
+                          child: Image.asset(provider.getSelectedCup.image, scale: 5),
+                        ),
+                        const Positioned(
+                          top: 28,
+                          left: 28,
+                          child: ElevatedContainer(
+                            blurRadius: 3.0,
+                            child: Icon(
+                              Icons.change_circle,
+                              color: kPrimaryColor,
+                              size: 18,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
+                ),
+              ],
+            ),
+            SizedBox(height: size.height * 0.05),
 
-                  /// Switch cup
-                  Expanded(
-                    flex: 1,
-                    child: GestureDetector(
-                      onTap: () => switchCupPopup(
-                        context: context,
-                        provider: provider,
-                        size: size,
-                        localize: localize,
-                      ),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          ElevatedContainer(
-                            padding: const EdgeInsets.all(8.0),
-                            blurRadius: 10,
-                            child: Image.asset(provider.getSelectedCup.image, scale: 5),
-                          ),
-                          const Positioned(
-                            top: 28,
-                            left: 28,
-                            child: ElevatedContainer(
-                              blurRadius: 3.0,
-                              child: Icon(
-                                Icons.change_circle,
-                                color: kPrimaryColor,
-                                size: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+            /// Today's records
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 8,
               ),
-              SizedBox(height: size.height * 0.05),
-
-              /// Today's records
-              Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    child: Text(
-                      localize.todaysRecords,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    localize.todaysRecords,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
 
@@ -450,48 +429,48 @@ class _HomeScreenState extends State<HomeScreen> {
                   InkWell(
                     onTap: () => addForgottenRecordPopup(
                       context: context,
-                      provider: provider,
-                      size: size,
                       localize: localize,
+                      size: size,
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                    child: const ElevatedContainer(
+                      child: Icon(
+                        Icons.add_circle,
+                        size: 30,
+                        color: kPrimaryColor,
                       ),
-                      child: Icon(Icons.add, size: 25),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: size.height * 0.01),
+            ),
+            SizedBox(height: size.height * 0.01),
 
-              Container(
-                width: size.width,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(kRadius_10),
-                  color: kPrimaryColor.withOpacity(0.1),
-                ),
-                child: Column(
-                  children: [
-                    /// Next time row
-                    nextTimeRow(size, context, provider, localize),
-                    SizedBox(height: size.height * 0.01),
-
-                    /// Records
-                    recordsColumn(provider, size, context, localize),
-                    Visibility(
-                      visible: provider.getRecords.isNotEmpty ? true : false,
-                      child: SizedBox(height: size.height * 0.02),
-                    ),
-                  ],
-                ),
+            Container(
+              width: size.width,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(kRadius_10),
+                color: kPrimaryColor.withOpacity(0.1),
               ),
-            ],
-          ),
-        );
-      },
+              child: Column(
+                children: [
+                  /// Next time row
+                  const NextTimeRow(),
+                  SizedBox(height: size.height * 0.01),
+
+                  /// Records
+                  const RecordsColumn(),
+                  Visibility(
+                    visible: provider.getRecords.isNotEmpty ? true : false,
+                    child: SizedBox(height: size.height * 0.02),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: size.height * 0.02),
+          ],
+        ),
+      ),
     );
   }
 
@@ -513,231 +492,4 @@ class _HomeScreenState extends State<HomeScreen> {
         return Matrix4.translationValues(6.0, 7.0, 0.0);
     }
   }
-
-  /// /// /// /// //
-  /// Next time row
-  /// /// /// /// //
-
-  Widget nextTimeRow(
-    Size size,
-    BuildContext context,
-    DataProvider provider,
-    AppLocalizations localize,
-  ) =>
-      Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 15),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(kRadius_5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                /// First row
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, color: Colors.grey),
-                    SizedBox(width: size.width * 0.04),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          localize.nextTime,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          provider.getNextDrinkTime,
-                          style: const TextStyle(
-                            color: kPrimaryColor,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                /// Second row
-                Row(
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text:
-                                '${provider.getCapacityUnit == 0 ? provider.getSelectedCup.capacity.toStringAsFixed(0) : Functions.mlToFlOz(provider.getSelectedCup.capacity).toStringAsFixed(1)} ',
-                          ),
-                          TextSpan(
-                            text: kCapacityUnitStrings[provider.getCapacityUnit],
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: size.width * 0.05),
-                    provider.getRecords.isNotEmpty
-                        ? IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => clearAllRecordsPopup(
-                              context: context,
-                              provider: provider,
-                              size: size,
-                              localize: localize,
-                            ),
-                          )
-                        : Container(),
-                  ],
-                )
-              ],
-            ),
-          ),
-          SizedBox(height: size.height * 0.01),
-          Visibility(
-            visible: provider.getRecords.isNotEmpty ? true : false,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 22),
-                child: Column(
-                  children: const [
-                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                    SizedBox(height: 3),
-                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                    SizedBox(height: 3),
-                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                    SizedBox(height: 3),
-                    Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-
-  /// /// /// /// //
-  /// Records Column
-  /// /// /// /// //
-
-  Widget recordsColumn(
-    DataProvider provider,
-    Size size,
-    BuildContext context,
-    AppLocalizations localize,
-  ) =>
-      Column(
-        children: provider.getRecords
-            .map(
-              (record) => Column(
-                children: [
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      highlightColor: Colors.grey.shade300,
-                      splashColor: Colors.grey.shade300,
-                      borderRadius: const BorderRadius.all(kRadius_5),
-                      onTap: () => editOrDeleteSelectedRecordPopup(
-                        context: context,
-                        provider: provider,
-                        size: size,
-                        record: record,
-                        localize: localize,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          left: 15,
-                          right: 20,
-                          top: 10,
-                          bottom: 10,
-                        ),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(kRadius_5),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Image.asset(
-                                  record.image,
-                                  scale: 7,
-                                ),
-                                SizedBox(width: size.width * 0.05),
-                                Text(record.time.split(' ')[1]),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text:
-                                            '${provider.getCapacityUnit == 0 ? record.amount.toStringAsFixed(0) : Functions.mlToFlOz(record.amount).toStringAsFixed(1)} ',
-                                      ),
-                                      TextSpan(
-                                        text: kCapacityUnitStrings[provider.getCapacityUnit],
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: size.width * 0.08),
-                                Column(
-                                  children: const [
-                                    Icon(Icons.water_drop, size: 4),
-                                    Icon(Icons.water_drop, size: 4),
-                                    Icon(Icons.water_drop, size: 4),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  record != provider.getRecords.first
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 2),
-                            child: Column(
-                              children: const [
-                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                                SizedBox(height: 3),
-                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                                SizedBox(height: 3),
-                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                                SizedBox(height: 3),
-                                Icon(Icons.water_drop, size: 3, color: Colors.black54),
-                              ],
-                            ),
-                          ),
-                        )
-                      : const SizedBox(),
-                ],
-              ),
-            )
-            .toList()
-            .reversed
-            .toList(),
-      );
 }

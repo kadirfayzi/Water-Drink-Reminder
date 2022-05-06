@@ -62,6 +62,7 @@ class _LiquidCircularProgressIndicatorState extends State<LiquidCircularProgress
           child: Stack(
             children: [
               Wave(
+                key: ValueKey<double?>(widget.value),
                 value: widget.value,
                 color: widget._getValueColor(context),
                 direction: widget.direction,

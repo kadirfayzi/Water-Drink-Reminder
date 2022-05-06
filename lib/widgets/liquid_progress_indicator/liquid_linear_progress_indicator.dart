@@ -69,6 +69,7 @@ class _LiquidLinearProgressIndicatorState extends State<LiquidLinearProgressIndi
         child: Stack(
           children: <Widget>[
             Wave(
+              linear: true,
               value: widget.value,
               color: widget._getValueColor(context),
               direction: widget.direction,

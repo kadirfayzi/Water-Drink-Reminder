@@ -1,86 +1,73 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 
-class WakeupTimePage extends StatefulWidget {
+class WakeupTimePage extends StatelessWidget {
   const WakeupTimePage({
     Key? key,
-    required this.size,
-    required this.localize,
-    required this.provider,
   }) : super(key: key);
 
-  final Size size;
-  final AppLocalizations localize;
-  final DataProvider provider;
-
   @override
-  State<WakeupTimePage> createState() => _WakeupTimePageState();
-}
-
-class _WakeupTimePageState extends State<WakeupTimePage> {
-  @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final localize = AppLocalizations.of(context)!;
+    return Consumer<DataProvider>(
+      builder: (context, provider, _) => Column(
         children: [
           Text(
-            widget.localize.wakeUpTime,
+            localize.wakeUpTime,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Color(0xff000000),
             ),
           ),
-          SizedBox(height: widget.size.height * 0.2),
+          SizedBox(height: size.height * 0.1),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: AnimationConfiguration.toStaggeredList(
-              duration: const Duration(milliseconds: 800),
-              childAnimationBuilder: (widget) => SlideAnimation(
-                horizontalOffset: 50.0,
-                child: FadeInAnimation(child: widget),
+            children: [
+              Image.asset(
+                provider.getGender == 0
+                    ? 'assets/images/intro/wakeup_male.png'
+                    : 'assets/images/intro/wakeup_female.png',
+                scale: 3,
               ),
-              children: [
-                Image.asset(
-                  widget.provider.getGender == 0
-                      ? 'assets/images/boy.png'
-                      : 'assets/images/girl.png',
-                  scale: 5,
-                ),
-                SizedBox(width: widget.size.width * 0.1),
-                SizedBox(
-                  width: widget.size.width * 0.35,
-                  height: widget.size.height * 0.25,
-                  child: CupertinoTheme(
-                    data: const CupertinoThemeData(
-                      textTheme: CupertinoTextThemeData(
-                        dateTimePickerTextStyle: TextStyle(
-                          fontSize: 28,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                    child: CupertinoDatePicker(
-                      initialDateTime: DateTime.utc(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        DateTime.now().day,
-                        widget.provider.getWakeUpTimeHour,
-                        widget.provider.getWakeUpTimeMinute,
-                      ),
-                      mode: CupertinoDatePickerMode.time,
-                      use24hFormat: true,
-                      onDateTimeChanged: (selectedTime) => widget.provider.setWakeUpTime(
-                        selectedTime.hour,
-                        selectedTime.minute,
+              const SizedBox(width: 10),
+              SizedBox(
+                width: size.width * 0.35,
+                height: size.height * 0.25,
+                child: CupertinoTheme(
+                  data: const CupertinoThemeData(
+                    textTheme: CupertinoTextThemeData(
+                      dateTimePickerTextStyle: TextStyle(
+                        fontSize: 28,
+                        color: Colors.blue,
                       ),
                     ),
                   ),
+                  child: CupertinoDatePicker(
+                    initialDateTime: DateTime.utc(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day,
+                      provider.getWakeUpTimeHour,
+                      provider.getWakeUpTimeMinute,
+                    ),
+                    mode: CupertinoDatePickerMode.time,
+                    use24hFormat: true,
+                    onDateTimeChanged: (selectedTime) => provider.setWakeUpTime(
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
-      );
+      ),
+    );
+  }
 }

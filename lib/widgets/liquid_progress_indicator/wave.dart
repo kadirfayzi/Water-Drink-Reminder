@@ -7,12 +7,14 @@ class Wave extends StatefulWidget {
   final double? value;
   final Color color;
   final Axis direction;
+  final bool linear;
 
   const Wave({
     Key? key,
     required this.value,
     required this.color,
     required this.direction,
+    this.linear = false,
   }) : super(key: key);
 
   @override
@@ -28,10 +30,9 @@ class _WaveState extends State<Wave> with SingleTickerProviderStateMixin {
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
     );
-    _animationController.repeat();
-    // _animationController.forward();
+    widget.linear ? _animationController.repeat() : _animationController.forward();
   }
 
   @override
@@ -41,38 +42,40 @@ class _WaveState extends State<Wave> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-        animation: CurvedAnimation(
-          parent: _animationController,
-          curve: Curves.easeInOut,
-        ),
-        builder: (context, child) => ClipPath(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Container(
-              // color: kPrimaryColor,
-              // color: widget.color,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.withOpacity(0.15),
-                    Colors.blue.withOpacity(0.5),
-                  ],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  stops: const [0.0, 1.0],
-                ),
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+      builder: (context, child) => ClipPath(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Container(
+            // color: kPrimaryColor,
+            // color: widget.color,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.withOpacity(0.15),
+                  Colors.blue.withOpacity(0.5),
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                stops: const [0.0, 1.0],
               ),
-              // color: Colors.blue.withOpacity(0.2),
             ),
-          ),
-          clipper: _WaveClipper(
-            animationValue: _animationController.value,
-            value: widget.value,
-            direction: widget.direction,
+            // color: Colors.blue.withOpacity(0.2),
           ),
         ),
-      );
+        clipper: _WaveClipper(
+          animationValue: _animationController.value,
+          value: widget.value,
+          direction: widget.direction,
+        ),
+      ),
+    );
+  }
 }
 
 class _WaveClipper extends CustomClipper<Path> {

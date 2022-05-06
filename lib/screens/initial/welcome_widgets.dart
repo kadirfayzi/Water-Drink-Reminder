@@ -42,7 +42,7 @@ class StepContainer extends StatelessWidget {
                   text,
                   style: TextStyle(
                     color: textColor,
-                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                    fontSize: size.width * 0.03,
                   ),
                 ),
               ),

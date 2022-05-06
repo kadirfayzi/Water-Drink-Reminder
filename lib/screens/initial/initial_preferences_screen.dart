@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/provider/data_provider.dart';
 import 'package:water_reminder/screens/initial/welcome_widgets.dart';
@@ -21,9 +20,9 @@ class InitialPreferences extends StatefulWidget {
   _InitialPreferencesState createState() => _InitialPreferencesState();
 }
 
-class _InitialPreferencesState extends State<InitialPreferences> {
-  final PageController _pageController = PageController();
-  int currentPage = 0;
+class _InitialPreferencesState extends State<InitialPreferences>
+    with SingleTickerProviderStateMixin {
+  final PageController _pageController = PageController(viewportFraction: 0.99);
 
   @override
   void dispose() {
@@ -36,181 +35,172 @@ class _InitialPreferencesState extends State<InitialPreferences> {
     final size = MediaQuery.of(context).size;
     final localize = AppLocalizations.of(context)!;
     return Consumer<DataProvider>(
-      builder: (context, provider, _) {
-        return Scaffold(
-          body: DecoratedBox(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.png'),
-                fit: BoxFit.cover,
-                opacity: 0.25,
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(top: size.height * 0.06),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: AnimationConfiguration.toStaggeredList(
-                      duration: const Duration(milliseconds: 800),
-                      childAnimationBuilder: (widget) => SlideAnimation(
-                        horizontalOffset: 50.0,
-                        child: FadeInAnimation(child: widget),
-                      ),
-                      children: [
-                        StepContainer(
-                          size: size,
-                          image: 'assets/images/gender.png',
-                          text: provider.getGender == 0 ? localize.male : localize.female,
-                          textColor: currentPage == 0 ? kPrimaryColor : Colors.grey,
-                          activeContainer: currentPage == 0,
-                        ),
-                        SizedBox(
-                          width: size.width * 0.05,
-                          height: size.height * 0.05,
-                          child: CustomPaint(painter: DashedLine()),
-                        ),
-                        StepContainer(
-                          key: ValueKey<Object>(provider.getWeightUnit),
-                          size: size,
-                          image: 'assets/images/weight.png',
-                          text:
-                              '${provider.getTempWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
-                          textColor: currentPage == 1 ? kPrimaryColor : Colors.grey,
-                          activeContainer: currentPage == 1,
-                        ),
-                        SizedBox(
-                          width: size.width * 0.05,
-                          height: size.height * 0.05,
-                          child: CustomPaint(painter: DashedLine()),
-                        ),
-                        StepContainer(
-                          size: size,
-                          image: 'assets/images/alarm.png',
-                          text:
-                              '${Functions.twoDigits(provider.getWakeUpTimeHour)}:${Functions.twoDigits(provider.getWakeUpTimeMinute)}',
-                          textColor: currentPage == 2 ? kPrimaryColor : Colors.grey,
-                          activeContainer: currentPage == 2,
-                        ),
-                        SizedBox(
-                          width: size.width * 0.05,
-                          height: size.height * 0.05,
-                          child: CustomPaint(painter: DashedLine()),
-                        ),
-                        StepContainer(
-                          size: size,
-                          image: 'assets/images/sleep.png',
-                          text:
-                              '${Functions.twoDigits(provider.getBedTimeHour)}:${Functions.twoDigits(provider.getBedTimeMinute)}',
-                          textColor: currentPage == 3 ? kPrimaryColor : Colors.grey,
-                          activeContainer: currentPage == 3,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: size.height * 0.03),
-                  SizedBox(
-                    height: size.height * 0.675,
-                    child: PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        GenderPage(provider: provider, size: size, localize: localize),
-                        WeightPage(provider: provider, size: size, localize: localize),
-                        WakeupTimePage(provider: provider, size: size, localize: localize),
-                        BedTimePage(provider: provider, size: size, localize: localize),
-                      ],
-                      onPageChanged: (page) => setState(() => currentPage = page),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          borderRadius: const BorderRadius.all(kRadius_50),
-                          onTap: () {
-                            if (_pageController.page == 0) {
-                              Navigator.pop(context);
-                            } else {
-                              _pageController.previousPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease,
-                              );
-                            }
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: kPrimaryColor,
-                              borderRadius: BorderRadius.all(kRadius_50),
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(15.0),
-                              child: Center(
-                                child: Icon(
-                                  Icons.arrow_back_ios_new,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          borderRadius: const BorderRadius.all(kRadius_30),
-                          onTap: () {
-                            if (_pageController.page! < 3) {
-                              _pageController.nextPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease,
-                              );
-                            } else {
-                              /// go to introduction screen
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) => HydrationPlanSplash(
-                                    provider: provider,
-                                    localize: localize,
-                                    size: size,
-                                  ),
-                                ),
-                                (route) => false,
-                              );
-                            }
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: kPrimaryColor,
-                              borderRadius: BorderRadius.all(kRadius_30),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Center(
-                                child: Text(
-                                  localize.next,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: size.width * 0.04,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      builder: (context, provider, _) => Scaffold(
+        body: DecoratedBox(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.jpg'),
+              fit: BoxFit.cover,
+              opacity: 0.5,
             ),
           ),
-        );
-      },
+          child: Padding(
+            padding: EdgeInsets.only(top: size.height * 0.06),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StepContainer(
+                      size: size,
+                      image: 'assets/images/intro/gender.png',
+                      text: provider.getGender == 0 ? localize.male : localize.female,
+                      textColor: provider.getPageIndex == 0 ? kPrimaryColor : Colors.grey,
+                      activeContainer: provider.getPageIndex == 0,
+                    ),
+                    SizedBox(
+                      width: size.width * 0.05,
+                      height: size.height * 0.05,
+                      child: CustomPaint(painter: DashedLine()),
+                    ),
+                    StepContainer(
+                      key: ValueKey<Object>(provider.getWeightUnit),
+                      size: size,
+                      image: 'assets/images/intro/weight.png',
+                      text:
+                          '${provider.getTempWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
+                      textColor: provider.getPageIndex == 1 ? kPrimaryColor : Colors.grey,
+                      activeContainer: provider.getPageIndex == 1,
+                    ),
+                    SizedBox(
+                      width: size.width * 0.05,
+                      height: size.height * 0.05,
+                      child: CustomPaint(painter: DashedLine()),
+                    ),
+                    StepContainer(
+                      size: size,
+                      image: 'assets/images/intro/alarm.png',
+                      text:
+                          '${Functions.twoDigits(provider.getWakeUpTimeHour)}:${Functions.twoDigits(provider.getWakeUpTimeMinute)}',
+                      textColor: provider.getPageIndex == 2 ? kPrimaryColor : Colors.grey,
+                      activeContainer: provider.getPageIndex == 2,
+                    ),
+                    SizedBox(
+                      width: size.width * 0.05,
+                      height: size.height * 0.05,
+                      child: CustomPaint(painter: DashedLine()),
+                    ),
+                    StepContainer(
+                      size: size,
+                      image: 'assets/images/intro/sleep.png',
+                      text:
+                          '${Functions.twoDigits(provider.getBedTimeHour)}:${Functions.twoDigits(provider.getBedTimeMinute)}',
+                      textColor: provider.getPageIndex == 3 ? kPrimaryColor : Colors.grey,
+                      activeContainer: provider.getPageIndex == 3,
+                    ),
+                  ],
+                ),
+                SizedBox(height: size.height * 0.03),
+                SizedBox(
+                  height: size.height * 0.675,
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: const [
+                      GenderPage(),
+                      WeightPage(),
+                      WakeupTimePage(),
+                      BedTimePage(),
+                    ],
+                    onPageChanged: (page) => provider.setInitialPrefsPageIndex = page,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        borderRadius: const BorderRadius.all(kRadius_50),
+                        onTap: () {
+                          if (provider.getPageIndex == 0) {
+                            Navigator.pop(context);
+                          } else {
+                            _pageController.previousPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.ease,
+                            );
+                          }
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.all(kRadius_50),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(15.0),
+                            child: Center(
+                              child: Icon(
+                                Icons.arrow_back_ios_new,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        borderRadius: const BorderRadius.all(kRadius_30),
+                        onTap: () {
+                          if (provider.getPageIndex < 3) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.ease,
+                            );
+                          } else {
+                            /// go to introduction screen
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => HydrationPlanSplash(
+                                  provider: provider,
+                                  localize: localize,
+                                  size: size,
+                                ),
+                              ),
+                              (route) => false,
+                            );
+                          }
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.all(kRadius_30),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Center(
+                              child: Text(
+                                localize.next,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.width * 0.04,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

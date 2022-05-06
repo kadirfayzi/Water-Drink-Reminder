@@ -64,7 +64,7 @@ class NotificationHelper {
           'your channel id $sound',
           'your channel name',
           channelDescription: 'your channel description',
-          importance: Importance.max,
+          importance: Importance.high,
           priority: Priority.high,
           sound: RawResourceAndroidNotificationSound(sound),
         ),
@@ -78,15 +78,13 @@ class NotificationHelper {
   }
 
   /// Request IOS permissions
-  void requestIOSPermissions() {
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-  }
+  requestIOSPermissions() => flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+      ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
   cancelAll() async => await flutterLocalNotificationsPlugin.cancelAll();
   cancel(id) async => await flutterLocalNotificationsPlugin.cancel(id);

@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'constants.dart' show kPrimaryColor;
 import 'models/bed_time.dart';
 import 'models/chart_data.dart';
 import 'models/cup.dart';
@@ -62,9 +60,7 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => DataProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => DataProvider())],
       child: const MyApp(),
     ),
   );
@@ -101,9 +97,8 @@ class _MyAppState extends State<MyApp> {
           timer = Timer.periodic(
             const Duration(seconds: 15),
             (_) {
-              provider.setNextDrinkTime = Functions.calculateNextDrinkTime(
-                scheduleRecords: provider.getScheduleRecords,
-              );
+              provider.setNextDrinkTime =
+                  Functions.calculateNextDrinkTime(scheduleRecords: provider.getScheduleRecords);
               Functions.removeAllRecordsIfDayChanges(provider: provider);
               Functions.removeWeekDataIfWeekChanges(provider: provider);
               Functions.resetMonthlyChartDataIfMonthChanges(provider: provider);
@@ -115,7 +110,7 @@ class _MyAppState extends State<MyApp> {
             theme: ThemeData(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              fontFamily: 'Ubuntu',
+              // fontFamily: 'Ubuntu',
             ),
 
             debugShowCheckedModeBanner: false,
@@ -156,20 +151,16 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin, WidgetsBindingObserver {
-  late final PageController _pageController;
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final DataProvider _provider;
-
-  int _selectedPage = 0;
+  int _tabIndex = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
-    _pageController = PageController(initialPage: _selectedPage);
-    _provider = Provider.of<DataProvider>(context, listen: false);
-    PackageInfo.fromPlatform().then((value) => _provider.setPackageInfo = value);
 
+    _provider = Provider.of<DataProvider>(context, listen: false);
     Future.delayed(Duration.zero, () {
       _provider.setNextDrinkTime =
           Functions.calculateNextDrinkTime(scheduleRecords: _provider.getScheduleRecords);
@@ -183,7 +174,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin, WidgetsBindi
   @override
   void dispose() {
     WidgetsBinding.instance?.removeObserver(this);
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -207,89 +197,59 @@ class _HomeState extends State<Home> with TickerProviderStateMixin, WidgetsBindi
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations localize = AppLocalizations.of(context)!;
-    final Size size = MediaQuery.of(context).size;
-
+    /// /// /// /// /// ///
     return Scaffold(
-      // extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: Size(double.infinity, size.height * 0.05),
+        preferredSize: const Size.fromHeight(50),
         child: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           elevation: 0.5,
-          backgroundColor: Colors.grey.shade50,
-          title: Center(
-            child: Text(
-              getAppBarTitle(_selectedPage, localize),
-              style: TextStyle(
-                fontSize: size.width * 0.05,
-                color: kPrimaryColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: Text(
+            getAppBarTitle(_tabIndex, AppLocalizations.of(context)!),
+            style: const TextStyle(color: Colors.black),
           ),
         ),
       ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background4.png'),
+            image: AssetImage('assets/images/background.jpg'),
             fit: BoxFit.cover,
-            opacity: 0.3,
+            opacity: 0.5,
           ),
         ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (page) => setState(() => _selectedPage = page),
-            children: const [
-              HomeScreen(),
-              StatisticsScreen(),
-              SettingsScreen(),
-            ],
-          ),
+        child: IndexedStack(
+          index: _tabIndex,
+          children: const [
+            HomeScreen(),
+            StatisticsScreen(),
+            SettingsScreen(),
+          ],
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 5,
-        currentIndex: _selectedPage,
-        onTap: (page) => _pageController.animateToPage(
-          page,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.ease,
-        ),
+        backgroundColor: Colors.white,
+        onTap: (index) => setState(() => _tabIndex = index),
+        currentIndex: _tabIndex,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.water_drop),
-            label: localize.home,
+            icon: const Icon(Icons.water_drop_outlined),
+            label: AppLocalizations.of(context)!.home,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.bar_chart),
-            label: localize.statistics,
+            icon: const Icon(Icons.stacked_bar_chart),
+            label: AppLocalizations.of(context)!.statistics,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: localize.settings,
+            icon: const Icon(Icons.settings_outlined),
+            label: AppLocalizations.of(context)!.settings,
           ),
         ],
       ),
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
     );
-  }
-
-  Widget getSelectedPage(int page) {
-    switch (page) {
-      case 0:
-        return const HomeScreen();
-      case 1:
-        return const StatisticsScreen();
-      case 2:
-        return const SettingsScreen();
-      default:
-        return const HomeScreen();
-    }
   }
 
   String getAppBarTitle(int page, AppLocalizations localize) {

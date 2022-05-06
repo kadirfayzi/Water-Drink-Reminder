@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:water_reminder/boxes.dart';
 import 'package:water_reminder/models/bed_time.dart';
 import 'package:water_reminder/models/chart_data.dart';
@@ -13,6 +12,17 @@ import '../functions.dart';
 import '../l10n/l10n.dart';
 
 class DataProvider extends ChangeNotifier {
+  /// /// /// /// /// /// ////
+  /// Initial prefs page index
+  /// /// /// /// /// /// ////
+  int _pageIndex = 0;
+  set setInitialPrefsPageIndex(int pageIndex) {
+    _pageIndex = pageIndex;
+    notifyListeners();
+  }
+
+  int get getPageIndex => _pageIndex;
+
   /// /// /// /// /// //
   /// Reminder schedule
   /// /// /// /// /// //
@@ -197,6 +207,11 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  set deleteCup(dynamic key) {
+    Boxes.getCups().delete(key);
+    notifyListeners();
+  }
+
   List<Cup> get getCups => Boxes.getCups().values.toList();
 
   Cup get getSelectedCup => Boxes.getCups().values.firstWhere((cup) => cup.selected);
@@ -229,6 +244,7 @@ class DataProvider extends ChangeNotifier {
     final Record? record = Boxes.getRecords().get(recordKey);
     record?.amount = amount;
     record?.time = time;
+    record?.image = 'assets/images/cups/custom-128.png';
     record?.save();
 
     notifyListeners();
@@ -285,7 +301,7 @@ class DataProvider extends ChangeNotifier {
       data.save();
     }
 
-    notifyListeners();
+    // notifyListeners();
   }
 
   List<ChartData> get getChartDataList => Boxes.getChartData().values.toList();
@@ -314,7 +330,7 @@ class DataProvider extends ChangeNotifier {
       ),
     );
 
-    notifyListeners();
+    // notifyListeners();
   }
 
   removeWeekData() {
@@ -379,11 +395,71 @@ class DataProvider extends ChangeNotifier {
 
   bool get getMainStateInitialized => mainStateInitialized;
 
-  PackageInfo? _packageInfo;
-  set setPackageInfo(PackageInfo packageInfo) {
-    _packageInfo = packageInfo;
+  /// /// /// /// ///
+  /// Weekly percent
+  /// /// /// /// ///
+  double get weeklyPercent => Functions.weeklyPercent(weekDataList: getWeekDataList);
+
+  /// /// /// /// /// /// //
+  /// Monthly drink average
+  /// /// /// /// /// /// //
+  double get monthlyAverage => Functions.monthlyAverage(
+        chartDataList: getChartDataList,
+        month: DateTime.now().month,
+        year: DateTime.now().year,
+      );
+
+  /// /// /// /// /// ////
+  /// Weekly drink average
+  /// /// /// /// /// ////
+  double get weeklyAverage => Functions.weeklyAverage(weekDataList: getWeekDataList);
+
+  /// /// /// /// ////
+  /// Drink frequency
+  /// /// /// /// ////
+  int get drinkFrequency => Functions.drinkFrequency(chartDataList: getChartDataList);
+
+  /// /// /// /// /// ///
+  /// Average completion
+  /// /// /// /// /// ///
+  int get averageCompletion => Functions.averageCompletion(chartDataList: getChartDataList);
+
+  /// /// /// /// /// /// ////
+  /// Statistics selected date
+  /// /// /// /// /// /// ////
+  late DateTime _selectedDate = DateTime(DateTime.now().year, DateTime.now().month);
+
+  set setSelectedDate(DateTime date) {
+    _selectedDate = date;
     notifyListeners();
   }
 
-  PackageInfo? get getPackageInfo => _packageInfo;
+  DateTime get getSelectedDate => _selectedDate;
+
+  /// /// /// /// /// /// //
+  /// Statistics chart type
+  /// /// /// /// /// /// //
+  Object _chartType = 0; // 0=month, 1=year
+  set setChartType(Object chartType) {
+    _chartType = chartType;
+    notifyListeners();
+  }
+
+  Object get getChartType => _chartType;
+
+  /// /// /// /// //
+  /// How many times
+  /// /// /// /// //
+  late final int _howManyTimes;
+
+  set setHowManyTimes(int howManyTimes) => _howManyTimes = howManyTimes;
+  get getHowManyTimes => _howManyTimes;
+
+  /// /// /// /// //
+  /// How much each time
+  /// /// /// /// //
+  late final int _howMuchEachTime;
+
+  set setHowMuchEachTime(int howMuchEachTime) => _howMuchEachTime = howMuchEachTime;
+  get getHowMuchEachTime => _howMuchEachTime;
 }

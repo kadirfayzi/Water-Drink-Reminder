@@ -1,67 +1,36 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/functions.dart';
 import 'package:water_reminder/models/chart_data.dart';
 import 'package:water_reminder/provider/data_provider.dart';
-import 'package:water_reminder/widgets/elevated_container.dart';
+import 'package:water_reminder/screens/statistics/widgets/drink_water_report.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'statistics_helpers.dart';
-import 'dart:math' as math;
+import 'dart:math' show pi;
+
+import 'package:water_reminder/screens/statistics/widgets/weekly_completion.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
 
   @override
-  _StatisticsScreenState createState() => _StatisticsScreenState();
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  Object? _chartType = 0; // 0=month, 1=year
-  DateTime _selectedDate = DateTime(DateTime.now().year, DateTime.now().month);
-  late final DataProvider _provider;
-  late final List<ChartData> _chartDataList;
-  double _monthlyDrinkAverage = 0;
-  double _weeklyDrinkAverage = 0;
-  int _drinkFrequency = 0;
-  int _averageCompletion = 0;
-  double _weeklyCompletionPercent = 0;
-
   String monthString(int month) => DateFormat.MMM(
         Localizations.localeOf(context).languageCode,
-      ).format(DateTime(_selectedDate.year, month));
-
-  String weekDayString(int day) => DateFormat.E(
-        Localizations.localeOf(context).languageCode,
-      ).format(DateTime(DateTime.now().year, DateTime.now().month, day + 3));
-
-  @override
-  void initState() {
-    super.initState();
-    _provider = Provider.of<DataProvider>(context, listen: false);
-    _chartDataList = _provider.getChartDataList;
-
-    _monthlyDrinkAverage = Functions.monthlyDrinkAverage(
-      chartDataList: _provider.getChartDataList,
-      year: DateTime.now().year,
-      month: DateTime.now().month,
-    );
-    _weeklyCompletionPercent = Functions.weeklyPercent(weekDataList: _provider.getWeekDataList);
-    _weeklyDrinkAverage = Functions.weeklyDrinkAverage(weekDataList: _provider.getWeekDataList);
-    _drinkFrequency = Functions.drinkFrequency(chartDataList: _provider.getChartDataList);
-    _averageCompletion = Functions.averageCompletion(chartDataList: _provider.getChartDataList);
-  }
+      ).format(DateTime(DateTime.now().year, month));
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final localize = AppLocalizations.of(context)!;
-    return Consumer<DataProvider>(builder: (context, provider, _) {
-      return SingleChildScrollView(
+    return Consumer<DataProvider>(
+      builder: (context, provider, _) => SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(
@@ -79,28 +48,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           IconButton(
                             onPressed: () {
                               /// Select previous year/month chart data if exists
-                              if (_chartType == 0 &&
-                                  _chartDataList.any((chartData) =>
-                                      chartData.year == _selectedDate.year &&
-                                      chartData.month == _selectedDate.month - 1)) {
-                                setState(() => _selectedDate =
-                                    DateTime(_selectedDate.year, _selectedDate.month - 1));
-                              } else if (_chartType == 1 &&
-                                  _chartDataList.any(
-                                      (chartData) => chartData.year == _selectedDate.year - 1)) {
-                                setState(() => _selectedDate =
-                                    DateTime(_selectedDate.year - 1, _selectedDate.month));
+                              if (provider.getChartType == 0 &&
+                                  provider.getChartDataList.any((chartData) =>
+                                      chartData.year == provider.getSelectedDate.year &&
+                                      chartData.month == provider.getSelectedDate.month - 1)) {
+                                provider.setSelectedDate = DateTime(provider.getSelectedDate.year,
+                                    provider.getSelectedDate.month - 1);
+                              } else if (provider.getChartType == 1 &&
+                                  provider.getChartDataList.any((chartData) =>
+                                      chartData.year == provider.getSelectedDate.year - 1)) {
+                                provider.setSelectedDate = DateTime(
+                                    provider.getSelectedDate.year - 1,
+                                    provider.getSelectedDate.month);
                               }
                             },
                             icon: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: getPreviousIconColor(),
+                                color: getPreviousIconColor(
+                                  chartDataList: provider.getChartDataList,
+                                  selectedDate: provider.getSelectedDate,
+                                  chartType: provider.getChartType,
+                                ),
                               ),
                               child: Transform(
                                 alignment: Alignment.center,
-                                transform: Matrix4.rotationY(math.pi),
+                                transform: Matrix4.rotationY(pi),
                                 child: const Icon(
                                   Icons.arrow_forward_ios,
                                   color: Colors.white,
@@ -109,27 +83,35 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                             ),
                           ),
-                          getChartTitle(value: _chartType!),
+                          getChartTitle(
+                            value: provider.getChartType,
+                            selectedDate: provider.getSelectedDate,
+                          ),
                           IconButton(
                             onPressed: () {
-                              if (_chartType == 0 &&
-                                  _chartDataList.any((chartData) =>
-                                      chartData.year == _selectedDate.year &&
-                                      chartData.month == _selectedDate.month + 1)) {
-                                setState(() => _selectedDate =
-                                    DateTime(_selectedDate.year, _selectedDate.month + 1));
-                              } else if (_chartType == 1 &&
-                                  _chartDataList.any(
-                                      (chartData) => chartData.year == _selectedDate.year + 1)) {
-                                setState(() => _selectedDate =
-                                    DateTime(_selectedDate.year + 1, _selectedDate.month));
+                              if (provider.getChartType == 0 &&
+                                  provider.getChartDataList.any((chartData) =>
+                                      chartData.year == provider.getSelectedDate.year &&
+                                      chartData.month == provider.getSelectedDate.month + 1)) {
+                                provider.setSelectedDate = DateTime(provider.getSelectedDate.year,
+                                    provider.getSelectedDate.month + 1);
+                              } else if (provider.getChartType == 1 &&
+                                  provider.getChartDataList.any((chartData) =>
+                                      chartData.year == provider.getSelectedDate.year + 1)) {
+                                provider.setSelectedDate = DateTime(
+                                    provider.getSelectedDate.year + 1,
+                                    provider.getSelectedDate.month);
                               }
                             },
                             icon: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: getNextIconColor(),
+                                color: getNextIconColor(
+                                  chartDataList: provider.getChartDataList,
+                                  selectedDate: provider.getSelectedDate,
+                                  chartType: provider.getChartType,
+                                ),
                               ),
                               child: const Icon(
                                 Icons.arrow_forward_ios,
@@ -153,10 +135,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                interval: getMonthlyInterval(),
+                                interval: getMonthlyInterval(chartType: provider.getChartType),
                                 getTitlesWidget: (value, meta) => Padding(
                                   padding: const EdgeInsets.only(top: 3),
-                                  child: getBottomTitle(value),
+                                  child: getBottomTitle(
+                                    chartType: provider.getChartType,
+                                    value: value,
+                                    context: context,
+                                  ),
                                 ),
                               ),
                             ),
@@ -205,7 +191,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                             ),
                           ),
-                          barGroups: getBarGroupsList(),
+                          barGroups: getBarGroupsList(
+                            chartDataList: provider.getChartDataList,
+                            intakeGoalAmount: provider.getIntakeGoalAmount,
+                            selectedDate: provider.getSelectedDate,
+                            chartType: provider.getChartType,
+                          ),
                         ),
                         // swapAnimationCurve: Curves.easeInOutCubic,
                         // swapAnimationDuration: Duration.zero,
@@ -220,7 +211,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
             /// Time range selection
             CupertinoSlidingSegmentedControl(
-              groupValue: _chartType,
+              groupValue: provider.getChartType,
               children: {
                 0: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -231,169 +222,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   child: Text(localize.year),
                 )
               },
-              onValueChanged: (value) => setState(() => _chartType = value),
+              onValueChanged: (value) => provider.setChartType = value!,
             ),
 
             SizedBox(height: size.height * 0.03),
 
-            /// Weekly completion
-            Container(
-              width: size.width * 0.95,
-              height: size.height * 0.2,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topRight: kRadius_50,
-                  bottomLeft: kRadius_50,
-                ),
-                color: kPrimaryColor.withOpacity(0.1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          localize.weeklyCompletion,
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          '${_weeklyCompletionPercent.toStringAsFixed(2)}%',
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: provider.getWeekDataList
-                          .map((weekData) => Expanded(
-                                child: AnimationLimiter(
-                                  child: Column(
-                                    children: AnimationConfiguration.toStaggeredList(
-                                      duration: const Duration(milliseconds: 600),
-                                      childAnimationBuilder: (widget) => ScaleAnimation(
-                                        child: ScaleAnimation(child: widget),
-                                      ),
-                                      children: [
-                                        ElevatedContainer(
-                                          blurRadius: 1,
-                                          width: size.width * 0.12,
-                                          height: size.width * 0.12,
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.water_drop,
-                                              size: size.width * 0.085,
-                                              color: weekData.drankAmount > 0
-                                                  ? kPrimaryColor
-                                                  : Colors.black26,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: size.height * 0.01),
-                                        Text(
-                                          weekDayString(weekData.day),
-                                          style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: size.width * 0.03,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const WeeklyCompletion(),
             SizedBox(height: size.height * 0.05),
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                child: Text(
-                  localize.drinkWaterReport,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
-            SizedBox(height: size.height * 0.02),
-            Container(
-              width: size.width * 0.95,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: kPrimaryColor.withOpacity(0.1),
-              ),
-              child: Column(
-                children: [
-                  ReportRow(
-                    size: size,
-                    iconColor: Colors.green,
-                    title: localize.weeklyAverage,
-                    content:
-                        '${provider.getCapacityUnit == 0 ? _weeklyDrinkAverage.toStringAsFixed(0) : Functions.mlToFlOz(_weeklyDrinkAverage).toStringAsFixed(1)} '
-                        '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
-                  ),
-                  Divider(
-                    thickness: 1,
-                    indent: size.width * 0.05,
-                    endIndent: size.width * 0.05,
-                  ),
-                  ReportRow(
-                    size: size,
-                    iconColor: kPrimaryColor,
-                    title: localize.monthlyAverage,
-                    content:
-                        '${provider.getCapacityUnit == 0 ? _monthlyDrinkAverage.toStringAsFixed(0) : Functions.mlToFlOz(_monthlyDrinkAverage).toStringAsFixed(1)} '
-                        '${kCapacityUnitStrings[provider.getCapacityUnit]} / ${localize.day}',
-                  ),
-                  Divider(
-                    thickness: 1,
-                    indent: size.width * 0.05,
-                    endIndent: size.width * 0.05,
-                  ),
-                  ReportRow(
-                    size: size,
-                    iconColor: Colors.orange,
-                    title: localize.averageCompletion,
-                    content: '$_averageCompletion%',
-                  ),
-                  Divider(
-                    thickness: 1,
-                    indent: size.width * 0.05,
-                    endIndent: size.width * 0.05,
-                  ),
-                  ReportRow(
-                    size: size,
-                    iconColor: Colors.red,
-                    title: localize.drinkFrequency,
-                    content: '$_drinkFrequency ${localize.times} / ${localize.day}',
-                  ),
-                  SizedBox(height: size.height * 0.01),
-                ],
-              ),
-            ),
 
-            SizedBox(height: size.height * 0.03),
+            const DrinkWaterReport(),
+            SizedBox(height: size.height * 0.05),
           ],
         ),
-      );
-    });
+      ),
+    );
   }
 
   /// Chart title widget
@@ -406,55 +248,72 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       );
 
   /// Get chart title
-  getChartTitle({required Object value}) {
+  getChartTitle({required Object value, required DateTime selectedDate}) {
     if (value == 0) {
-      return chartTitleWidget(text: '${monthString(_selectedDate.month)} ${_selectedDate.year}');
+      return chartTitleWidget(text: '${monthString(selectedDate.month)} ${selectedDate.year}');
     } else if (value == 1) {
-      return chartTitleWidget(text: '${_selectedDate.year}');
+      return chartTitleWidget(text: '${selectedDate.year}');
     }
   }
 
   /// Next icon color
-  getPreviousIconColor() {
-    switch (_chartType) {
+  getPreviousIconColor({
+    required List<ChartData> chartDataList,
+    required DateTime selectedDate,
+    required Object chartType,
+  }) {
+    switch (chartType) {
       case 0:
-        return _chartDataList.any((chartData) => chartData.month == _selectedDate.month - 1)
+        return chartDataList.any((chartData) => chartData.month == selectedDate.month - 1)
             ? Colors.blue
             : Colors.grey;
       case 1:
-        return _chartDataList.any((chartData) => chartData.year == _selectedDate.year - 1)
+        return chartDataList.any((chartData) => chartData.year == selectedDate.year - 1)
             ? Colors.blue
             : Colors.grey;
     }
   }
 
   /// Next icon color
-  getNextIconColor() {
-    switch (_chartType) {
+  getNextIconColor({
+    required List<ChartData> chartDataList,
+    required DateTime selectedDate,
+    required Object chartType,
+  }) {
+    switch (chartType) {
       case 0:
-        return _chartDataList.any((chartData) => chartData.month == _selectedDate.month + 1)
+        return chartDataList.any((chartData) => chartData.month == selectedDate.month + 1)
             ? Colors.blue
             : Colors.grey;
       case 1:
-        return _chartDataList.any((chartData) => chartData.year == _selectedDate.year + 1)
+        return chartDataList.any((chartData) => chartData.year == selectedDate.year + 1)
             ? Colors.blue
             : Colors.grey;
     }
   }
 
   /// Get bar groups list
-  getBarGroupsList() {
-    switch (_chartType) {
+  getBarGroupsList({
+    required List<ChartData> chartDataList,
+    required double intakeGoalAmount,
+    required DateTime selectedDate,
+    required Object chartType,
+  }) {
+    switch (chartType) {
       case 0:
-        return getMonthGroupDataList();
+        return getMonthGroupDataList(chartDataList: chartDataList, selectedDate: selectedDate);
       case 1:
-        return getYearGroupDataList();
+        return getYearGroupDataList(
+          chartDataList: chartDataList,
+          intakeGoalAmount: intakeGoalAmount,
+          selectedDate: selectedDate,
+        );
     }
   }
 
   /// Get Monthly chart bottom titles interval
-  getMonthlyInterval() {
-    switch (_chartType) {
+  getMonthlyInterval({required Object chartType}) {
+    switch (chartType) {
       case 0:
         return 3.0;
       case 1:
@@ -463,8 +322,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   /// Get chart's bottom title
-  getBottomTitle(double value) {
-    switch (_chartType) {
+  getBottomTitle({
+    required double value,
+    required Object chartType,
+    required BuildContext context,
+  }) {
+    switch (chartType) {
       case 0:
         return Text(
           value.toStringAsFixed(0),
@@ -486,14 +349,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   /// Get year group data
-  List<BarChartGroupData> getYearGroupDataList() {
+  List<BarChartGroupData> getYearGroupDataList({
+    required List<ChartData> chartDataList,
+    required double intakeGoalAmount,
+    required DateTime selectedDate,
+  }) {
     final List<double> barRodValues = List.generate(
         12,
         (index) => Functions.monthlyDrinkPercent(
-              chartDataList: _chartDataList,
+              chartDataList: chartDataList,
               month: index + 1,
-              year: _selectedDate.year,
-              intakeGoalAmount: _provider.getIntakeGoalAmount,
+              year: selectedDate.year,
+              intakeGoalAmount: intakeGoalAmount,
             )).toList();
 
     return List.generate(
@@ -513,11 +380,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   /// Get month group data
-  List<BarChartGroupData> getMonthGroupDataList() {
+  List<BarChartGroupData> getMonthGroupDataList({
+    required List<ChartData> chartDataList,
+    required DateTime selectedDate,
+  }) {
     /// Get selected month chart data
-    final List<ChartData> selectedMonthChartDataList = _chartDataList
+    final List<ChartData> selectedMonthChartDataList = chartDataList
         .where(
-            (element) => element.year == _selectedDate.year && element.month == _selectedDate.month)
+            (element) => element.year == selectedDate.year && element.month == selectedDate.month)
         .toList();
 
     return selectedMonthChartDataList

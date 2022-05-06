@@ -15,6 +15,7 @@ class Functions {
   static int lbsToKg(int lbs) => (lbs ~/ 2.205).toInt().round();
   static double mlToFlOz(double ml) => (ml / 29.574);
   static double flOzToMl(double flOz) => (flOz * 29.574);
+
   static double calculateIntakeGoalAmount({
     required int weight,
     required int gender,
@@ -31,6 +32,15 @@ class Functions {
     required int wakeUpHour,
   }) =>
       (bedHour - wakeUpHour) ~/ 1.5;
+
+  static int getNextLargerNumber(int number, List<int> array) {
+    for (var i = 0; i < array.length; i++) {
+      if (number < array[i]) {
+        return array[i];
+      }
+    }
+    return -1;
+  }
 
   /// Remove all records if day changes
   static removeAllRecordsIfDayChanges({required DataProvider provider}) {
@@ -120,7 +130,7 @@ class Functions {
   }
 
   /// Monthly drink average
-  static double monthlyDrinkAverage({
+  static double monthlyAverage({
     required List<ChartData> chartDataList,
     required int month,
     required int year,
@@ -145,7 +155,7 @@ class Functions {
   }
 
   /// Weekly drink average
-  static double weeklyDrinkAverage({required List<WeekData> weekDataList}) {
+  static double weeklyAverage({required List<WeekData> weekDataList}) {
     List<double> drankAmountList = [];
     double weeklyAverage = 0.0;
 
