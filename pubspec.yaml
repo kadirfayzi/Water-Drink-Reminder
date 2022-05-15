@@ -16,7 +16,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   intl: ^0.17.0
-  fl_chart: ^0.50.1
+  fl_chart: ^0.50.5
   provider: ^6.0.1
   hive: ^2.1.0
   hive_flutter: ^1.1.0
@@ -30,6 +30,7 @@ dependencies:
   package_info_plus: ^1.4.2
   share_plus: ^4.0.1
   flutter_native_splash: ^2.1.5
+  flutter_svg: ^1.0.3
 
 flutter_native_splash:
   color: "#ffffff"
@@ -38,7 +39,7 @@ flutter_native_splash:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.4
+  flutter_lints: ^2.0.1
   hive_generator: ^1.1.1
   build_runner: ^2.1.5
 

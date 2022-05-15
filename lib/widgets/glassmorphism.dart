@@ -335,8 +335,8 @@ class GlassmorphicContainer extends StatelessWidget {
               clipBehavior: Clip.hardEdge,
               borderRadius: borderRadius,
               child: Container(
-                child: child,
                 alignment: alignment,
+                child: child,
               ),
             ),
           ],

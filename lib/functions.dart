@@ -90,7 +90,7 @@ class Functions {
   }
 
   /// Schedule records to date time list
-  static List<DateTime> dtScheduleRecords({
+  static List<DateTime> getDtScheduleRecords({
     required List<ScheduleRecord> scheduleRecords,
     required DateTime now,
   }) {
@@ -110,18 +110,18 @@ class Functions {
     if (scheduleRecords.isNotEmpty) {
       final DateTime now = DateTime.now();
 
-      final List<DateTime> _dtScheduleRecords = dtScheduleRecords(
+      final List<DateTime> dtScheduleRecords = getDtScheduleRecords(
         scheduleRecords: scheduleRecords,
         now: now,
       );
 
-      for (int i = 0; i < _dtScheduleRecords.length; i++) {
-        if (i + 1 != _dtScheduleRecords.length) {
-          if (now.compareTo(_dtScheduleRecords[i]) > 0 &&
-              now.compareTo(_dtScheduleRecords[i + 1]) < 0) {
+      for (int i = 0; i < dtScheduleRecords.length; i++) {
+        if (i + 1 != dtScheduleRecords.length) {
+          if (now.compareTo(dtScheduleRecords[i]) > 0 &&
+              now.compareTo(dtScheduleRecords[i + 1]) < 0) {
             return scheduleRecords[i + 1].time;
           }
-        } else if (i == _dtScheduleRecords.length - 1) {
+        } else if (i == dtScheduleRecords.length - 1) {
           return scheduleRecords.first.time;
         }
       }

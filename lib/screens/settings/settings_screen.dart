@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart' show AppLocalizations;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:water_reminder/l10n/l10n.dart';
@@ -148,7 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               contentVisible: true,
               onTap: () => setLanguagePopup(context: context),
             ),
-            SizedBox(height: size.height * 0.01),
+            const SizedBox(height: 10),
 
             /// Personal information section
             BuildTitle(
@@ -280,18 +280,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 size: 20,
               ),
               onTap: () async {
-                final Uri params = Uri(
+                final Uri uri = Uri(
                   scheme: 'mailto',
                   path: kEmail,
                   query:
                       'subject=${_packageInfo?.appName}&body=${localize.appVersion} ${_packageInfo?.version}',
                 );
 
-                var url = params.toString();
-                if (await canLaunch(url)) {
-                  await launch(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
                 } else {
-                  throw 'Could not launch $url';
+                  throw 'Could not launch $uri';
                 }
               },
             ),
@@ -320,11 +319,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subject: 'Look what I made!'),
             ),
 
-            SizedBox(height: size.height * 0.05),
+            const SizedBox(height: 40),
             Center(
               child: Text('${localize.version} ${_packageInfo?.version}'),
             ),
-            SizedBox(height: size.height * 0.05),
+            const SizedBox(height: 40),
           ],
         ),
       ),

@@ -49,7 +49,6 @@ class HomeScreen extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Container(
-                    // height: size.height * 0.1,
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.only(
                         topRight: kRadius_25,
@@ -103,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: size.height * 0.03),
+            const SizedBox(height: 20),
 
             /// Daily Drink Target Circle
             Stack(
@@ -158,7 +157,7 @@ class HomeScreen extends StatelessWidget {
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: size.height * 0.01),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -220,7 +219,7 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: size.height * 0.03),
+                            const SizedBox(height: 30),
 
                             /// Add water button
                             Container(
@@ -301,7 +300,7 @@ class HomeScreen extends StatelessWidget {
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                      SizedBox(height: size.height * 0.01),
+                                      const SizedBox(height: 10),
                                       Stack(
                                         children: [
                                           Image.asset(
@@ -328,9 +327,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned.fill(
-                  top: size.height * 0.1,
-                  left: size.width * -0.03,
-                  right: size.width * -0.03,
+                  top: 80,
+                  left: -10,
+                  right: -10,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -406,7 +405,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: size.height * 0.05),
+
+            const SizedBox(height: 40),
 
             /// Today's records
             Padding(
@@ -443,10 +443,11 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: size.height * 0.01),
+
+            const SizedBox(height: 10),
 
             Container(
-              width: size.width,
+              width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(kRadius_10),
@@ -456,18 +457,18 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   /// Next time row
                   const NextTimeRow(),
-                  SizedBox(height: size.height * 0.01),
+                  const SizedBox(height: 10),
 
                   /// Records
                   const RecordsColumn(),
                   Visibility(
                     visible: provider.getRecords.isNotEmpty ? true : false,
-                    child: SizedBox(height: size.height * 0.02),
+                    child: const SizedBox(height: 15),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: size.height * 0.02),
+            const SizedBox(height: 15),
           ],
         ),
       ),

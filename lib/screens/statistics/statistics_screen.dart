@@ -39,7 +39,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: [
-                    SizedBox(height: size.height * 0.03),
+                    const SizedBox(height: 25),
                     SizedBox(
                       width: size.width * 0.7,
                       child: Row(
@@ -123,9 +123,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: size.height * 0.02),
+                    const SizedBox(height: 15),
                     SizedBox(
-                      height: size.height * 0.25,
+                      height: 220,
                       child: BarChart(
                         BarChartData(
                           maxY: 115,
@@ -135,7 +135,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                interval: getMonthlyInterval(chartType: provider.getChartType),
                                 getTitlesWidget: (value, meta) => Padding(
                                   padding: const EdgeInsets.only(top: 3),
                                   child: getBottomTitle(
@@ -155,8 +154,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   value == 115 ? '(%)' : value.toStringAsFixed(0),
                                   style: const TextStyle(
                                     color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
                                   ),
                                 ),
                                 // margin: 10,
@@ -166,16 +164,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                           ),
                           gridData: FlGridData(
-                            show: true,
-                            getDrawingVerticalLine: (value) => FlLine(
-                              color: Colors.black12,
-                              strokeWidth: 1,
-                              dashArray: [3],
-                            ),
+                            horizontalInterval: 20,
+                            drawVerticalLine: false,
                             getDrawingHorizontalLine: (value) => FlLine(
                               color: Colors.black12,
                               strokeWidth: 1,
-                              dashArray: [3],
+                              dashArray: [5],
                             ),
                           ),
                           borderData: FlBorderData(
@@ -207,7 +201,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
 
-            SizedBox(height: size.height * 0.01),
+            const SizedBox(height: 10),
 
             /// Time range selection
             CupertinoSlidingSegmentedControl(
@@ -225,13 +219,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               onValueChanged: (value) => provider.setChartType = value!,
             ),
 
-            SizedBox(height: size.height * 0.03),
+            const SizedBox(height: 25),
 
             const WeeklyCompletion(),
-            SizedBox(height: size.height * 0.05),
+            const SizedBox(height: 40),
 
             const DrinkWaterReport(),
-            SizedBox(height: size.height * 0.05),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -242,7 +236,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Text chartTitleWidget({required String text}) => Text(
         text,
         style: TextStyle(
-          color: Colors.grey[700],
+          color: Colors.grey.shade700,
           fontSize: 15,
         ),
       );
@@ -311,16 +305,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  /// Get Monthly chart bottom titles interval
-  getMonthlyInterval({required Object chartType}) {
-    switch (chartType) {
-      case 0:
-        return 3.0;
-      case 1:
-        return 1.0;
-    }
-  }
-
   /// Get chart's bottom title
   getBottomTitle({
     required double value,
@@ -329,20 +313,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }) {
     switch (chartType) {
       case 0:
-        return Text(
-          value.toStringAsFixed(0),
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 8,
-          ),
-        );
+        return value.toInt() % 3 == 1
+            ? Text(
+                value.toStringAsFixed(0),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                ),
+              )
+            : const SizedBox();
       case 1:
         return Text(
           monthString(value.toInt() + 1),
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+            fontSize: 11,
           ),
         );
     }

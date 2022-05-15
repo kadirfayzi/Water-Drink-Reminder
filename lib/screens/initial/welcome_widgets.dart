@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:water_reminder/constants.dart';
 
 class StepContainer extends StatelessWidget {
@@ -28,10 +29,11 @@ class StepContainer extends StatelessWidget {
                 borderRadius: const BorderRadius.all(kRadius_5),
                 color: activeContainer ? kPrimaryColor : Colors.grey,
               ),
-              child: Image.asset(
+              child: SvgPicture.asset(
                 image,
+                width: MediaQuery.of(context).size.width * 0.1,
+                height: MediaQuery.of(context).size.width * 0.1,
                 color: Colors.white,
-                scale: 8,
               ),
             ),
             SizedBox(height: size.height * 0.01),

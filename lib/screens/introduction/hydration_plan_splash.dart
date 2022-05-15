@@ -117,7 +117,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) => setHydrationPlan());
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => setHydrationPlan());
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4000),
@@ -139,7 +139,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
       _animationController.stop();
       Future.delayed(
         const Duration(milliseconds: 800),
-        () => WidgetsBinding.instance?.addPostFrameCallback(
+        () => WidgetsBinding.instance.addPostFrameCallback(
           (_) => Navigator.pushAndRemoveUntil(
               context,
               CupertinoPageRoute(

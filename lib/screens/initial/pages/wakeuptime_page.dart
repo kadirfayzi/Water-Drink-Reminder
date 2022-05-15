@@ -32,7 +32,8 @@ class WakeupTimePage extends StatelessWidget {
                 provider.getGender == 0
                     ? 'assets/images/intro/wakeup_male.png'
                     : 'assets/images/intro/wakeup_female.png',
-                scale: 3,
+                width: size.width * 0.5,
+                height: size.height * 0.5,
               ),
               const SizedBox(width: 10),
               SizedBox(

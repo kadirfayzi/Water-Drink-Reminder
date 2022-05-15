@@ -70,10 +70,10 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   late final NotificationHelper _notificationHelper;
 
   Timer? timer;
@@ -158,7 +158,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     _provider = Provider.of<DataProvider>(context, listen: false);
     Future.delayed(Duration.zero, () {
@@ -173,7 +173,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -197,7 +197,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
 
   @override
   Widget build(BuildContext context) {
-    /// /// /// /// /// ///
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(50),

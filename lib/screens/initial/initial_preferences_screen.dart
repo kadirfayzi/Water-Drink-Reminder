@@ -17,10 +17,10 @@ class InitialPreferences extends StatefulWidget {
   const InitialPreferences({Key? key}) : super(key: key);
 
   @override
-  _InitialPreferencesState createState() => _InitialPreferencesState();
+  InitialPreferencesState createState() => InitialPreferencesState();
 }
 
-class _InitialPreferencesState extends State<InitialPreferences>
+class InitialPreferencesState extends State<InitialPreferences>
     with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController(viewportFraction: 0.99);
 
@@ -53,7 +53,7 @@ class _InitialPreferencesState extends State<InitialPreferences>
                   children: [
                     StepContainer(
                       size: size,
-                      image: 'assets/images/intro/gender.png',
+                      image: 'assets/images/intro/gender.svg',
                       text: provider.getGender == 0 ? localize.male : localize.female,
                       textColor: provider.getPageIndex == 0 ? kPrimaryColor : Colors.grey,
                       activeContainer: provider.getPageIndex == 0,
@@ -66,7 +66,7 @@ class _InitialPreferencesState extends State<InitialPreferences>
                     StepContainer(
                       key: ValueKey<Object>(provider.getWeightUnit),
                       size: size,
-                      image: 'assets/images/intro/weight.png',
+                      image: 'assets/images/intro/weight.svg',
                       text:
                           '${provider.getTempWeight} ${kWeightUnitStrings[provider.getWeightUnit]}',
                       textColor: provider.getPageIndex == 1 ? kPrimaryColor : Colors.grey,
@@ -79,7 +79,7 @@ class _InitialPreferencesState extends State<InitialPreferences>
                     ),
                     StepContainer(
                       size: size,
-                      image: 'assets/images/intro/alarm.png',
+                      image: 'assets/images/intro/alarm.svg',
                       text:
                           '${Functions.twoDigits(provider.getWakeUpTimeHour)}:${Functions.twoDigits(provider.getWakeUpTimeMinute)}',
                       textColor: provider.getPageIndex == 2 ? kPrimaryColor : Colors.grey,
@@ -92,7 +92,7 @@ class _InitialPreferencesState extends State<InitialPreferences>
                     ),
                     StepContainer(
                       size: size,
-                      image: 'assets/images/intro/sleep.png',
+                      image: 'assets/images/intro/sleep.svg',
                       text:
                           '${Functions.twoDigits(provider.getBedTimeHour)}:${Functions.twoDigits(provider.getBedTimeMinute)}',
                       textColor: provider.getPageIndex == 3 ? kPrimaryColor : Colors.grey,
@@ -100,7 +100,7 @@ class _InitialPreferencesState extends State<InitialPreferences>
                     ),
                   ],
                 ),
-                SizedBox(height: size.height * 0.03),
+                const SizedBox(height: 25),
                 SizedBox(
                   height: size.height * 0.675,
                   child: PageView(

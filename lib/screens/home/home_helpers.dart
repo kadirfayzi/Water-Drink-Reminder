@@ -29,7 +29,7 @@ Future<dynamic> tipsPopup({
         ),
         actions: [
           SizedBox(
-            height: size.height * 0.6,
+            height: 500,
             child: Material(
               child: Padding(
                 padding: const EdgeInsets.only(top: 5),
@@ -121,10 +121,7 @@ Future<dynamic> editOrDeleteSelectedRecordPopup({
                                 .amount) >=
                         0) {
                       provider.addDrankAmount = provider.getDrankAmount -
-                          provider.getRecords
-                              .where((_record) => _record.key == record.key)
-                              .first
-                              .amount;
+                          provider.getRecords.where((item) => item.key == record.key).first.amount;
                     }
 
                     provider.deleteRecord = record.key;
@@ -186,7 +183,7 @@ Future<dynamic> editRecordPopupML({
           actions: [
             Material(
               child: SizedBox(
-                height: size.height * 0.4,
+                height: 300,
                 child: Padding(
                   padding: const EdgeInsets.all(5),
                   child: Row(
@@ -334,7 +331,7 @@ Future<dynamic> editRecordPopupFLOZ({
           actions: [
             Material(
               child: SizedBox(
-                height: size.height * 0.4,
+                height: 300,
                 child: Padding(
                   padding: const EdgeInsets.all(5),
                   child: Row(
@@ -469,6 +466,7 @@ Future<dynamic> switchCupPopup({
   required AppLocalizations localize,
 }) {
   int selectedIndex = Provider.of<DataProvider>(context, listen: false).getSelectedCupIndex;
+
   return showCupertinoModalPopup(
     context: context,
     builder: (BuildContext context) => StatefulBuilder(
@@ -688,6 +686,7 @@ Future<dynamic> addForgottenRecordPopup({
   double waterAmountOZ = waterAmountsOZ.elementAt(70);
 
   DateTime time = DateTime.now();
+
   return showCupertinoModalPopup(
     context: context,
     builder: (BuildContext context) => StatefulBuilder(
@@ -704,7 +703,7 @@ Future<dynamic> addForgottenRecordPopup({
             actions: [
               Material(
                 child: SizedBox(
-                  height: size.height * 0.4,
+                  height: 300,
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Row(

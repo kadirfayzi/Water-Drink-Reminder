@@ -17,10 +17,10 @@ import '../../widgets/elevated_container.dart';
 Future<dynamic> reminderSchedulePopup({required BuildContext context}) {
   final size = MediaQuery.of(context).size;
   final localize = AppLocalizations.of(context)!;
-  final NotificationHelper _notificationHelper = NotificationHelper();
+  final NotificationHelper notificationHelper = NotificationHelper();
   return showCupertinoModalPopup(
     context: context,
-    builder: (BuildContext context) => Dismissible(
+    builder: (context) => Dismissible(
       key: const Key('key'),
       direction: DismissDirection.vertical,
       onDismissed: (_) => Navigator.pop(context),
@@ -34,110 +34,107 @@ Future<dynamic> reminderSchedulePopup({required BuildContext context}) {
             SizedBox(
               height: size.height * 0.725,
               child: Scaffold(
-                body: SizedBox(
-                  height: size.height * 0.725,
-                  child: ListView(
-                    children: List.generate(
-                      provider.getScheduleRecords.length,
-                      (index) => Padding(
-                        padding: index == provider.getScheduleRecords.length - 1
-                            ? EdgeInsets.only(bottom: size.height * 0.1)
-                            : const EdgeInsets.all(0),
-                        child: Column(
-                          children: [
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                dividerColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                              ),
-                              child: ExpansionTile(
-                                childrenPadding: const EdgeInsets.all(10),
-                                backgroundColor: Colors.grey[200],
-                                collapsedIconColor: Colors.grey,
-                                title: Container(
-                                  height: size.height * 0.06,
-                                  width: size.width,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        provider.getScheduleRecords[index].time,
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.black,
-                                        ),
+                body: ListView(
+                  children: List.generate(
+                    provider.getScheduleRecords.length,
+                    (index) => Padding(
+                      padding: index == provider.getScheduleRecords.length - 1
+                          ? EdgeInsets.only(bottom: size.height * 0.1)
+                          : const EdgeInsets.all(0),
+                      child: Column(
+                        children: [
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              dividerColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                            ),
+                            child: ExpansionTile(
+                              key: GlobalKey(),
+                              childrenPadding: const EdgeInsets.all(10),
+                              backgroundColor: Colors.grey[200],
+                              collapsedIconColor: Colors.grey,
+                              title: Container(
+                                height: size.height * 0.06,
+                                width: size.width,
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      provider.getScheduleRecords[index].time,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
                                       ),
-                                      CupertinoSwitch(
-                                        value: provider.getScheduleRecords[index].isSet,
-                                        onChanged: (isSet) {
-                                          /// set or reset notification
-                                          if (!isSet) {
-                                            _notificationHelper
-                                                .cancel(provider.getScheduleRecords[index].id);
-                                          } else {
-                                            _notificationHelper.scheduledNotification(
-                                              hour: int.parse(provider
-                                                  .getScheduleRecords[index].time
-                                                  .split(":")[0]),
-                                              minutes: int.parse(provider
-                                                  .getScheduleRecords[index].time
-                                                  .split(":")[1]),
-                                              id: provider.getScheduleRecords[index].id,
-                                              title: localize.notificationTitle,
-                                              body: localize.notificationBody,
-                                              sound: 'sound${provider.getSelectedSoundValue}',
-                                            );
-                                          }
-
-                                          /// Edit schedule record
-                                          provider.editScheduleRecord(
-                                            index,
-                                            ScheduleRecord(
-                                              id: provider.getScheduleRecords[index].id,
-                                              time: provider.getScheduleRecords[index].time,
-                                              isSet: isSet,
-                                            ),
+                                    ),
+                                    CupertinoSwitch(
+                                      value: provider.getScheduleRecords[index].isSet,
+                                      onChanged: (isSet) {
+                                        /// set or reset notification
+                                        if (!isSet) {
+                                          notificationHelper
+                                              .cancel(provider.getScheduleRecords[index].id);
+                                        } else {
+                                          notificationHelper.scheduledNotification(
+                                            hour: int.parse(provider.getScheduleRecords[index].time
+                                                .split(":")[0]),
+                                            minutes: int.parse(provider
+                                                .getScheduleRecords[index].time
+                                                .split(":")[1]),
+                                            id: provider.getScheduleRecords[index].id,
+                                            title: localize.notificationTitle,
+                                            body: localize.notificationBody,
+                                            sound: 'sound${provider.getSelectedSoundValue}',
                                           );
-                                        },
-                                        activeColor: kPrimaryColor,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                children: [
-                                  Material(
-                                    elevation: 0.5,
-                                    borderRadius: const BorderRadius.all(kRadius_5),
-                                    child: InkWell(
-                                      borderRadius: const BorderRadius.all(kRadius_5),
-                                      onTap: () {
-                                        /// Delete schedule record and notification
-                                        _notificationHelper
-                                            .cancel(provider.getScheduleRecords[index].id);
-                                        provider.deleteScheduleRecord = index;
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        width: size.width,
-                                        child: Text(
-                                          localize.delete,
-                                          style: TextStyle(
-                                            color: Colors.red[600],
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16,
+                                        }
+
+                                        /// Edit schedule record
+                                        provider.editScheduleRecord(
+                                          index,
+                                          ScheduleRecord(
+                                            id: provider.getScheduleRecords[index].id,
+                                            time: provider.getScheduleRecords[index].time,
+                                            isSet: isSet,
                                           ),
-                                          textAlign: TextAlign.center,
+                                        );
+                                      },
+                                      activeColor: kPrimaryColor,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              children: [
+                                Material(
+                                  elevation: 0.5,
+                                  borderRadius: const BorderRadius.all(kRadius_5),
+                                  child: InkWell(
+                                    borderRadius: const BorderRadius.all(kRadius_5),
+                                    onTap: () {
+                                      /// Delete schedule record and notification
+                                      notificationHelper
+                                          .cancel(provider.getScheduleRecords[index].id);
+                                      provider.deleteScheduleRecord = index;
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      width: size.width,
+                                      child: Text(
+                                        localize.delete,
+                                        style: TextStyle(
+                                          color: Colors.red[600],
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
                                         ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            const Divider(indent: 10, endIndent: 10),
-                          ],
-                        ),
+                          ),
+                          const Divider(indent: 10, endIndent: 10),
+                        ],
                       ),
                     ),
                   ),
@@ -174,8 +171,8 @@ Future<dynamic> reminderSchedulePopup({required BuildContext context}) {
 Future<dynamic> setSoundPopup({required BuildContext context}) {
   final size = MediaQuery.of(context).size;
   final localize = AppLocalizations.of(context)!;
-  final AudioPlayer _player = AudioPlayer();
-  final NotificationHelper _notificationHelper = NotificationHelper();
+  final AudioPlayer player = AudioPlayer();
+  final NotificationHelper notificationHelper = NotificationHelper();
   int selectedSoundValue = Provider.of<DataProvider>(context, listen: false).getSelectedSoundValue;
   return showCupertinoModalPopup(
     context: context,
@@ -211,8 +208,8 @@ Future<dynamic> setSoundPopup({required BuildContext context}) {
                       highlightColor: Colors.grey,
                       onTap: () async {
                         setState(() => selectedSoundValue = index);
-                        await _player.setAsset('assets/sounds/$selectedSoundValue.mp3');
-                        _player.play();
+                        await player.setAsset('assets/sounds/$selectedSoundValue.mp3');
+                        player.play();
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -242,11 +239,11 @@ Future<dynamic> setSoundPopup({required BuildContext context}) {
             CupertinoActionSheetAction(
               onPressed: () {
                 final provider = Provider.of<DataProvider>(context, listen: false);
-                _notificationHelper.cancelAll();
+                notificationHelper.cancelAll();
                 provider.setSoundValue = selectedSoundValue;
                 if (provider.getScheduleRecords.isNotEmpty) {
                   for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                    _notificationHelper.scheduledNotification(
+                    notificationHelper.scheduledNotification(
                       hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
                       minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
                       id: provider.getScheduleRecords[i].id,
@@ -482,7 +479,7 @@ Future<dynamic> setIntakeGoalPopup({required BuildContext context}) {
 /// Set language popup dialog
 Future<dynamic> setLanguagePopup({required BuildContext context}) {
   final localize = AppLocalizations.of(context)!;
-  final NotificationHelper _notificationHelper = NotificationHelper();
+  final NotificationHelper notificationHelper = NotificationHelper();
   final provider = Provider.of<DataProvider>(context, listen: false);
   String selectedLangCode = provider.getLangCode;
 
@@ -524,12 +521,12 @@ Future<dynamic> setLanguagePopup({required BuildContext context}) {
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
-                _notificationHelper.cancelAll();
+                notificationHelper.cancelAll();
                 provider.setLangCode = selectedLangCode;
 
                 if (provider.getScheduleRecords.isNotEmpty) {
                   for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                    _notificationHelper.scheduledNotification(
+                    notificationHelper.scheduledNotification(
                       hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
                       minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
                       id: provider.getScheduleRecords[i].id,
@@ -808,11 +805,11 @@ Future<dynamic> wakeupAndBedtimePopup({
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
-                final NotificationHelper _notificationHelper = NotificationHelper();
-                _notificationHelper.cancelAll();
+                final NotificationHelper notificationHelper = NotificationHelper();
+                notificationHelper.cancelAll();
                 provider.deleteAllScheduleRecords();
 
-                final Random _random = Random();
+                final Random random = Random();
                 int wakeUpHour = provider.getWakeUpTimeHour;
                 int wakeUpMinute = provider.getWakeUpTimeMinute;
                 int bedHour = provider.getBedTimeHour;
@@ -839,7 +836,7 @@ Future<dynamic> wakeupAndBedtimePopup({
                     if (wakeUpHour >= 24) tempWakeUpHour -= 24;
 
                     provider.addScheduleRecord = ScheduleRecord(
-                      id: _random.nextInt(1000000000),
+                      id: random.nextInt(1000000000),
                       time:
                           '${Functions.twoDigits(tempWakeUpHour)}:${Functions.twoDigits(wakeUpMinute)}',
                       isSet: true,
@@ -855,7 +852,7 @@ Future<dynamic> wakeupAndBedtimePopup({
 
                 /// Set notifications for given time
                 for (int i = 0; i < provider.getScheduleRecords.length; i++) {
-                  _notificationHelper.scheduledNotification(
+                  notificationHelper.scheduledNotification(
                     hour: int.parse(provider.getScheduleRecords[i].time.split(":")[0]),
                     minutes: int.parse(provider.getScheduleRecords[i].time.split(":")[1]),
                     id: provider.getScheduleRecords[i].id,
@@ -882,7 +879,7 @@ Future<dynamic> wakeupAndBedtimePopup({
 Future<dynamic> setReminderTimePopup({required BuildContext context}) {
   final size = MediaQuery.of(context).size;
   final localize = AppLocalizations.of(context)!;
-  DateTime _time = DateTime.now();
+  DateTime time = DateTime.now();
   return showCupertinoModalPopup(
     context: context,
     builder: (BuildContext context) => StatefulBuilder(
@@ -916,11 +913,11 @@ Future<dynamic> setReminderTimePopup({required BuildContext context}) {
                           child: SizedBox(
                             width: size.width * 0.3,
                             child: CupertinoDatePicker(
-                              initialDateTime: _time,
+                              initialDateTime: time,
                               mode: CupertinoDatePickerMode.time,
                               use24hFormat: true,
                               onDateTimeChanged: (selectedTime) =>
-                                  setState(() => _time = selectedTime),
+                                  setState(() => time = selectedTime),
                             ),
                           ),
                         ),
@@ -933,21 +930,21 @@ Future<dynamic> setReminderTimePopup({required BuildContext context}) {
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
-                final NotificationHelper _notificationHelper = NotificationHelper();
+                final NotificationHelper notificationHelper = NotificationHelper();
                 final int id = Random().nextInt(1000000000);
                 final provider = Provider.of<DataProvider>(context, listen: false);
 
                 /// Add new schedule record
                 provider.addScheduleRecord = ScheduleRecord(
                   id: id,
-                  time: '${Functions.twoDigits(_time.hour)}:${Functions.twoDigits(_time.minute)}',
+                  time: '${Functions.twoDigits(time.hour)}:${Functions.twoDigits(time.minute)}',
                   isSet: true,
                 );
 
                 /// Set new notification
-                _notificationHelper.scheduledNotification(
-                  hour: _time.hour,
-                  minutes: _time.minute,
+                notificationHelper.scheduledNotification(
+                  hour: time.hour,
+                  minutes: time.minute,
                   id: id,
                   title: localize.notificationTitle,
                   body: localize.notificationBody,

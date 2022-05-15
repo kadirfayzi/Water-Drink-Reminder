@@ -14,10 +14,10 @@ class IntroductionScreen extends StatefulWidget {
   const IntroductionScreen({Key? key}) : super(key: key);
 
   @override
-  _IntroductionScreenState createState() => _IntroductionScreenState();
+  IntroductionScreenState createState() => IntroductionScreenState();
 }
 
-class _IntroductionScreenState extends State<IntroductionScreen> {
+class IntroductionScreenState extends State<IntroductionScreen> {
   final PageController pageController = PageController();
   int currentPage = 0;
   @override

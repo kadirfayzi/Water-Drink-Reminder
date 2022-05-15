@@ -12,10 +12,10 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  WelcomeScreenState createState() => WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class WelcomeScreenState extends State<WelcomeScreen> {
   void setInitialSettingsValue() {
     final DataProvider provider = DataProvider();
     final DateTime now = DateTime.now();
@@ -96,7 +96,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   localize.appGreeting2,
                   style: TextStyle(
                     fontSize: size.width * 0.04,
-                    color: Colors.grey.shade700,
+                    color: const Color(0xff616161),
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -122,7 +122,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       child: Text(
                         localize.letsGo,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: const Color(0xffffffff),
                           fontSize: size.width * 0.05,
                         ),
                       ),
