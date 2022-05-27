@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   PackageInfo? _packageInfo;
+  bool _healthAppOn = false;
 
   setPackageInfo() =>
       PackageInfo.fromPlatform().then((value) => setState(() => _packageInfo = value));
@@ -147,6 +149,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               contentVisible: true,
               onTap: () => setLanguagePopup(context: context),
+            ),
+
+            /// Health app section
+            //TODO:not completed
+            TappableRow(
+              size: size,
+              title: 'Health App',
+              icon: const Icon(
+                Icons.monitor_heart,
+                color: Colors.grey,
+                size: 20,
+              ),
+              content: CupertinoSwitch(
+                activeColor: kPrimaryColor,
+                onChanged: (value) => setState(() => _healthAppOn = value),
+                value: _healthAppOn,
+              ),
+              contentVisible: true,
             ),
             const SizedBox(height: 10),
 

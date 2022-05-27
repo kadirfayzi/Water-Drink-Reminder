@@ -53,6 +53,7 @@ class Functions {
           0) {
         provider.deleteAllRecords();
         provider.removeAllDrunkAmount();
+        //TODO: add daily water intake to health app
       }
     }
   }

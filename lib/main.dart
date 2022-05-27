@@ -74,13 +74,13 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  late final NotificationHelper _notificationHelper;
+  late final NotificationService _notificationHelper;
 
   Timer? timer;
   @override
   void initState() {
     super.initState();
-    _notificationHelper = NotificationHelper();
+    _notificationHelper = NotificationService();
     _notificationHelper.initializeNotification();
   }
 
@@ -107,10 +107,12 @@ class MyAppState extends State<MyApp> {
 
           return MaterialApp(
             title: 'Drink Water Reminder',
+
             theme: ThemeData(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               // fontFamily: 'Ubuntu',
+              // useMaterial3: true,
             ),
 
             debugShowCheckedModeBanner: false,
@@ -153,13 +155,19 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final DataProvider _provider;
-  int _tabIndex = 0;
+  late final TabController _tabController;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.animation!.addListener(() {
+      int value = _tabController.animation!.value.round();
 
+      if (value != _selectedIndex) setState(() => _selectedIndex = value);
+    });
     _provider = Provider.of<DataProvider>(context, listen: false);
     Future.delayed(Duration.zero, () {
       _provider.setNextDrinkTime =
@@ -174,6 +182,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -206,7 +215,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
           backgroundColor: Colors.white,
           centerTitle: true,
           title: Text(
-            getAppBarTitle(_tabIndex, AppLocalizations.of(context)!),
+            getAppBarTitle(_selectedIndex, AppLocalizations.of(context)!),
+            // key: ValueKey(_tabController.index),
             style: const TextStyle(color: Colors.black),
           ),
         ),
@@ -219,8 +229,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
             opacity: 0.5,
           ),
         ),
-        child: IndexedStack(
-          index: _tabIndex,
+        child: TabBarView(
+          controller: _tabController,
           children: const [
             HomeScreen(),
             StatisticsScreen(),
@@ -228,20 +238,25 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: NavigationBar(
+        height: 56,
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         backgroundColor: Colors.white,
-        onTap: (index) => setState(() => _tabIndex = index),
-        currentIndex: _tabIndex,
-        items: [
-          BottomNavigationBarItem(
+        onDestinationSelected: (selectedIndex) {
+          setState(() => _selectedIndex = selectedIndex);
+          _tabController.animateTo(selectedIndex);
+        },
+        selectedIndex: _selectedIndex,
+        destinations: [
+          NavigationDestination(
             icon: const Icon(Icons.water_drop_outlined),
             label: AppLocalizations.of(context)!.home,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: const Icon(Icons.stacked_bar_chart),
             label: AppLocalizations.of(context)!.statistics,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             label: AppLocalizations.of(context)!.settings,
           ),

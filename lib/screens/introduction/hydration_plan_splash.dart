@@ -36,11 +36,11 @@ List<Cup> defaultCups = [
 
 class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late final NotificationHelper _notificationHelper;
+  late final NotificationService _notificationHelper;
   late final Random _random;
 
   setHydrationPlan() {
-    _notificationHelper = NotificationHelper();
+    _notificationHelper = NotificationService();
     _random = Random();
 
     /// Set initial schedule records
@@ -78,6 +78,7 @@ class _HydrationPlanSplashState extends State<HydrationPlanSplash> with TickerPr
       cups.last.save();
     }
 
+    /// Set reminder schedule records with 1.5 hour interval
     for (int i = 0; i <= reminderCount; i++) {
       if (wakeUpHour < bedHour) {
         int tempWakeUpHour = wakeUpHour;

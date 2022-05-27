@@ -27,6 +27,7 @@ class HomeScreen extends StatelessWidget {
     final localize = AppLocalizations.of(context)!;
     final List<String> localizedTips = localize.tips.split('.');
     localizedTips.shuffle();
+
     return Consumer<DataProvider>(
       builder: (context, provider, _) => SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -297,7 +298,6 @@ class HomeScreen extends StatelessWidget {
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       const SizedBox(height: 10),

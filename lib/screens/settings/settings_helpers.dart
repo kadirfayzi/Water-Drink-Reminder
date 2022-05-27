@@ -17,7 +17,7 @@ import '../../widgets/elevated_container.dart';
 Future<dynamic> reminderSchedulePopup({required BuildContext context}) {
   final size = MediaQuery.of(context).size;
   final localize = AppLocalizations.of(context)!;
-  final NotificationHelper notificationHelper = NotificationHelper();
+  final NotificationService notificationHelper = NotificationService();
   return showCupertinoModalPopup(
     context: context,
     builder: (context) => Dismissible(
@@ -172,7 +172,7 @@ Future<dynamic> setSoundPopup({required BuildContext context}) {
   final size = MediaQuery.of(context).size;
   final localize = AppLocalizations.of(context)!;
   final AudioPlayer player = AudioPlayer();
-  final NotificationHelper notificationHelper = NotificationHelper();
+  final NotificationService notificationHelper = NotificationService();
   int selectedSoundValue = Provider.of<DataProvider>(context, listen: false).getSelectedSoundValue;
   return showCupertinoModalPopup(
     context: context,
@@ -479,7 +479,7 @@ Future<dynamic> setIntakeGoalPopup({required BuildContext context}) {
 /// Set language popup dialog
 Future<dynamic> setLanguagePopup({required BuildContext context}) {
   final localize = AppLocalizations.of(context)!;
-  final NotificationHelper notificationHelper = NotificationHelper();
+  final NotificationService notificationHelper = NotificationService();
   final provider = Provider.of<DataProvider>(context, listen: false);
   String selectedLangCode = provider.getLangCode;
 
@@ -805,7 +805,7 @@ Future<dynamic> wakeupAndBedtimePopup({
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
-                final NotificationHelper notificationHelper = NotificationHelper();
+                final NotificationService notificationHelper = NotificationService();
                 notificationHelper.cancelAll();
                 provider.deleteAllScheduleRecords();
 
@@ -930,7 +930,7 @@ Future<dynamic> setReminderTimePopup({required BuildContext context}) {
             CupertinoActionSheetAction(
               child: Text(localize.save),
               onPressed: () {
-                final NotificationHelper notificationHelper = NotificationHelper();
+                final NotificationService notificationHelper = NotificationService();
                 final int id = Random().nextInt(1000000000);
                 final provider = Provider.of<DataProvider>(context, listen: false);
 

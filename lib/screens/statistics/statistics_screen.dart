@@ -29,6 +29,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final localize = AppLocalizations.of(context)!;
+
     return Consumer<DataProvider>(
       builder: (context, provider, _) => SingleChildScrollView(
         child: Column(
@@ -295,7 +296,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }) {
     switch (chartType) {
       case 0:
-        return getMonthGroupDataList(chartDataList: chartDataList, selectedDate: selectedDate);
+        return getMonthGroupDataList(
+          chartDataList: chartDataList,
+          selectedDate: selectedDate,
+        );
       case 1:
         return getYearGroupDataList(
           chartDataList: chartDataList,
@@ -322,12 +326,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               )
             : const SizedBox();
+
       case 1:
         return Text(
           monthString(value.toInt() + 1),
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 11,
+            fontSize: 10.5,
           ),
         );
     }
@@ -383,7 +388,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   toY: data.percent,
                   color: kPrimaryColor,
                   borderRadius: BorderRadius.zero,
-                  width: 5,
+                  width: 5.5,
                 )
               ],
             ))

@@ -122,7 +122,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       child: Text(
                         localize.letsGo,
                         style: TextStyle(
-                          color: const Color(0xffffffff),
+                          color: Colors.white,
                           fontSize: size.width * 0.05,
                         ),
                       ),
