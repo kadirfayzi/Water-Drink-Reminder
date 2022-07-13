@@ -165,7 +165,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin, Widget
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation!.addListener(() {
       int value = _tabController.animation!.value.round();
-
       if (value != _selectedIndex) setState(() => _selectedIndex = value);
     });
     _provider = Provider.of<DataProvider>(context, listen: false);

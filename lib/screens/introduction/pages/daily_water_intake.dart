@@ -17,10 +17,10 @@ class DailyWaterIntake extends StatefulWidget {
   final AppLocalizations localize;
   final Size size;
   @override
-  _DailyWaterIntakeState createState() => _DailyWaterIntakeState();
+  DailyWaterIntakeState createState() => DailyWaterIntakeState();
 }
 
-class _DailyWaterIntakeState extends State<DailyWaterIntake> {
+class DailyWaterIntakeState extends State<DailyWaterIntake> {
   @override
   Widget build(BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,

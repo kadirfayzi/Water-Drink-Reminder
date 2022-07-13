@@ -13,10 +13,10 @@ class HowToEffectivelyMonitor extends StatefulWidget {
   final Size size;
 
   @override
-  _HowToEffectivelyMonitorState createState() => _HowToEffectivelyMonitorState();
+  HowToEffectivelyMonitorState createState() => HowToEffectivelyMonitorState();
 }
 
-class _HowToEffectivelyMonitorState extends State<HowToEffectivelyMonitor> {
+class HowToEffectivelyMonitorState extends State<HowToEffectivelyMonitor> {
   @override
   Widget build(BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,

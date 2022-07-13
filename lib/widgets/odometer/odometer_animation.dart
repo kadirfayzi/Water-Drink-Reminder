@@ -40,10 +40,10 @@ class AnimatedOdometer extends ImplicitlyAnimatedWidget {
   final OdometerAnimationTransitionBuilder transitionIn;
 
   @override
-  _AnimatedOdometerState createState() => _AnimatedOdometerState();
+  AnimatedOdometerState createState() => AnimatedOdometerState();
 }
 
-class _AnimatedOdometerState extends AnimatedWidgetBaseState<AnimatedOdometer> {
+class AnimatedOdometerState extends AnimatedWidgetBaseState<AnimatedOdometer> {
   OdometerTween? _odometerTween;
 
   @override

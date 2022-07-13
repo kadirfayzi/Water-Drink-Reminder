@@ -17,6 +17,6 @@ class HealthService {
     }
 
     bool success = await _health.writeHealthData(waterAmount, HealthDataType.WATER, now, now);
-    print('water added to health app : $success');
+    // print('water added to health app : $success');
   }
 }

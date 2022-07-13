@@ -13,10 +13,10 @@ class WhatIsTheRightTime extends StatefulWidget {
   final Size size;
 
   @override
-  _WhatIsTheRightTimeState createState() => _WhatIsTheRightTimeState();
+  WhatIsTheRightTimeState createState() => WhatIsTheRightTimeState();
 }
 
-class _WhatIsTheRightTimeState extends State<WhatIsTheRightTime> {
+class WhatIsTheRightTimeState extends State<WhatIsTheRightTime> {
   @override
   Widget build(BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,

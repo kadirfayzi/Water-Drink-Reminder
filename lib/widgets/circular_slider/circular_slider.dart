@@ -44,10 +44,10 @@ class SleekCircularSlider extends StatefulWidget {
         assert(initialValue >= min),
         super(key: key);
   @override
-  _SleekCircularSliderState createState() => _SleekCircularSliderState();
+  SleekCircularSliderState createState() => SleekCircularSliderState();
 }
 
-class _SleekCircularSliderState extends State<SleekCircularSlider>
+class SleekCircularSliderState extends State<SleekCircularSlider>
     with SingleTickerProviderStateMixin {
   bool _isHandlerSelected = false;
   bool _animationInProgress = false;
